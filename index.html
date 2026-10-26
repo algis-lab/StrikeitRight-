@@ -212,6 +212,7 @@ figure{margin:0}
 #qCompass{width:100%;max-width:340px;display:block;margin:0 auto}
 .canvas-wrap.small{height:300px}
 .lesson .guide{margin-top:4px}
+.gmode{margin-top:10px}
 .qend{display:grid;gap:8px;background:var(--soft);border-radius:10px;padding:18px}
 .qend .big{font-size:2rem;font-weight:700}
 @media (max-width:880px){.lesson-views{grid-template-columns:minmax(0,1fr)}}
@@ -848,6 +849,8 @@ function mapFig(items,k,opt){
       const path=`M${q(p1[0])},${q(p1[1])} A${it.r},${it.r} 0 0 ${dd>0?1:0} ${q(p2[0])},${q(p2[1])}`;
       if(now)glow+=`<path class="glow" d="${path}"/>`;body+=`<path class="s-arc" d="${path}"/>`;
       if(it.label){const m=it.a1+dd/2,lr=it.r+16;top+=T([c[0]+lr*Math.sin(rad(m)),c[1]-lr*Math.cos(rad(m))],it.label,lc,'middle');}
+    } else if(it.type==='warc'){
+      const c=S2(it.c),R=it.R*sc;let dd=n360(it.a2-it.a1);if(dd>180)dd-=360;const p1=[c[0]+R*Math.sin(rad(it.a1)),c[1]-R*Math.cos(rad(it.a1))],p2=[c[0]+R*Math.sin(rad(it.a2)),c[1]-R*Math.cos(rad(it.a2))];const path=`M${q(p1[0])},${q(p1[1])} A${q(R)},${q(R)} 0 0 ${dd>0?1:0} ${q(p2[0])},${q(p2[1])}`;if(now)glow+=`<path class="glow" d="${path}"/>`;body+=`<path class="s-guide" d="${path}"/>`;
     } else if(it.type==='right'){
       const c=S2(it.c),u=sd(it.a1),v=sd(it.a2),z=9;
       body+=`<polyline class="s-line" points="${q(c[0]+u[0]*z)},${q(c[1]+u[1]*z)} ${q(c[0]+u[0]*z+v[0]*z)},${q(c[1]+u[1]*z+v[1]*z)} ${q(c[0]+v[0]*z)},${q(c[1]+v[1]*z)}"/>`;
@@ -886,21 +889,22 @@ function sideFig(rows){
 class Guide{
   constructor(id){
     this.el=$(id);this.k=0;this.steps=[];this.all=false;
-    this.el.innerHTML=`<div class="guide-head"><div><div class="eyebrow">Guided solve</div><h3>Step by step</h3></div><ol class="pips"></ol></div>
+    this.el.innerHTML=`<div class="guide-head"><div><div class="eyebrow">Guided solve</div><h3>Step by step</h3><div class="seg gmode" role="group" aria-label="Solution method" hidden><button type="button" data-m="trig" aria-pressed="true">Trigonometry</button><button type="button" data-m="graph" aria-pressed="false">Graphical method</button></div></div><ol class="pips"></ol></div>
       <div class="guide-body"><div class="gfig"></div><div class="gtext"><div class="label gcount"></div><h4 class="gtitle"></h4><p class="gwhy"></p><div class="calc"></div>
       <div class="gnav"><button type="button" class="btn ghost gprev">Previous</button><button type="button" class="btn gnext">Next step</button><button type="button" class="linkbtn gtoggle">Show all steps as a list</button></div></div></div>
       <ol class="gall" hidden></ol>`;
     const q=s=>this.el.querySelector(s);
-    this.pips=q('.pips');this.fig=q('.gfig');this.count=q('.gcount');this.title=q('.gtitle');this.why=q('.gwhy');this.calc=q('.calc');this.prev=q('.gprev');this.next=q('.gnext');this.toggle=q('.gtoggle');this.list=q('.gall');
+    this.pips=q('.pips');this.fig=q('.gfig');this.count=q('.gcount');this.title=q('.gtitle');this.why=q('.gwhy');this.calc=q('.calc');this.prev=q('.gprev');this.next=q('.gnext');this.toggle=q('.gtoggle');this.list=q('.gall');this.mode='trig';this.sets={trig:[],graph:null};this.modeEl=q('.gmode');this.modeEl.addEventListener('click',e=>{const b=e.target.closest('button[data-m]');if(!b)return;this.mode=b.dataset.m;this.k=0;this.pick();this.render();});
     this.prev.onclick=()=>this.go(this.k-1);
     this.next.onclick=()=>this.go(this.k>=this.steps.length-1?0:this.k+1);
     this.toggle.onclick=()=>{this.all=!this.all;this.render();};
     this.pips.addEventListener('click',e=>{const b=e.target.closest('button');if(b)this.go(+b.dataset.i);});
   }
   go(i){this.k=Math.max(0,Math.min(this.steps.length-1,i));this.render();}
-  set(steps){this.steps=steps;if(this.k>steps.length-1)this.k=Math.max(0,steps.length-1);this.render();}
+  set(steps,graph){this.sets={trig:steps,graph:graph&&graph.length?graph:null};this.pick();if(this.k>this.steps.length-1)this.k=Math.max(0,this.steps.length-1);this.render();}
+  pick(){this.steps=(this.mode==='graph'&&this.sets.graph)?this.sets.graph:this.sets.trig;}
   render(){
-    const n=this.steps.length;if(!n){this.el.hidden=true;return;}this.el.hidden=false;
+    const n=this.steps.length;if(!n){this.el.hidden=true;return;}this.el.hidden=false;this.modeEl.hidden=!this.sets.graph;const gmOn=this.mode==='graph'&&!!this.sets.graph;[...this.modeEl.children].forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.m==='graph')===gmOn)));
     const st=this.steps[this.k];
     this.pips.innerHTML=this.steps.map((s,i)=>`<li><button type="button" data-i="${i}" class="${i<this.k?'done':''}" ${i===this.k?'aria-current="step"':''} aria-label="Step ${i+1}: ${s.t.replace(/"/g,'')}">${i+1}</button></li>`).join('');
     this.count.textContent=`Step ${this.k+1} of ${n}`;
@@ -943,7 +947,7 @@ function tool1(){
     ['β','Angle between strike and section','Measured flat on the map, from the strike line to the section line. Always 0° to 90°.',`${f(beta)}°`,'ink'],
   ]);
   drawCurve();
-  guide1.set(stepsApparent(S,D,dip,sec,ap));
+  guide1.set(stepsApparent(S,D,dip,sec,ap),graphApparent(S,D,dip,sec,ap));
 }
 function stepsApparent(S,D,dip,sec,ap){
   const T=ap.toward,beta=ap.beta,flat=dip<0.05,along=beta<0.5;
@@ -1071,7 +1075,7 @@ function tool2(){
         fig:()=>sideFig([{base:d,h:1,title:'Down-dip (O to F)',cls:'s-bed',baseLab:`d = ${f(d,3)}`,hLab:'1',angLab:`δ ${f(dip)}°`,angCls:'t-bed'},{base:s,h:1,title:'Your section (O to P)',cls:'s-sect-solid',baseLab:`s = ${f(s,3)}`,hLab:'1',angLab:`α ${f(a)}°`,angCls:'t-sect'}])},
       {t:'Answer and check',why:'The bed dips toward the deeper line, on the same side of strike as P. True dip must be at least as large as any apparent dip.',
         calc:[`<b>δ = ${f(dip)}° toward ${az3(D)}</b> (${quad(D)})`,`Strike/dip: ${quad(n360(D-90))}, ${f(dip)}° ${letters8(D)}`,`Check: ${f(dip)}° ≥ ${f(a)}° ✓`],fig:M(6)},
-    ]);
+    ],graphTrueOne(S,D,dip,a,A,beta));
     return;
   }
   // two apparent dips
@@ -1133,7 +1137,7 @@ function tool2(){
       fig:()=>sideFig([{base:d,h:1,title:'Down-dip (O to F)',cls:'s-bed',baseLab:`d = ${f(d,3)}`,hLab:'1',angLab:`δ ${f(r.dip)}°`,angCls:'t-bed'}])},
     {t:'Answer and check',why:'The bed dips from O toward the strike line, perpendicular to it. True dip must be at least as large as both apparent dips.',
       calc:[`<b>δ = ${f(r.dip)}° toward ${az3(r.D)}</b> (${quad(r.D)})`,`Strike/dip: ${quad(r.S)}, ${f(r.dip)}° ${letters8(r.D)}`,`Check: ${f(r.dip)}° ≥ ${f(Math.max(a1,a2))}° ✓`],fig:M(6)},
-  ]);
+  ],graphTrueTwo(a1,A1,a2,A2,r,p1,p2,d));
 }
 ['oA','oDir','tA1','tD1','tA2','tD2'].forEach(id=>$(id).addEventListener('input',tool2));
 ['tmOne','tmTwo'].forEach(id=>$(id).addEventListener('change',()=>{guide2.k=0;tool2();}));
@@ -1221,7 +1225,41 @@ function tool3(){
     fig:()=>sideFig([{base:dist,h:dz,title:`Section ⟂ strike, through ${ref.k}`,cls:'s-bed',baseLab:`d = ${f(dist)} m`,hLab:`Δz = ${f(dz)} m`,angLab:`δ ${f(dip)}°`,angCls:'t-bed'}])});
   steps.push({t:'Answer and dip direction',why:'The bed dips away from the strike line toward the lower side, perpendicular to strike.',
     calc:[`<b>Strike ${az3(S)} (${quad(S)}), dip ${f(dip)}° toward ${az3(D)}</b>`,`Quadrant form: ${quad(S)}, ${f(dip)}° ${letters8(D)}`],fig:Mf(6)});
-  guide3.set(steps);
+  const xyH=xy(Hh),xyL=xy(Lo),xyM=xy(M),xyX=[X.e,X.n],xyR=xy(ref);
+  const ua=dir2(n360(vaz(vsub(xyL,xyH))+35));const kk=0.85*HL/(Hh.z-Lo.z);
+  const Lmk=vadd(xyH,v2(ua,(Hh.z-Lo.z)*kk)),Mmk=vadd(xyH,v2(ua,(Hh.z-M.z)*kk));
+  const upAz=n360(vaz(vsub(xyR,foot))+90);const R1=vadd(xyR,v2(dir2(upAz),dz));
+  const gi=[
+    ...pts.map(p=>({type:'pt',p:xy(p),label:p.k,sub:`${f(p.z)} m`,step:0})),
+    ...pts.map(p=>({type:'text',p:xy(p),s:role[p.k]==='H'?'HIGH':role[p.k]==='M'?'MIDDLE':'LOW',dx:-10,dy:16,anchor:'end',cls:'t-lab t-ink',step:1})),
+    {type:'seg',a:xyH,b:xyL,cls:'s-hl',step:2},
+    {type:'seg',a:xyH,b:vadd(xyH,v2(ua,(Hh.z-Lo.z)*kk*1.12)),cls:'s-guide',step:2},
+    {type:'pt',p:Lmk,label:`${f(Lo.z)}`,step:2},
+    Math.abs(Hh.z-M.z)>1e-9&&Math.abs(M.z-Lo.z)>1e-9?{type:'pt',p:Mmk,label:`${f(M.z)}`,step:2}:null,
+    {type:'seg',a:Lmk,b:xyL,cls:'s-line',step:2},
+    {type:'seg',a:Mmk,b:xyX,cls:'s-line',step:3},
+    {type:'pt',p:xyX,label:'X',step:3,cls:'f-strike',lcolor:'t-strike'},
+    {type:'line',p:xyM,az:S,cls:'s-strike',step:4,label:`strike ${az3(S)}`,lcls:'t-lab t-strike',lpos:120},
+    {type:'seg',a:xyR,b:foot,cls:'s-guide',step:5},
+    {type:'right',c:foot,a1:vaz(vsub(xyR,foot)),a2:S,step:5},
+    {type:'pt',p:foot,label:'G',step:5},
+    {type:'seg',a:xyR,b:R1,cls:'s-line',step:5,label:'Δz',lcls:'t-lab t-ink'},
+    {type:'right',c:xyR,a1:vaz(vsub(foot,xyR)),a2:upAz,step:5},
+    {type:'seg',a:foot,b:R1,cls:'s-bed',step:5},
+    {type:'arc',c:foot,r:30,a1:vaz(vsub(xyR,foot)),a2:vaz(vsub(R1,foot)),label:'δ',lcls:'t-lab t-bed',step:5},
+  ];
+  const GM=i=>()=>mapFig(gi,i);
+  const gsteps=[
+    {t:'Plot the points to scale',why:`${TOOLS_NOTE} Pick a map scale (for example 1 cm = 100 m). `+(bear?'From A, lay off each bearing with the protractor and measure each distance with the ruler.':'Plot each point from its easting and northing on graph paper.')+' Write each elevation beside its point.',calc:pts.map(p=>`${p.k}: ${f(p.z)} m`),fig:GM(0)},
+    {t:'Rank by elevation',why:'Label the points high (H), middle (M) and low (L). We want a second point at the middle elevation.',calc:[`H = ${Hh.k}, M = ${M.k}, L = ${Lo.k}`],fig:GM(1)},
+    {t:'Set up a proportional scale',why:`Draw ${Hh.k}${Lo.k}. From ${Hh.k}, draw a helper line at any angle. Along it, mark equal steps for elevation: ${f(Hh.z-Lo.z)} m down to ${Lo.k}'s level and ${f(Hh.z-M.z)} m down to ${M.k}'s. Join the ${f(Lo.z)} mark to ${Lo.k}.`,calc:[`Mark for ${f(Lo.z)} m: ${f(Hh.z-Lo.z)} steps from ${Hh.k}`,`Mark for ${f(M.z)} m: ${f(Hh.z-M.z)} steps from ${Hh.k}`,'Any step size works'],fig:GM(2)},
+    {t:'Find X with a parallel line',why:`Slide a set square along a ruler to draw a line through the ${f(M.z)} mark parallel to the last line. Where it meets ${Hh.k}${Lo.k} is X, at ${f(M.z)} m. Parallel lines cut both lines in the same ratio, so no arithmetic is needed.`,calc:[`${Hh.k}X measures ≈ ${f(HL*t)} m at map scale`],fig:GM(3)},
+    {t:'Join M and X: strike',why:`${M.k} and X are at the same elevation, so ${M.k}X is a structure contour. It runs along strike. Read its bearing with the protractor.`,calc:[`Protractor reading ≈ <b>${az3(S)}</b> (${quad(S)})`],fig:GM(4)},
+    {t:'Fold up and measure the dip',why:`From ${ref.k}, draw a line at right angles to the strike line, meeting it at G. Fold the section up along G${ref.k}: at ${ref.k}, draw a perpendicular and mark Δz at the same scale as the map. Join G to the top. The angle at G is the true dip.`,calc:[`G${ref.k} ≈ ${f(dist)} m, Δz = ${f(dz)} m`,`Protractor reading at G: <b>δ ≈ ${f(dip)}°</b>`],fig:GM(5)},
+    {t:'Read the angle (enlarged)',why:`Here is the folded triangle from the last step, enlarged. The bed runs from G down to the top of the Δz line, so the angle at G is the true dip.`,calc:[`tan δ = Δz ÷ G${ref.k} = ${f(dz)} ÷ ${f(dist)} → δ ≈ ${f(dip)}°`],fig:()=>sideFig([{base:dist,h:dz,title:`Folded section along G${ref.k} (enlarged)`,cls:'s-bed',baseLab:`G${ref.k} = ${f(dist)} m`,hLab:`Δz = ${f(dz)} m`,angLab:`δ ${f(dip)}°`,angCls:'t-bed'}])},
+    {t:'Answer',why:'The bed dips at right angles to strike, toward the lower point.',calc:[`<b>Strike ${az3(S)} (${quad(S)}), dip ≈ ${f(dip)}° toward ${az3(D)}</b>`],fig:GM(99)},
+  ];
+  guide3.set(steps,gsteps);
 }
 ['bAz','bBb','bBd','bBz','bCb','bCd','bCz','xAe','xAn','xAz','xBe','xBn','xBz','xCe','xCn','xCz'].forEach(id=>$(id).addEventListener('input',tool3));
 ['tpBear','tpXY'].forEach(id=>$(id).addEventListener('change',()=>{guide3.k=0;tool3();}));
@@ -1285,7 +1323,7 @@ function tool4(){
       calc:sl?[`d = 1 ÷ tan δ = <b>${f(dd,4)}</b>`,`s = d ÷ sin β = ${f(dd,4)} ÷ ${f4(Math.sin(rad(beta)))} = <b>${f(sl,4)}</b>`,`tan α = 1 ÷ s = ${f4(1/sl)} → α = ${f(a)}° ✓`]:['β = 0°: section = strike'],fig:M(4)},
     {t:'Answer',why:'Each section line has two ends. The apparent dip plunges toward the end on the down-dip side, which is the azimuth given here.',
       calc:[`<b>${f(a)}° → ${az3(d1)}</b> on section ${az3(d1)}–${az3(d1+180)}`,`<b>${f(a)}° → ${az3(d2)}</b> on section ${az3(d2)}–${az3(d2+180)}`],fig:M(99)},
-  ]);
+  ],graphDir(S,D,dip,a,beta,d1,d2));
 }
 $('tgtA').addEventListener('input',tool4);
 $('applyDir').onclick=()=>{if(dirFirst===null)return;$('secAz').value=az3(dirFirst).replace('°','');tool1();drawCompass();draw3d();selectTab('tab-app');};
@@ -1361,7 +1399,27 @@ function tool5(){
     {t:'Answer and bonus',why:'Vertical thickness is what a vertical drillhole would pass through: the true thickness divided by cos δ. Check: on flat ground the true thickness is never more than the width.',
       calc:[`<b>True thickness t = ${f(t)} m</b>`,`Vertical thickness = t ÷ cos δ = ${f(t,2)} ÷ ${f4(cd)} = <b>${isFinite(tv)?f(tv,2)+' m':'—'}</b>`,sg===0?`Check: ${f(t)} ≤ ${f(Math.abs(w))} ✓`:''].filter(Boolean),fig:X(99)},
   ];
-  guide5.set(steps);
+  const hasW=Math.abs(w)>1e-9;
+  const gm5=[
+    {type:'line',p:O,az:S,cls:'s-strike',step:0,label:'contact 1',lcls:'t-lab t-strike',lpos:-100,extra:[v2(uS,h*0.5),v2(uS,-h*0.5)]},
+    {type:'pt',p:O,label:'1',step:0,ldx:-14,ldy:-12},
+    {type:'arrow',a:O,b:E,cls:'s-sect-solid',head:'f-sect',step:0,label:`traverse ${az3(A)}`,lcls:'t-lab t-sect',side:-1},
+    {type:'pt',p:E,label:'2',step:0,cls:'f-sect'},
+    {type:'line',p:E,az:S,cls:'s-strike',step:0,label:'contact 2',lcls:'t-lab t-strike',lpos:90},
+    {type:'line',p:O,az:D,cls:'s-guide',step:1,label:'section ⟂ strike',lcls:'t-small',lpos:-70},
+    hasW?{type:'seg',a:E,b:F,cls:'s-guide',step:1}:null,
+    hasW?{type:'pt',p:F,label:'2′',step:1,cls:'f-bed'}:null,
+    hasW?{type:'seg',a:O,b:F,cls:'s-bed',step:1,label:`w ≈ ${f(Math.abs(w))} m`,lcls:'t-lab t-bed'}:null,
+  ];
+  const GM5=i=>()=>mapFig(gm5,i);
+  const gsteps5=[
+    {t:'Plot the traverse and contacts',why:`${TOOLS_NOTE} Pick a map scale. Draw the traverse from contact 1 in its measured direction`+(sg>0?', using the horizontal distance (read it off a scaled profile of the slope)':'')+'. Through each contact, draw a line along strike: these are the contact traces.',calc:[`Strike ${az3(S)}, traverse ${az3(A)}`,sg>0?`From the slope profile: horizontal ≈ ${f(h)} m, Δz ≈ ${f(dz)} m`:`Horizontal distance = ${f(L)} m`],fig:GM5(0)},
+    {t:'Project onto a section ⟂ strike',why:'Draw a section line through contact 1 at right angles to strike. Slide contact 2 along its trace until it meets the section at 2′. The distance from 1 to 2′ is the width w.',calc:[`Ruler reading: w ≈ ${f(Math.abs(w))} m`],fig:GM5(1)},
+    {t:'Draw the cross-section',why:'On a fresh horizontal line at the same scale, plot contact 1 and contact 2′'+(sg>0?`, placing 2′ ${f(Math.abs(dz))} m ${dz>=0?'higher':'lower'}`:' at the same level')+'. With the protractor, draw each contact dipping at δ toward the dip direction. The bed is the band between them.',calc:[`δ = ${f(dip)}° toward ${az3(D)}`],fig:X(3)},
+    {t:'Measure the thickness',why:'With the set square, draw a line from contact 2′ at right angles to the contact-1 line. Its length, read with the scale, is the true thickness.',calc:[`Ruler reading: <b>t ≈ ${f(t)} m</b>`],fig:X(4)},
+    {t:'Answer',why:'For the vertical thickness, measure straight up and down between the two contact lines instead.',calc:[`<b>True thickness ≈ ${f(t)} m</b>`,`Vertical thickness ≈ ${isFinite(tv)?f(tv)+' m':'—'}`],fig:X(99)},
+  ];
+  guide5.set(steps,gsteps5);
 }
 ['kL','kDir','kSlope'].forEach(id=>$(id).addEventListener('input',tool5));
 ['kUp','kDown'].forEach(id=>$(id).addEventListener('change',tool5));
@@ -1453,7 +1511,55 @@ function tool6(){
   }
   steps.push({t:'Answer and check',why:incl?'A hole drilled against the dip (toward the outcrop) meets the bed closer to square, so it needs less length than a vertical one.':'Sanity check: the steeper the dip or the farther the collar from the outcrop, the deeper the bed.',
     calc:incl?[`<b>Drill ${f(L)} m along ${az3(T)}, plunging ${f(pl)}°</b>`,`Vertical hole for comparison: ${f(V)} m`]:[`<b>Vertical depth to the bed = ${f(V)} m</b>`,`Quick form (flat ground): V = x · tan δ`],fig:X(99)});
-  guide6.set(steps);
+  let gsteps6;
+  {
+    const gm=[
+      {type:'pt',p:O,label:'C',sub:'collar',step:0},
+      {type:'pt',p:Bm,label:'B',sub:'outcrop',step:0,cls:'f-bed'},
+      {type:'seg',a:O,b:Bm,cls:'s-guide',step:0,label:`${f(Bd)} m`,lcls:'t-small'},
+      {type:'line',p:Bm,az:S,cls:'s-strike',step:1,label:`strike ${az3(S)}`,lcls:'t-lab t-strike',lpos:100},
+      {type:'arrow',a:Bm,b:vadd(Bm,v2(uD,Math.max(Math.abs(x),Bd)*0.3)),cls:'s-bed',step:1,label:`dip ${f(dip)}°`,lcls:'t-lab t-bed',side:-1},
+    ];
+    const s0={t:'Plot the collar and outcrop to scale',why:`${TOOLS_NOTE} Pick a map scale. Plot the collar C, then lay off the bearing to the outcrop with the protractor and measure the distance to B.`,calc:[`B: ${f(Bd)} m toward ${az3(Bb)}, ${f(zB)} m ${zB>=0?'above':'below'} the collar`]};
+    const s1={t:'Draw the strike through the outcrop',why:'Draw the strike line through B and mark the dip direction.',calc:[`Strike ${az3(S)}, dip ${f(dip)}° toward ${az3(D)}`]};
+    if(!incl||pp>=89.9){
+      const Bp=v2(uD,-x);
+      gm.push({type:'line',p:O,az:D,cls:'s-guide',step:2,label:'section ⟂ strike',lcls:'t-small',lpos:-80});
+      if(vlen(vsub(Bm,Bp))>1e-6)gm.push({type:'seg',a:Bm,b:Bp,cls:'s-guide',step:2});
+      gm.push({type:'pt',p:Bp,label:'B′',step:2,cls:'f-bed'});
+      const GM=i=>()=>mapFig(gm,i);
+      gsteps6=[{...s0,fig:GM(0)},{...s1,fig:GM(1)},
+        {t:'Project the outcrop onto a dip section',why:'Draw a section line through the collar at right angles to strike. Slide the outcrop along its strike line onto it, at B′. The bed is level along strike, so B′ has the same height as B.',calc:[`Ruler reading: CB′ ≈ ${f(Math.abs(x))} m`],fig:GM(2)},
+        {t:'Draw the section and read the depth',why:`On a fresh line at the same scale, mark C and B′ (${f(zB)} m relative to the collar). With the protractor, draw the bed from B′ dipping δ. Draw a vertical line down from C. Where it meets the bed, measure the depth with the scale.`,calc:[`Ruler reading: <b>V ≈ ${f(V)} m</b>`],fig:X(3)},
+        {t:'Answer',why:'Graphical answers are as good as your scale; use a large scale for accuracy.',calc:[`<b>Vertical depth ≈ ${f(V)} m</b>`],fig:X(99)},
+      ];
+    } else {
+      const uT=dir2(T),c=Math.cos(rad(T-D)),tpl=Math.tan(rad(pl));
+      const hasQ=Math.abs(c)>0.03,uQ=hasQ?-x/c:0,Qm=v2(uT,uQ);
+      const ap2=deg(Math.atan(td*Math.abs(c)));const uI=V/(tpl-td*c);const Ip=[uI,-uI*tpl];
+      const lineAz=n360(90+deg(Math.atan(td*c)));
+      gm.push({type:'line',p:O,az:T,cls:'s-sect',step:2,label:`hole section ${az3(T)}`,lcls:'t-lab t-sect',lpos:-80});
+      if(hasQ)gm.push({type:'pt',p:Qm,label:'Q',step:2,cls:'f-strike'});
+      const sec=[
+        hasQ?{type:'seg',a:[0,0],b:[uQ,zB],cls:'s-ground',step:3,label:'ground',lcls:'t-small',side:-1}:{type:'seg',a:[-uI*0.3,0],b:[uI*1.2,0],cls:'s-ground',step:3,label:'ground',lcls:'t-small',side:-1},
+        {type:'line',p:hasQ?[uQ,zB]:[0,-V],az:lineAz,cls:'s-bed',step:3,label:'bed',lcls:'t-lab t-bed',lpos:-70,extra:[Ip]},
+        hasQ?{type:'pt',p:[uQ,zB],label:'Q',step:3,cls:'f-strike'}:null,
+        hasQ&&ap2>1?{type:'arc',c:[uQ,zB],r:30,a1:90,a2:lineAz,label:'α′',lcls:'t-lab t-bed',step:3}:null,
+        {type:'pt',p:[0,0],label:'C',step:3},
+        {type:'seg',a:[0,0],b:Ip,cls:'s-sect-solid',step:4,label:`L ≈ ${f(L)} m`,lcls:'t-lab t-sect'},
+        pl>1?{type:'arc',c:[0,0],r:34,a1:90,a2:n360(90+pl),label:'p',step:4}:null,
+        {type:'pt',p:Ip,label:'I',step:4,cls:'f-sect'},
+      ];
+      const GM=i=>()=>mapFig(gm,i),XS=i=>()=>mapFig(sec,i,{north:false,caption:`Section along the hole (${az3(T)})`});
+      gsteps6=[{...s0,fig:GM(0)},{...s1,fig:GM(1)},
+        {t:'Draw a section along the hole',why:hasQ?'Draw a section line through the collar along the hole\'s trend. Extend the outcrop\'s strike line until it crosses the section at Q. Q is on the bed, at the outcrop\'s height.':'The hole runs along strike, so the bed looks level in this section, at the depth found with a vertical hole.',calc:hasQ?[`Ruler reading: CQ ≈ ${f(Math.abs(uQ))} m`]:[`Bed depth below the collar ≈ ${f(V)} m`],fig:GM(2)},
+        {t:'Find the bed\'s apparent dip here',why:'This section is not at right angles to strike, so the bed shows an apparent dip α′. Find it with the apparent-dip construction (Apparent dip tab, graphical method). Then draw the bed through Q at α′.',calc:[`α′ ≈ <b>${f(ap2)}°</b>`],fig:XS(3)},
+        {t:'Draw the hole and measure',why:`From C, lay off the hole's plunge of ${f(pl)}° with the protractor and draw the hole. Where it crosses the bed is I. Measure CI with the scale.`,calc:[`Ruler reading: <b>L ≈ ${f(L)} m</b>`,`Depth of I below the collar ≈ ${f(Vi)} m`],fig:XS(4)},
+        {t:'Answer',why:'Graphical answers are as good as your scale; use a large scale for accuracy.',calc:[`<b>Hole length ≈ ${f(L)} m</b>`],fig:XS(99)},
+      ];
+    }
+  }
+  guide6.set(steps,gsteps6);
 }
 ['dBear','dDist','dZ','dTrend','dPlunge'].forEach(id=>$(id).addEventListener('input',tool6));
 ['dVert','dIncl'].forEach(id=>$(id).addEventListener('change',()=>{guide6.k=0;tool6();}));
@@ -1607,6 +1713,154 @@ function stepsNet(){
       calc:[`Pole trend = dip direction + 180° = <b>${az3(D+180)}</b>`,`Pole = <b>${lineLabel(90-dip,D+180)}</b>`],fig:fig(0,[tick,N(gc),N(pole)])},
     {t:'Plot a line: the apparent dip',why:'To plot a line, turn its trend onto the E–W line, count the plunge in from the rim, then turn back. The apparent dip from the first tab lands exactly on the arc, because an apparent dip is a line lying in the bed. Two apparent dips give true dip the same way: plot both, then find the one arc through them (the "Plane through last two lines" button).',
       calc:[`Line: plunge <b>${f(ap.a)}°</b> toward <b>${az3(ap.toward)}</b>`,rText(ap.a)],fig:fig(0,[tick,gc,pole,N(lineP)])},
+  ];
+}
+
+/* ---------- Graphical (orthographic) methods ---------- */
+const sideAz=(az,uRef,uOther)=>{const cr=uRef[0]*uOther[1]-uRef[1]*uOther[0];return n360(az+(cr>0?90:-90));};// perpendicular pointing away from uOther
+const TOOLS_NOTE='You need: pencil, ruler with a scale, protractor, set square and dividers (or a drawing compass).';
+function graphApparent(S,D,dip,sec,ap){
+  if(dip<0.05||ap.beta<0.5)return null;
+  const T=ap.toward,beta=ap.beta,uD=dir2(D),uT=dir2(T),uS=dir2(S);
+  const x0=1/tanC(dip);const A=v2(uD,x0);const nAz=sideAz(D,uD,uT);const A1=vadd(A,v2(dir2(nAz),1));
+  const s=x0/Math.sin(rad(beta));const B=v2(uT,s);const n2Az=sideAz(T,uT,uD);const B1=vadd(B,v2(dir2(n2Az),1));
+  const dipAz=vaz(A1),appAz=vaz(B1);const aMeas=deg(Math.atan(1/s));
+  const sEnd=angDiff(S,T)<=90?S:n360(S+180);
+  const it=[
+    {type:'line',p:O,az:S,cls:'s-strike',step:0,label:`strike ${az3(S)}`,lcls:'t-lab t-strike',lpos:-110,extra:[v2(uS,x0*0.5),v2(uS,-x0*0.5)]},
+    {type:'pt',p:O,label:'O',step:0,ldx:-16,ldy:-12},
+    {type:'line',p:O,az:T,cls:'s-sect',step:0,label:'section',lcls:'t-lab t-sect',lpos:-70},
+    beta>1?{type:'arc',c:O,r:30,a1:sEnd,a2:T,label:'β',step:0}:null,
+    {type:'line',p:O,az:D,cls:'s-guide',step:1,label:'FL1',lcls:'t-lab t-ink',lpos:-60},
+    {type:'seg',a:O,b:v2(dir2(dipAz),vlen(A1)*1.15),cls:'s-bed',step:2},
+    {type:'arc',c:O,r:44,a1:D,a2:dipAz,label:'δ',lcls:'t-lab t-bed',step:2},
+    {type:'seg',a:A,b:A1,cls:'s-line',step:3,label:'h'},
+    {type:'right',c:A,a1:n360(D+180),a2:nAz,step:3},
+    {type:'pt',p:A,label:'A',step:3,cls:'f-bed'},{type:'pt',p:A1,label:'A′',step:3},
+    {type:'line',p:A,az:S,cls:'s-bed-dash',step:4,label:'contour',lcls:'t-lab t-bed',lpos:70,extra:[B]},
+    {type:'pt',p:B,label:'B',step:4,cls:'f-sect'},
+    {type:'seg',a:B,b:B1,cls:'s-line',step:5,label:'h'},
+    {type:'right',c:B,a1:n360(T+180),a2:n2Az,step:5},
+    {type:'pt',p:B1,label:'B′',step:5},
+    {type:'seg',a:O,b:v2(dir2(appAz),vlen(B1)*1.12),cls:'s-sect-solid',step:6},
+    {type:'arc',c:O,r:58,a1:T,a2:appAz,label:'α',lcls:'t-lab t-sect',step:6},
+  ];
+  const M=i=>()=>mapFig(it,i);
+  return[
+    {t:'Draw strike and the section',why:`${TOOLS_NOTE} Plot a point O. With the protractor, draw the strike line and the section line through it.`,calc:[`Strike <b>${az3(S)}</b> (${quad(S)})`,`Section <b>${az3(sec)}</b> (${quad(sec)}), β = ${f(beta)}°`],fig:M(0)},
+    {t:'Draw fold line FL1',why:'Draw a line through O at right angles to strike, toward the dip direction. Imagine the vertical section along this line folded flat onto the paper, hinged on FL1. In that folded section, angles and lengths are true.',calc:[`FL1 trends <b>${az3(D)}</b>`],fig:M(1)},
+    {t:'Lay off the true dip',why:'In the folded section, the bed slopes at the true dip below horizontal. With the protractor at O, draw a line making δ with FL1.',calc:[`δ = <b>${f(dip)}°</b> from FL1`],fig:M(2)},
+    {t:'Pick a depth h',why:'Choose any convenient depth h (here 1 unit, for example 2 cm). Find the point A on FL1 where a perpendicular up to the dip line measures exactly h. Mark the top A′. The bed lies a depth h below A.',calc:['h = 1 unit',`OA measures ≈ ${f(x0,3)} units`],fig:M(3)},
+    {t:'Draw the structure contour',why:'Through A, draw a line parallel to strike. Everywhere along it, the bed sits at the same depth h. This is a structure contour. Extend it until it crosses the section line at B.',calc:[`OB measures ≈ ${f(s,3)} units`],fig:M(4)},
+    {t:'Fold up along the section',why:'Now treat the section line as a second fold line. At B, draw a perpendicular and mark off the same depth h with dividers, giving B′.',calc:['BB′ = h = 1 unit'],fig:M(5)},
+    {t:'Measure the apparent dip',why:'Join O to B′. The angle between OB′ and the section line is the apparent dip. Read it with the protractor.',calc:[`Protractor reading: <b>α ≈ ${f(aMeas)}°</b>`,`Check: tan α = h ÷ OB = 1 ÷ ${f(s,3)} = ${f4(1/s)}`],fig:M(6)},
+    {t:'Answer',why:'The apparent dip plunges toward the end of the section on the down-dip side, where B is. Graphical answers are usually good to about ±1°.',calc:[`<b>α ≈ ${f(ap.a)}° → ${az3(T)}</b> (${quad(T)})`],fig:M(99)},
+  ];
+}
+function graphTrueOne(S,D,dip,a,A,beta){
+  const uT=dir2(A),uS=dir2(S),uD=dir2(D);const s=1/Math.tan(rad(a));const P=v2(uT,s);
+  const nAz=sideAz(A,uT,uD);const P1=vadd(P,v2(dir2(nAz),1));
+  const d=s*Math.sin(rad(beta));const F=v2(uD,d);const n2Az=sideAz(D,uD,uT);const F1=vadd(F,v2(dir2(n2Az),1));
+  const appAz=vaz(P1),dipAz=vaz(F1);const sEnd=angDiff(S,A)<=90?S:n360(S+180);
+  const it=[
+    {type:'line',p:O,az:S,cls:'s-strike',step:0,label:`strike ${az3(S)}`,lcls:'t-lab t-strike',lpos:-110,extra:[v2(uS,s*0.5),v2(uS,-s*0.5)]},
+    {type:'pt',p:O,label:'O',step:0,ldx:-16,ldy:-12},
+    {type:'line',p:O,az:A,cls:'s-sect',step:0,label:'section = FL1',lcls:'t-lab t-sect',lpos:-70},
+    beta>1?{type:'arc',c:O,r:30,a1:sEnd,a2:A,label:'β',step:0}:null,
+    {type:'seg',a:O,b:v2(dir2(appAz),vlen(P1)*1.12),cls:'s-sect-solid',step:1},
+    {type:'arc',c:O,r:44,a1:A,a2:appAz,label:'α',lcls:'t-lab t-sect',step:1},
+    {type:'seg',a:P,b:P1,cls:'s-line',step:2,label:'h'},
+    {type:'right',c:P,a1:n360(A+180),a2:nAz,step:2},
+    {type:'pt',p:P,label:'P',step:2,cls:'f-sect'},{type:'pt',p:P1,label:'P′',step:2},
+    {type:'line',p:P,az:S,cls:'s-bed-dash',step:3,label:'contour',lcls:'t-lab t-bed',lpos:70,extra:[F]},
+    {type:'line',p:O,az:D,cls:'s-guide',step:4,label:'FL2',lcls:'t-lab t-ink',lpos:-50},
+    {type:'right',c:F,a1:n360(D+180),a2:S,step:4},
+    {type:'pt',p:F,label:'F',step:4,cls:'f-bed'},
+    {type:'seg',a:F,b:F1,cls:'s-line',step:5,label:'h'},
+    {type:'pt',p:F1,label:'F′',step:5},
+    {type:'seg',a:O,b:v2(dir2(dipAz),vlen(F1)*1.12),cls:'s-bed',step:5},
+    {type:'arc',c:O,r:58,a1:D,a2:dipAz,label:'δ',lcls:'t-lab t-bed',step:5},
+  ];
+  const M=i=>()=>mapFig(it,i);const dMeas=deg(Math.atan(1/d));
+  return[
+    {t:'Draw strike and the section',why:`${TOOLS_NOTE} Plot a point O, then draw the strike line and the section line (the direction the apparent dip plunges).`,calc:[`Strike <b>${az3(S)}</b>, section toward <b>${az3(A)}</b>, β = ${f(beta)}°`],fig:M(0)},
+    {t:'Lay off the apparent dip',why:'Use the section line as fold line FL1. With the protractor at O, draw a line making the apparent dip α with it.',calc:[`α = <b>${f(a)}°</b> from FL1`],fig:M(1)},
+    {t:'Pick a depth h',why:'Choose a convenient depth h (here 1 unit). Find the point P on FL1 where a perpendicular up to the α line measures h. The bed lies a depth h below P.',calc:['h = 1 unit',`OP measures ≈ ${f(s,3)} units`],fig:M(2)},
+    {t:'Draw the structure contour',why:'Through P, draw a line parallel to strike. The bed is at depth h everywhere along it.',calc:['Contour ∥ strike through P'],fig:M(3)},
+    {t:'Find the dip direction',why:'From O, draw a line at right angles to the contour, meeting it at F. This is the dip direction and becomes fold line FL2. It is the shortest route down to depth h.',calc:[`OF measures ≈ ${f(d,3)} units, trending ${az3(D)}`],fig:M(4)},
+    {t:'Fold up and measure δ',why:'At F, draw a perpendicular to FL2 and mark off the same depth h with dividers, giving F′. Join O to F′. The angle between OF′ and FL2 is the true dip.',calc:[`Protractor reading: <b>δ ≈ ${f(dMeas)}°</b>`],fig:M(5)},
+    {t:'Answer',why:'The bed dips toward the contour, on the same side of strike as P. True dip should come out steeper than the apparent dip.',calc:[`<b>δ ≈ ${f(dip)}° toward ${az3(D)}</b> (${quad(D)})`],fig:M(99)},
+  ];
+}
+function graphTrueTwo(a1,A1,a2,A2,r,p1,p2,d){
+  const u1=dir2(A1),u2=dir2(A2);
+  const mk=(p,A,u,uo)=>{if(!p)return null;const nAz=sideAz(A,u,uo);return{p,p1:vadd(p,v2(dir2(nAz),1)),nAz};};
+  const g1=mk(p1,A1,u1,u2),g2=mk(p2,A2,u2,u1);
+  const uD=dir2(r.D);const F=v2(uD,d);const ref=p1||p2;const nF=sideAz(r.D,uD,dir2(vaz(ref)));const F1=vadd(F,v2(dir2(nF),1));const dAz=vaz(F1);
+  const part=(g,A,lab,step,rr)=>g?[
+    {type:'seg',a:O,b:v2(dir2(vaz(g.p1)),vlen(g.p1)*1.12),cls:'s-sect-solid',step},
+    {type:'arc',c:O,r:rr,a1:A,a2:vaz(g.p1),label:`α${lab}`,lcls:'t-lab t-sect',step},
+    {type:'seg',a:g.p,b:g.p1,cls:'s-line',step,label:'h'},
+    {type:'right',c:g.p,a1:n360(A+180),a2:g.nAz,step},
+    {type:'pt',p:g.p,label:`P${lab}`,step,cls:'f-sect'}]:[];
+  const it=[
+    {type:'pt',p:O,label:'O',step:0,ldx:-16,ldy:-12},
+    {type:'ray',p:O,az:A1,cls:'s-sect',step:0,label:`FL1 ${az3(A1)}`,lcls:'t-lab t-sect',lpos:40},
+    {type:'ray',p:O,az:A2,cls:'s-sect',step:0,label:`FL2 ${az3(A2)}`,lcls:'t-lab t-sect',lpos:40,side:-1},
+    ...part(g1,A1,'₁',1,40),...part(g2,A2,'₂',2,52),
+    {type:'line',p:F,az:r.S,cls:'s-strike',step:3,label:'contour at depth h = strike',lcls:'t-lab t-strike',lpos:110,extra:[F]},
+    {type:'line',p:O,az:r.D,cls:'s-guide',step:4,label:'FL3',lcls:'t-lab t-ink',lpos:-50},
+    {type:'right',c:F,a1:n360(r.D+180),a2:r.S,step:4},
+    {type:'pt',p:F,label:'F',step:4,cls:'f-bed'},
+    {type:'seg',a:F,b:F1,cls:'s-line',step:5,label:'h'},
+    {type:'seg',a:O,b:v2(dir2(dAz),vlen(F1)*1.12),cls:'s-bed',step:5},
+    {type:'arc',c:O,r:64,a1:r.D,a2:dAz,label:'δ',lcls:'t-lab t-bed',step:5},
+  ];
+  const M=i=>()=>mapFig(it,i);
+  const pStep=(g,a,A,lab,i)=>g?{t:`Lay off α${lab} and find P${lab}`,why:`Fold the section along FL${i} flat onto the paper. At O, draw a line making α${lab} with FL${i}. Choose a depth h (here 1 unit) and find the point P${lab} on FL${i} where the perpendicular up to the α${lab} line measures h.`,calc:[`α${lab} = <b>${f(a)}°</b>`,`OP${lab} measures ≈ ${f(vlen(g.p),3)} units`],fig:M(i)}
+    :{t:`α${lab} is 0°`,why:`An apparent dip of 0° means FL${i} already runs along strike. There is no P${lab}: the contour will be drawn parallel to this direction.`,calc:[`FL${i} = strike direction`],fig:M(i)};
+  return[
+    {t:'Draw both section directions',why:`${TOOLS_NOTE} Plot O and draw the two directions in which the apparent dips plunge. Each one will be a fold line.`,calc:[`FL1 → ${az3(A1)} (α₁ = ${f(a1)}°)`,`FL2 → ${az3(A2)} (α₂ = ${f(a2)}°)`],fig:M(0)},
+    pStep(g1,a1,A1,'₁',1),pStep(g2,a2,A2,'₂',2),
+    {t:'Join P₁ and P₂: the strike',why:'P₁ and P₂ are both on the bed at the same depth h, so the line through them is a structure contour, which is parallel to strike. Measure its bearing with the protractor.',calc:[`Protractor reading: strike ≈ <b>${az3(r.S)}</b> (${quad(r.S)})`],fig:M(3)},
+    {t:'Draw the dip direction',why:'From O, draw a line at right angles to the contour, meeting it at F. This is the dip direction and becomes fold line FL3.',calc:[`OF measures ≈ ${f(d,3)} units, trending ${az3(r.D)}`],fig:M(4)},
+    {t:'Fold up and measure δ',why:'At F, draw a perpendicular to FL3 and mark off the depth h. Join O to the top. The angle at O between that line and FL3 is the true dip.',calc:[`Protractor reading: <b>δ ≈ ${f(r.dip)}°</b>`],fig:M(5)},
+    {t:'Answer',why:'The bed dips from O toward the contour. True dip must be at least as steep as both apparent dips.',calc:[`<b>δ ≈ ${f(r.dip)}° toward ${az3(r.D)}</b> (${quad(r.D)})`],fig:M(99)},
+  ];
+}
+function graphDir(S,D,dip,a,beta,d1,d2){
+  if(a<0.01||dip<0.05)return null;
+  const uD=dir2(D),uS=dir2(S);const x0=1/tanC(dip);const s=1/Math.tan(rad(a));
+  const nAz=n360(D+90),un=dir2(nAz);const A=v2(uD,x0),A1=vadd(A,un),C=v2(uD,s),C1=vadd(C,un);
+  const P1=v2(dir2(d1),s),P2=v2(dir2(d2),s);const off=angDiff(d1,D);const ext=Math.max(0,Math.min(8,(180-2*off)/2-1));
+  const it=[
+    {type:'line',p:O,az:S,cls:'s-strike',step:0,label:`strike ${az3(S)}`,lcls:'t-lab t-strike',lpos:-110,extra:[v2(uS,s*0.4),v2(uS,-s*0.4)]},
+    {type:'pt',p:O,label:'O',step:0,ldx:-16,ldy:-12},
+    {type:'line',p:O,az:D,cls:'s-guide',step:1,label:'FL1 (dip direction)',lcls:'t-lab t-ink',lpos:-60},
+    {type:'seg',a:O,b:v2(dir2(vaz(A1)),vlen(A1)*1.15),cls:'s-bed',step:1},
+    {type:'arc',c:O,r:44,a1:D,a2:vaz(A1),label:'δ',lcls:'t-lab t-bed',step:1},
+    {type:'seg',a:A,b:A1,cls:'s-line',step:2,label:'h'},
+    {type:'right',c:A,a1:n360(D+180),a2:nAz,step:2},
+    {type:'pt',p:A,label:'A',step:2,cls:'f-bed'},
+    {type:'line',p:A,az:S,cls:'s-bed-dash',step:3,label:'contour',lcls:'t-lab t-bed',lpos:70,extra:[P1,P2]},
+    {type:'line',p:A1,az:D,cls:'s-guide',step:4},
+    {type:'seg',a:O,b:v2(dir2(vaz(C1)),vlen(C1)*1.08),cls:'s-sect-solid',step:4},
+    {type:'arc',c:O,r:60,a1:D,a2:vaz(C1),label:'α',lcls:'t-lab t-sect',step:4},
+    {type:'seg',a:C,b:C1,cls:'s-line',step:4},
+    {type:'pt',p:C,label:'C',step:4,cls:'f-sect'},
+    {type:'warc',c:O,R:s,a1:n360(d1-ext),a2:n360(d2+ext),step:5},
+    {type:'seg',a:O,b:P1,cls:'s-sect-solid',step:5},{type:'seg',a:O,b:P2,cls:'s-sect-solid',step:5},
+    {type:'pt',p:P1,label:'P₁',step:5,cls:'f-sect'},{type:'pt',p:P2,label:'P₂',step:5,cls:'f-sect'},
+  ];
+  const M=i=>()=>mapFig(it,i);
+  return[
+    {t:'Draw the strike',why:`${TOOLS_NOTE} Plot O and draw the strike line through it.`,calc:[`Strike <b>${az3(S)}</b>, dip ${f(dip)}° toward ${az3(D)}`],fig:M(0)},
+    {t:'Lay off the true dip on FL1',why:'Draw fold line FL1 through O toward the dip direction. With the protractor, draw a line from O making the true dip δ with FL1.',calc:[`δ = <b>${f(dip)}°</b>`],fig:M(1)},
+    {t:'Pick a depth h',why:'Choose a depth h (here 1 unit). Find A on FL1 where the perpendicular up to the δ line measures h. The bed is at depth h below A.',calc:['h = 1 unit',`OA ≈ ${f(x0,3)} units`],fig:M(2)},
+    {t:'Draw the structure contour',why:'Through A, draw a line parallel to strike. The bed is at depth h all along it.',calc:['Contour ∥ strike through A'],fig:M(3)},
+    {t:'Find the map distance for α',why:'Draw a helper line parallel to FL1 at height h (through the top of the A perpendicular). From O, lay off the wanted apparent dip α. Where the α line meets the helper line, drop straight down to FL1 at C. OC is how far a section with dip α must travel to reach depth h.',calc:[`α = <b>${f(a)}°</b>`,`OC measures ≈ ${f(s,3)} units`],fig:M(4)},
+    {t:'Swing an arc to the contour',why:'Set your compass to OC and draw an arc centred on O. It cuts the contour at two points, P₁ and P₂. The lines O→P₁ and O→P₂ both reach depth h after the same distance, so both show apparent dip α. Read their bearings with the protractor.',calc:[`Protractor readings: <b>${az3(d1)}</b> and <b>${az3(d2)}</b>`],fig:M(5)},
+    {t:'Answer',why:'If the arc does not reach the contour, α is steeper than the true dip and there is no answer.',calc:[`<b>${f(a)}° → ${az3(d1)}</b> or <b>${f(a)}° → ${az3(d2)}</b>`,`β from strike ≈ ${f(beta)}°`],fig:M(99)},
   ];
 }
 
@@ -1785,7 +2039,7 @@ function openLesson(){
   const it=quiz.cur;it.load();updateAll();
   const tp=TOPICS.find(t=>t.id===it.topic);selectTab(tp.tab);
   $('qCompass').innerHTML=$('compass').innerHTML;
-  const g=it.guide();quizGuide.k=0;quizGuide.set(g.steps.slice());
+  const g=it.guide();quizGuide.k=0;quizGuide.set(g.sets.trig.slice(),g.sets.graph?g.sets.graph.slice():null);
   $('qLessonNote').textContent=`This problem is also loaded into the lab above (attitude bar and the ${tp.label} tab), so you can keep experimenting there.`;
   $('qLesson').hidden=false;qSetView('qvO',rad(28),rad(30),NOTES.oblique);
   requestAnimationFrame(drawLesson3d);
