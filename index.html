@@ -64,7 +64,7 @@ figure{margin:0}
 .k-strike{background:var(--strike)} .k-bed{background:var(--bed)} .k-sect{background:var(--sect)}
 .canvas-wrap{position:relative;width:100%;height:360px;border-radius:4px;background:var(--paper);overflow:hidden;touch-action:none;cursor:grab}
 .canvas-wrap:active{cursor:grabbing}
-#block{width:100%;height:100%;display:block}
+#block,#qBlock{width:100%;height:100%;display:block}
 .canvas-tip{position:absolute;left:10px;bottom:8px;font-size:.78rem;color:var(--muted);pointer-events:none}
 .seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule);border-radius:4px;overflow:hidden}
 .seg button{font:600 .8rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.08em;background:transparent;color:var(--muted);border:0;border-right:1px solid var(--rule);padding:8px 10px;cursor:pointer}
@@ -147,16 +147,23 @@ figure{margin:0}
 .s-line{stroke:var(--ink);stroke-width:1.3;fill:none}
 .s-hl{stroke:var(--muted);stroke-width:1.6;stroke-dasharray:6 4;fill:none}
 .s-ground{stroke:var(--ink);stroke-width:1.6}
-.glow{stroke:var(--glow);stroke-width:11;stroke-linecap:round;opacity:.5;fill:none}
-.glow-dot{fill:var(--glow);opacity:.55}
+.glow{stroke:var(--glow);stroke-width:6;stroke-linecap:round;opacity:.55;fill:none}
+.glow-dot{fill:var(--glow);opacity:.5}
 .f-strike{fill:var(--strike)} .f-bed{fill:var(--bed)} .f-sect{fill:var(--sect)} .f-ink{fill:var(--ink)}
 .t-lab{font:600 11px var(--f-mono);dominant-baseline:central}
 .t-small{font:500 10px var(--f-mono);fill:var(--muted);dominant-baseline:central}
 .t-pt{font:700 15px var(--f-display);fill:var(--ink);dominant-baseline:central}
 .t-title{font:600 11px var(--f-display);letter-spacing:.1em;text-transform:uppercase;fill:var(--muted)}
 .t-strike{fill:var(--strike)} .t-bed{fill:var(--bed)} .t-sect{fill:var(--sect)} .t-ink{fill:var(--ink)}
-.halo{paint-order:stroke;stroke:var(--paper);stroke-width:3.5px;stroke-linejoin:round}
+.halo{paint-order:stroke;stroke:var(--paper);stroke-width:4.5px;stroke-linejoin:round}
 
+.grid-l{stroke:var(--rule);stroke-width:.7}
+.sbar-bg{fill:var(--sheet);opacity:.92}
+.sbar-k{fill:var(--ink)}
+.sbar-w{fill:var(--sheet);stroke:var(--ink);stroke-width:1}
+.grid-ax{stroke:var(--muted);stroke-width:1.1;opacity:.6}
+.t-axis{font:700 11px var(--f-body);fill:var(--muted);dominant-baseline:central}
+.t-north{fill:var(--strike)}
 .band{fill:var(--bedfill);opacity:.28;stroke:none}
 .net-prim{fill:var(--paper);stroke:var(--ink);stroke-width:1.6}
 .net-g{stroke:var(--rule);stroke-width:.8;fill:none}
@@ -217,6 +224,18 @@ figure{margin:0}
 .qend .big{font-size:2rem;font-weight:700}
 @media (max-width:880px){.lesson-views{grid-template-columns:minmax(0,1fr)}}
 
+/* Floating converter */
+.conv-fab{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:50;display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:12px 18px;font:700 .95rem var(--f-body);cursor:pointer;box-shadow:0 6px 20px rgba(15,18,34,.25)}
+.conv-fab:hover{opacity:.92}
+.conv-panel{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:50;width:min(320px,calc(100vw - 32px));background:var(--sheet);color:var(--ink);border-radius:12px;padding:16px;display:grid;gap:12px;box-shadow:0 12px 40px rgba(15,18,34,.28)}
+.conv-head{display:flex;justify-content:space-between;align-items:center;font-size:1.05rem}
+.conv-x{background:var(--soft);color:var(--ink);border:0;border-radius:50%;width:30px;height:30px;font-size:1.2rem;line-height:1;cursor:pointer}
+.conv-body{display:flex;align-items:center;gap:14px}
+.conv-out{display:grid;gap:2px;min-width:0}
+.conv-big{font-size:1.9rem;font-weight:700;color:var(--accent);line-height:1.1}
+.conv-out .linkbtn{justify-self:start;padding:2px 0}
+.conv-rule{margin:0;font-size:.88rem;background:var(--soft);border-radius:8px;padding:10px 12px}
+.conv-panel .hint{font-size:.8rem}
 /* ===== Ridge-style theme ===== */
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
@@ -232,6 +251,12 @@ h3{font-size:1.1rem;letter-spacing:0}
 .navlinks{display:flex;flex-wrap:wrap;gap:6px 32px}
 .navlinks a{color:var(--muted);text-decoration:none;font-size:.98rem}
 .navlinks a:hover{color:var(--ink)}
+.navlinks{align-items:center}
+.themebtn{display:inline-flex;align-items:center;gap:8px;background:var(--accent-soft);color:var(--accent);border:0;border-radius:999px;padding:8px 14px;font:600 .9rem var(--f-body);cursor:pointer}
+.themebtn:hover{opacity:.9}
+.themebtn .i-sun{display:none}
+.themebtn[aria-pressed=true] .i-sun{display:inline}
+.themebtn[aria-pressed=true] .i-moon{display:none}
 .hero{text-align:center;display:grid;justify-items:center;gap:18px;padding-block:56px 44px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .pill{display:inline-flex;align-items:center;gap:8px;background:var(--accent-soft);color:var(--accent);font-weight:600;font-size:.95rem;padding:7px 18px;border-radius:999px}
 .hero h1{font-size:clamp(2.6rem,7.5vw,4.4rem);font-weight:700;color:var(--ink);letter-spacing:-.025em;line-height:1.02}
@@ -239,7 +264,7 @@ h3{font-size:1.1rem;letter-spacing:0}
 .h1-sub{display:block;font-size:.42em;font-weight:600;color:var(--ink);letter-spacing:-.01em;margin-top:.35em;line-height:1.2}
 .hero-cta{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:10px}
 .hero-cta .btn{min-width:180px;text-align:center;text-decoration:none;padding:14px 22px;font-size:1rem}
-.wrap{padding-block:0 56px}
+.wrap{padding-block:0 96px}
 .card{border:0;border-radius:10px;box-shadow:var(--shadow)}
 .btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:5px;font:600 .95rem/1 var(--f-body);padding:12px 18px}
 .btn.ghost{background:var(--accent-soft);color:var(--accent);border:0}
@@ -280,7 +305,7 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
 
 <nav class="topbar" aria-label="Main"><div class="topbar-in">
   <a class="brand" href="#top"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M12 2.5 3.5 7v10L12 21.5 20.5 17V7z M3.5 7 12 11.5 20.5 7 M12 11.5v10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>strike it right</a>
-  <div class="navlinks"><a href="#views">Views</a><a href="#solvers">Solvers</a><a href="#quiz">Quiz</a><a href="#notes">Field notes</a></div>
+  <div class="navlinks"><a href="#views">Views</a><a href="#solvers">Solvers</a><a href="#quiz">Quiz</a><a href="#notes">Field notes</a><button type="button" class="themebtn" id="themeBtn" aria-pressed="false"><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="currentColor"/></svg><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span id="themeLbl">Night mode</span></button></div>
 </div></nav>
 <header class="hero" id="top">
   <span class="pill"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 5.5 14 12 12 18.5 10 12z" fill="currentColor"/></svg>Tool made by @alisgneiss</span>
@@ -613,7 +638,22 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
       <div class="note"><h3>Memorize the curve shape</h3><p>Sweep the slider in the Apparent dip tab. For moderate dips, α stays close to δ until β drops below about 45°, then falls quickly. This lets you eyeball multiple-choice answers.</p></div>
     </div>
   </section>
-  <footer class="foot"><span>Strike It Right!</span><span>Tool made by <b>@alisgneiss</b></span></footer>
+  <button type="button" class="conv-fab" id="convFab" aria-expanded="false" aria-controls="convPanel"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 5.5 14 12 12 18.5 10 12z" fill="currentColor"/></svg><span>Az ⇄ Bearing</span></button>
+<div class="conv-panel" id="convPanel" role="dialog" aria-label="Azimuth and bearing converter" hidden>
+  <div class="conv-head"><b>Azimuth ⇄ Bearing</b><button type="button" class="conv-x" id="convClose" aria-label="Close converter">×</button></div>
+  <label class="field" for="convIn"><span>Type an azimuth or a bearing</span><input id="convIn" type="text" value="N35E" autocomplete="off" spellcheck="false"></label>
+  <div class="conv-body">
+    <svg id="convDial" viewBox="-60 -60 120 120" width="104" height="104" aria-hidden="true"></svg>
+    <div class="conv-out">
+      <div class="label" id="convOutLbl">Azimuth</div>
+      <div class="conv-big" id="convOut">035°</div>
+      <button type="button" class="linkbtn" id="convCopy">Copy</button>
+    </div>
+  </div>
+  <p class="conv-rule" id="convRule"></p>
+  <p class="hint">Examples: <span class="f">215</span>, <span class="f">S35W</span>, <span class="f">N70W</span>, <span class="f">300</span></p>
+</div>
+<footer class="foot"><span>Strike It Right!</span><span>Tool made by <b>@alisgneiss</b></span></footer>
 </div>
 
 <script>
@@ -819,14 +859,44 @@ function mapFig(items,k,opt){
   if(!pts.length)pts.push([0,0]);
   const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
   const minx=Math.min(...xs),maxx=Math.max(...xs),miny=Math.min(...ys),maxy=Math.max(...ys);
-  const cx=(minx+maxx)/2,cy=(miny+maxy)/2,rx=maxx-minx,ry=maxy-miny;
+  const isMap=opt.north!==false;let cx,cy,rx,ry;
+  if(isMap){const hx=Math.max(Math.abs(minx),Math.abs(maxx)),hy=Math.max(Math.abs(miny),Math.abs(maxy));cx=0;cy=0;rx=2*hx;ry=2*hy;}
+  else{cx=(minx+maxx)/2;cy=(miny+maxy)/2;rx=maxx-minx;ry=maxy-miny;}
   let sc=Math.min(rx>1e-9?(FW-2*pad)/rx:Infinity,ry>1e-9?(FH-2*pad)/ry:Infinity);if(!isFinite(sc))sc=100;
   const S2=p=>[FW/2+(p[0]-cx)*sc,FH/2-(p[1]-cy)*sc];
   const sd=az=>[Math.sin(rad(az)),-Math.cos(rad(az))];
   const q=n=>n.toFixed(1);
   const L=(a,b,cls)=>`<line class="${cls}" x1="${q(a[0])}" y1="${q(a[1])}" x2="${q(b[0])}" y2="${q(b[1])}"/>`;
-  const T=(p,s,cls,anchor)=>`<text class="${cls} halo" x="${q(p[0])}" y="${q(p[1])}" text-anchor="${anchor||'start'}">${s}</text>`;
+  const placed=[];
+  const OFFS=[[0,0],[0,-14],[0,14],[14,0],[-14,0],[12,-14],[-12,-14],[12,14],[-12,14],[0,-26],[0,26],[26,0],[-26,0],[22,-24],[-22,-24],[22,24],[-22,24]];
+  const hit=b=>placed.some(o=>b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]);
+  const T=(p,s,cls,anchor)=>{
+    const plain=String(s).replace(/<[^>]+>/g,'');const big=/t-pt/.test(cls);const cw=big?8.6:(/t-small/.test(cls)?5.9:6.6);
+    const w=plain.length*cw+4,h=big?17:13;anchor=anchor||'start';
+    const box=(x,y)=>{const x0=anchor==='middle'?x-w/2:anchor==='end'?x-w:x;return[x0,y-h/2,x0+w,y+h/2];};
+    let best=null;
+    for(const [dx,dy] of OFFS){let x=p[0]+dx,y=p[1]+dy;const b=box(x,y);if(b[0]<2){x+=2-b[0];}if(b[2]>FW-2){x-=b[2]-(FW-2);}if(y<10)y=10;if(y>FH-10)y=FH-10;const bb=box(x,y);if(!hit(bb)){best=[x,y,bb];break;}}
+    if(!best){const bb=box(p[0],p[1]);best=[p[0],p[1],bb];}
+    placed.push(best[2]);
+    return`<text class="${cls} halo" x="${q(best[0])}" y="${q(best[1])}" text-anchor="${anchor}">${s}</text>`;
+  };
+  let grid='';
+  {const wx=FW/2/sc,wy=FH/2/sc;const raw=2*Math.max(wx,wy)/14;const p10=Math.pow(10,Math.floor(Math.log10(raw)));const st=[1,2,5,10].map(m=>m*p10).find(v=>v>=raw);
+   for(let k=Math.ceil((cx-wx)/st);k*st<=cx+wx;k++){const X=FW/2+(k*st-cx)*sc;grid+=`<line class="grid-l" x1="${q(X)}" y1="0" x2="${q(X)}" y2="${FH}"/>`;}
+   for(let k=Math.ceil((cy-wy)/st);k*st<=cy+wy;k++){const Y=FH/2-(k*st-cy)*sc;grid+=`<line class="grid-l" x1="0" y1="${q(Y)}" x2="${FW}" y2="${q(Y)}"/>`;}
+   const o=S2([0,0]);
+   if(o[0]>0&&o[0]<FW)grid+=`<line class="grid-ax" x1="${q(o[0])}" y1="0" x2="${q(o[0])}" y2="${FH}"/>`;
+   if(o[1]>0&&o[1]<FH)grid+=`<line class="grid-ax" x1="0" y1="${q(o[1])}" x2="${FW}" y2="${q(o[1])}"/>`;
+   if(isMap)grid+=`<text class="t-axis t-north halo" x="${q(o[0]+6)}" y="14">N</text><text class="t-axis halo" x="${q(o[0]+6)}" y="${FH-8}">S</text><text class="t-axis halo" x="${FW-8}" y="${q(o[1]-7)}" text-anchor="end">E</text><text class="t-axis halo" x="8" y="${q(o[1]-7)}">W</text>`;
+   else grid+=`<text class="t-axis halo" x="${FW-8}" y="${FH-8}" text-anchor="end">↑ up</text>`;
+  }
+  let sbar='';
+  if(opt.scale){const raw=95/sc;const p10=Math.pow(10,Math.floor(Math.log10(raw)));const len=[1,2,5,10].map(m=>m*p10).filter(v=>v<=raw*1.15).pop()||p10;const px=len*sc;const x0=16,y0=FH-22,seg=px/4;
+    sbar+=`<rect class="sbar-bg" x="${x0-8}" y="${y0-18}" width="${q(px+46)}" height="34" rx="5"/>`;
+    for(let i=0;i<4;i++)sbar+=`<rect x="${q(x0+i*seg)}" y="${y0}" width="${q(seg)}" height="6" class="${i%2?'sbar-w':'sbar-k'}"/>`;
+    sbar+=`<text class="t-small" x="${x0}" y="${y0-8}" text-anchor="middle">0</text><text class="t-small" x="${q(x0+px)}" y="${y0-8}" text-anchor="middle">${f(len)}</text><text class="t-small" x="${q(x0+px+8)}" y="${y0+3}">m</text>`;}
   let glow='',body='',top='',under='';
+  for(const it of items){if(it.step<=k&&it.type==='pt'){const pp=S2(it.p);placed.push([pp[0]-7,pp[1]-7,pp[0]+7,pp[1]+7]);}}
   for(const it of items){
     if(it.step>k)continue;const now=it.step===k;const lc=it.lcls||'t-lab t-ink';
     if(it.type==='poly'){under+=`<polygon class="${it.cls}" points="${it.pts.map(S2).map(p=>q(p[0])+','+q(p[1])).join(' ')}"/>`;}
@@ -858,8 +928,8 @@ function mapFig(items,k,opt){
       const p=S2(it.p);top+=T([p[0]+(it.dx||0),p[1]+(it.dy||0)],it.s,it.cls||'t-lab t-ink',it.anchor);
     }
   }
-  const north=opt.north===false?(opt.caption?`<text class="t-title" x="14" y="20">${opt.caption}</text>`:''):`<g transform="translate(334,32)"><line class="s-line" x1="0" y1="12" x2="0" y2="-10"/><polygon class="f-ink" points="0,-17 -5,-7 5,-7"/><text class="t-pt" x="0" y="23" text-anchor="middle" style="font-size:12px">N</text></g>`;
-  return`<svg class="plot" viewBox="0 0 ${FW} ${FH}" role="img" aria-label="${opt.north===false?'Cross-section':'Map-view construction'}"><defs><clipPath id="${uid}"><rect width="${FW}" height="${FH}"/></clipPath></defs><g clip-path="url(#${uid})">${under}${glow}${body}${top}</g>${north}</svg>`;
+  const north=opt.north===false&&opt.caption?`<text class="t-title halo" x="14" y="20">${opt.caption}</text>`:'';
+  return`<svg class="plot" viewBox="0 0 ${FW} ${FH}" role="img" aria-label="${opt.north===false?'Cross-section':'Map-view construction'}"><defs><clipPath id="${uid}"><rect width="${FW}" height="${FH}"/></clipPath></defs><g clip-path="url(#${uid})">${grid}${under}${glow}${body}${top}</g>${sbar}${north}</svg>`;
 }
 /* side view: right triangles, same scale. rows: {base,h,title,cls,baseLab,hLab,angLab,angCls} */
 function sideFig(rows){
@@ -919,6 +989,9 @@ class Guide{
 }
 const guide1=new Guide('guide1'),guide2=new Guide('guide2'),guide3=new Guide('guide3'),guide4=new Guide('guide4');
 
+/* ---------- explanation helpers ---------- */
+function ddCalc(S,D){const raw=S+90;return raw>=360?`Dip direction = strike + 90° = ${f(S)}° + 90° = ${f(raw)}°. That is past 360°, so subtract a full circle: ${f(raw)}° − 360° = <b>${az3(D)}</b> (${quad(D)})`:`Dip direction = strike + 90° = ${f(S)}° + 90° = <b>${az3(D)}</b> (${quad(D)})`;}
+function endCalc(sec,T,D){const other=n360(T+180);return`The section line has two ends: ${az3(T)} and ${az3(other)}. The bed dips toward ${az3(D)}; ${az3(T)} is ${f(angDiff(T,D))}° from that (on the down-dip side) while ${az3(other)} is ${f(angDiff(other,D))}° away. So α plunges toward <b>${az3(T)}</b>`+(angDiff(sec,T)>1?`, even though you typed the section as ${az3(sec)}.`:'.');}
 /* ---------- Tool 1: apparent dip ---------- */
 function drawCurve(){
   const {dip,D,sec}=state;const ap=apparent(dip,D,sec);
@@ -982,7 +1055,7 @@ function stepsApparent(S,D,dip,sec,ap){
     {t:'Draw the strike line',why:'Strike is the direction of a horizontal line on the bed. Pick any point O on the bed and draw the strike through it. Write every bearing as an azimuth (0–360°, clockwise from north) so you can subtract them.',
       calc:[`Strike: ${quad(S)} = <b>${az3(S)}</b>`,`Section line: ${quad(sec)} = <b>${az3(sec)}</b>`],fig:M(0)},
     {t:'Find the dip direction',why:'The bed slopes downhill at a right angle to strike. With the right-hand rule, the dip direction is strike + 90°.',
-      calc:[`D = ${f(S)}° + 90° = <b>${az3(D)}</b> (${quad(D)})`,`True dip δ = <b>${f(dip)}°</b>`],fig:M(1)},
+      calc:[ddCalc(S,D),`True dip δ = <b>${f(dip)}°</b>`],fig:M(1)},
     {t:'Measure β',why:'β is the flat map angle between the strike line and your section line. Subtract the two azimuths. If the answer is over 90°, subtract it from 180°, because a line has two ends and β must be the smaller angle.',
       calc:[`|${f(sec)}° − ${f(S)}°| = ${f(fb.raw)}°`,fb.raw>90?`180° − ${f(fb.raw)}° = <b>β = ${f(beta)}°</b>`:`<b>β = ${f(beta)}°</b>`],fig:M(2)},
   ];
@@ -999,7 +1072,7 @@ function stepsApparent(S,D,dip,sec,ap){
       calc:[`tan α = tan δ × sin β`,`tan α = ${f4(tand)} × ${f4(sinb)} = <b>${f4(tand*sinb)}</b>`,`α = arctan(${f4(tand*sinb)}) = <b>${f(ap.a,2)}°</b>`],
       fig:()=>sideFig([{base:d,h:1,title:'Section ⟂ strike (O to F)',cls:'s-bed',baseLab:`d = ${f(d,3)}`,hLab:'1',angLab:`δ ${f(dip)}°`,angCls:'t-bed'},{base:s,h:1,title:`Your section (O to P)`,cls:'s-sect-solid',baseLab:`s = ${f(s,3)}`,hLab:'1',angLab:`α ${f(ap.a)}°`,angCls:'t-sect'}])},
     {t:'State the answer and check it',why:'Apparent dip plunges toward the end of the section line on the down-dip side of strike, the same side as P. It must be smaller than the true dip unless the section is square to strike.',
-      calc:[`<b>α = ${f(ap.a)}° → ${az3(T)}</b> (${quad(T)})`,`Check: ${f(ap.a)}° ≤ ${f(dip)}° ✓${beta>89.5?' (section is square to strike, so α = δ)':''}`],fig:M(99)}
+      calc:[`<b>α = ${f(ap.a)}° → ${az3(T)}</b> (${quad(T)})`,endCalc(sec,T,D),`Check: ${f(ap.a)}° ≤ ${f(dip)}° ✓${beta>89.5?' (section is square to strike, so α = δ)':''}`],fig:M(99)}
   );
   return steps;
 }
@@ -1208,7 +1281,7 @@ function tool3(){
     {type:'right',c:foot,a1:vaz(vsub(xy(ref),foot)),a2:S,step:4},
     {type:'arrow',a:foot,b:vadd(foot,v2(dir2(D),Math.max(HL,dist)*0.22)),cls:'s-bed',step:6,label:`dip ${az3(D)}`,lcls:'t-lab t-bed',side:-1},
   ];
-  const Mf=i=>()=>mapFig(items,i);
+  const Mf=i=>()=>mapFig(items,i,{scale:1});
   const steps=[];
   steps.push({t:'Plot the three points',why:bear?'Turn each bearing and distance into map coordinates, with A at the origin. Easting uses sine, northing uses cosine, because azimuth is measured from north.':'Plot the three points from their coordinates. Write each elevation next to its point.',
     calc:bear?[`E = distance × sin(azimuth), N = distance × cos(azimuth)`,`B: ${f(B.dist)} × sin ${f(B.bear)}° = <b>${f(B.e)} E</b>, ${f(B.dist)} × cos ${f(B.bear)}° = <b>${f(B.n)} N</b>`,`C: ${f(C.dist)} × sin ${f(C.bear)}° = <b>${f(C.e)} E</b>, ${f(C.dist)} × cos ${f(C.bear)}° = <b>${f(C.n)} N</b>`]:pts.map(p=>`${p.k}: (${f(p.e)} E, ${f(p.n)} N), ${f(p.z)} m`),fig:Mf(0)});
@@ -1248,7 +1321,7 @@ function tool3(){
     {type:'seg',a:foot,b:R1,cls:'s-bed',step:5},
     {type:'arc',c:foot,r:30,a1:vaz(vsub(xyR,foot)),a2:vaz(vsub(R1,foot)),label:'δ',lcls:'t-lab t-bed',step:5},
   ];
-  const GM=i=>()=>mapFig(gi,i);
+  const GM=i=>()=>mapFig(gi,i,{scale:1});
   const gsteps=[
     {t:'Plot the points to scale',why:`${TOOLS_NOTE} Pick a map scale (for example 1 cm = 100 m). `+(bear?'From A, lay off each bearing with the protractor and measure each distance with the ruler.':'Plot each point from its easting and northing on graph paper.')+' Write each elevation beside its point.',calc:pts.map(p=>`${p.k}: ${f(p.z)} m`),fig:GM(0)},
     {t:'Rank by elevation',why:'Label the points high (H), middle (M) and low (L). We want a second point at the middle elevation.',calc:[`H = ${Hh.k}, M = ${M.k}, L = ${Lo.k}`],fig:GM(1)},
@@ -1286,7 +1359,7 @@ function tool4(){
     {type:'arrow',a:O,b:v2(uD,0.6),cls:'s-bed',step:0,label:`dip ${f(dip)}° → ${az3(D)}`,lcls:'t-lab t-bed',side:-1},
   ];
   const step0={t:'Start from the bed',why:'Draw the strike line through a point O and mark the dip direction. You know the true dip δ and the apparent dip α you want to see.',
-    calc:[`Strike <b>${az3(S)}</b>, dip direction <b>${az3(D)}</b>`,`δ = ${f(dip)}°, wanted α = ${f(a)}°`],fig:()=>mapFig(base,0)};
+    calc:[`Strike <b>${az3(S)}</b>`,ddCalc(S,D),`δ = ${f(dip)}°, wanted α = ${f(a)}°`],fig:()=>mapFig(base,0)};
   if(sb>1+1e-9){
     ans.className='answer err';ans.innerHTML=`<span class="big">Impossible: an apparent dip of ${f(a)}° cannot be steeper than the true dip of ${f(dip)}°.</span>`;
     guide4.set([step0,{t:'Check it is possible',why:'Apparent dip can never exceed true dip. The steepest slope on a plane is always the true dip.',calc:[`α = ${f(a)}° > δ = ${f(dip)}° ✗`,'No section direction works.'],fig:()=>mapFig(base,99)}]);
@@ -1370,7 +1443,7 @@ function tool5(){
   // section items: x along dip direction, z up
   const e=[cd,-sd];const qP=[w,dz];const along=qP[0]*e[0]+qP[1]*e[1];const foot=[e[0]*along,e[1]*along];
   const K=Math.max(Math.abs(w),Math.abs(dz),t,10)*1.25;
-  const c1a=v2(e,-K),c1b=v2(e,K),c2a=vadd(qP,v2(e,-K)),c2b=vadd(qP,v2(e,K));
+  const c1a=v2(e,-6*K),c1b=v2(e,6*K),c2a=vadd(qP,v2(e,-6*K)),c2b=vadd(qP,v2(e,6*K));
   const secItems=[
     {type:'poly',pts:[c1a,c1b,c2b,c2a],cls:'band',step:3},
     {type:'line',p:O,az:90+dip,cls:'s-bed',step:3,label:'contact 1',lcls:'t-lab t-bed',lpos:-90,side:-1,extra:[v2(e,K*0.6),v2(e,-K*0.6)]},
@@ -1381,8 +1454,8 @@ function tool5(){
     {type:'seg',a:qP,b:foot,cls:'s-sect-solid',step:4,label:`t = ${f(t)} m`,lcls:'t-lab t-sect'},
     {type:'right',c:foot,a1:vaz(vsub(qP,foot)),a2:vaz(e),step:4},
   ];
-  const M=i=>()=>mapFig(mapItems,i);
-  const X=i=>()=>mapFig(secItems,i,{north:false,caption:'Cross-section ⟂ strike, looking along strike'});
+  const M=i=>()=>mapFig(mapItems,i,{scale:1});
+  const X=i=>()=>mapFig(secItems,i,{scale:1,north:false,caption:'Cross-section ⟂ strike, looking along strike'});
   const steps=[
     {t:'Plot strike and the traverse',why:'Contact 1 is where you start. Draw the strike through it, then your traverse in its measured direction to contact 2. β is the map angle between strike and the traverse.',
       calc:[`Strike <b>${az3(S)}</b>, dip ${f(dip)}° toward ${az3(D)}`,`Traverse <b>${az3(A)}</b> (${quad(A)}), measured ${f(L)} m`,`|${f(A)}° − ${f(S)}°| = ${f(fb.raw)}°${fb.raw>90?` → 180° − ${f(fb.raw)}°`:''} → <b>β = ${f(beta)}°</b>`],fig:M(0)},
@@ -1411,7 +1484,7 @@ function tool5(){
     hasW?{type:'pt',p:F,label:'2′',step:1,cls:'f-bed'}:null,
     hasW?{type:'seg',a:O,b:F,cls:'s-bed',step:1,label:`w ≈ ${f(Math.abs(w))} m`,lcls:'t-lab t-bed'}:null,
   ];
-  const GM5=i=>()=>mapFig(gm5,i);
+  const GM5=i=>()=>mapFig(gm5,i,{scale:1});
   const gsteps5=[
     {t:'Plot the traverse and contacts',why:`${TOOLS_NOTE} Pick a map scale. Draw the traverse from contact 1 in its measured direction`+(sg>0?', using the horizontal distance (read it off a scaled profile of the slope)':'')+'. Through each contact, draw a line along strike: these are the contact traces.',calc:[`Strike ${az3(S)}, traverse ${az3(A)}`,sg>0?`From the slope profile: horizontal ≈ ${f(h)} m, Δz ≈ ${f(dz)} m`:`Horizontal distance = ${f(L)} m`],fig:GM5(0)},
     {t:'Project onto a section ⟂ strike',why:'Draw a section line through contact 1 at right angles to strike. Slide contact 2 along its trace until it meets the section at 2′. The distance from 1 to 2′ is the width w.',calc:[`Ruler reading: w ≈ ${f(Math.abs(w))} m`],fig:GM5(1)},
@@ -1492,8 +1565,8 @@ function tool6(){
     incl?{type:'seg',a:Cs,b:Is,cls:'s-sect-solid',step:4,label:`L = ${f(L)} m`,lcls:'t-lab t-sect'}:null,
     incl?{type:'pt',p:Is,label:'I',step:4,cls:'f-sect'}:null,
   ];
-  const M=i=>()=>mapFig(mapItems,i);
-  const X=i=>()=>mapFig(secItems,i,{north:false,caption:incl&&Math.abs(Math.cos(rad(TT-D)))<0.999?'Section ⟂ strike (hole shown projected)':'Section ⟂ strike through the collar'});
+  const M=i=>()=>mapFig(mapItems,i,{scale:1});
+  const X=i=>()=>mapFig(secItems,i,{scale:1,north:false,caption:incl&&Math.abs(Math.cos(rad(TT-D)))<0.999?'Section ⟂ strike (hole shown projected)':'Section ⟂ strike through the collar'});
   const theta=angDiff(vaz(v2(Bm,-1)),D);
   const steps=[
     {t:'Plot the collar and the outcrop',why:'Put the drill collar C at the origin. From it, the bed crops out at B, a known distance and bearing away.',
@@ -1527,7 +1600,7 @@ function tool6(){
       gm.push({type:'line',p:O,az:D,cls:'s-guide',step:2,label:'section ⟂ strike',lcls:'t-small',lpos:-80});
       if(vlen(vsub(Bm,Bp))>1e-6)gm.push({type:'seg',a:Bm,b:Bp,cls:'s-guide',step:2});
       gm.push({type:'pt',p:Bp,label:'B′',step:2,cls:'f-bed'});
-      const GM=i=>()=>mapFig(gm,i);
+      const GM=i=>()=>mapFig(gm,i,{scale:1});
       gsteps6=[{...s0,fig:GM(0)},{...s1,fig:GM(1)},
         {t:'Project the outcrop onto a dip section',why:'Draw a section line through the collar at right angles to strike. Slide the outcrop along its strike line onto it, at B′. The bed is level along strike, so B′ has the same height as B.',calc:[`Ruler reading: CB′ ≈ ${f(Math.abs(x))} m`],fig:GM(2)},
         {t:'Draw the section and read the depth',why:`On a fresh line at the same scale, mark C and B′ (${f(zB)} m relative to the collar). With the protractor, draw the bed from B′ dipping δ. Draw a vertical line down from C. Where it meets the bed, measure the depth with the scale.`,calc:[`Ruler reading: <b>V ≈ ${f(V)} m</b>`],fig:X(3)},
@@ -1550,7 +1623,7 @@ function tool6(){
         pl>1?{type:'arc',c:[0,0],r:34,a1:90,a2:n360(90+pl),label:'p',step:4}:null,
         {type:'pt',p:Ip,label:'I',step:4,cls:'f-sect'},
       ];
-      const GM=i=>()=>mapFig(gm,i),XS=i=>()=>mapFig(sec,i,{north:false,caption:`Section along the hole (${az3(T)})`});
+      const GM=i=>()=>mapFig(gm,i,{scale:1}),XS=i=>()=>mapFig(sec,i,{scale:1,north:false,caption:`Section along the hole (${az3(T)})`});
       gsteps6=[{...s0,fig:GM(0)},{...s1,fig:GM(1)},
         {t:'Draw a section along the hole',why:hasQ?'Draw a section line through the collar along the hole\'s trend. Extend the outcrop\'s strike line until it crosses the section at Q. Q is on the bed, at the outcrop\'s height.':'The hole runs along strike, so the bed looks level in this section, at the depth found with a vertical hole.',calc:hasQ?[`Ruler reading: CQ ≈ ${f(Math.abs(uQ))} m`]:[`Bed depth below the collar ≈ ${f(V)} m`],fig:GM(2)},
         {t:'Find the bed\'s apparent dip here',why:'This section is not at right angles to strike, so the bed shows an apparent dip α′. Find it with the apparent-dip construction (Apparent dip tab, graphical method). Then draw the bed through Q at α′.',calc:[`α′ ≈ <b>${f(ap2)}°</b>`],fig:XS(3)},
@@ -1748,13 +1821,13 @@ function graphApparent(S,D,dip,sec,ap){
   const M=i=>()=>mapFig(it,i);
   return[
     {t:'Draw strike and the section',why:`${TOOLS_NOTE} Plot a point O. With the protractor, draw the strike line and the section line through it.`,calc:[`Strike <b>${az3(S)}</b> (${quad(S)})`,`Section <b>${az3(sec)}</b> (${quad(sec)}), β = ${f(beta)}°`],fig:M(0)},
-    {t:'Draw fold line FL1',why:'Draw a line through O at right angles to strike, toward the dip direction. Imagine the vertical section along this line folded flat onto the paper, hinged on FL1. In that folded section, angles and lengths are true.',calc:[`FL1 trends <b>${az3(D)}</b>`],fig:M(1)},
+    {t:'Draw fold line FL1',why:'Draw a line through O at right angles to strike, toward the dip direction. Imagine the vertical section along this line folded flat onto the paper, hinged on FL1. In that folded section, angles and lengths are true.',calc:[ddCalc(S,D),`So FL1 trends <b>${az3(D)}</b>`],fig:M(1)},
     {t:'Lay off the true dip',why:'In the folded section, the bed slopes at the true dip below horizontal. With the protractor at O, draw a line making δ with FL1.',calc:[`δ = <b>${f(dip)}°</b> from FL1`],fig:M(2)},
     {t:'Pick a depth h',why:'Choose any convenient depth h (here 1 unit, for example 2 cm). Find the point A on FL1 where a perpendicular up to the dip line measures exactly h. Mark the top A′. The bed lies a depth h below A.',calc:['h = 1 unit',`OA measures ≈ ${f(x0,3)} units`],fig:M(3)},
     {t:'Draw the structure contour',why:'Through A, draw a line parallel to strike. Everywhere along it, the bed sits at the same depth h. This is a structure contour. Extend it until it crosses the section line at B.',calc:[`OB measures ≈ ${f(s,3)} units`],fig:M(4)},
     {t:'Fold up along the section',why:'Now treat the section line as a second fold line. At B, draw a perpendicular and mark off the same depth h with dividers, giving B′.',calc:['BB′ = h = 1 unit'],fig:M(5)},
     {t:'Measure the apparent dip',why:'Join O to B′. The angle between OB′ and the section line is the apparent dip. Read it with the protractor.',calc:[`Protractor reading: <b>α ≈ ${f(aMeas)}°</b>`,`Check: tan α = h ÷ OB = 1 ÷ ${f(s,3)} = ${f4(1/s)}`],fig:M(6)},
-    {t:'Answer',why:'The apparent dip plunges toward the end of the section on the down-dip side, where B is. Graphical answers are usually good to about ±1°.',calc:[`<b>α ≈ ${f(ap.a)}° → ${az3(T)}</b> (${quad(T)})`],fig:M(99)},
+    {t:'Answer',why:'The apparent dip plunges toward the end of the section on the down-dip side, where B is. Graphical answers are usually good to about ±1°.',calc:[`<b>α ≈ ${f(ap.a)}° → ${az3(T)}</b> (${quad(T)})`,endCalc(sec,T,D)],fig:M(99)},
   ];
 }
 function graphTrueOne(S,D,dip,a,A,beta){
@@ -1854,7 +1927,7 @@ function graphDir(S,D,dip,a,beta,d1,d2){
   ];
   const M=i=>()=>mapFig(it,i);
   return[
-    {t:'Draw the strike',why:`${TOOLS_NOTE} Plot O and draw the strike line through it.`,calc:[`Strike <b>${az3(S)}</b>, dip ${f(dip)}° toward ${az3(D)}`],fig:M(0)},
+    {t:'Draw the strike',why:`${TOOLS_NOTE} Plot O and draw the strike line through it.`,calc:[`Strike <b>${az3(S)}</b>`,ddCalc(S,D),`True dip δ = ${f(dip)}°`],fig:M(0)},
     {t:'Lay off the true dip on FL1',why:'Draw fold line FL1 through O toward the dip direction. With the protractor, draw a line from O making the true dip δ with FL1.',calc:[`δ = <b>${f(dip)}°</b>`],fig:M(1)},
     {t:'Pick a depth h',why:'Choose a depth h (here 1 unit). Find A on FL1 where the perpendicular up to the δ line measures h. The bed is at depth h below A.',calc:['h = 1 unit',`OA ≈ ${f(x0,3)} units`],fig:M(2)},
     {t:'Draw the structure contour',why:'Through A, draw a line parallel to strike. The bed is at depth h all along it.',calc:['Contour ∥ strike through A'],fig:M(3)},
@@ -1867,7 +1940,7 @@ function graphDir(S,D,dip,a,beta,d1,d2){
 /* ---------- Quiz ---------- */
 function draw3dOn(t){const sv={ctx,W,H,yaw:view.yaw,pitch:view.pitch};ctx=t.ctx;W=t.W;H=t.H;view.yaw=t.yaw;view.pitch=t.pitch;try{draw3d();}finally{ctx=sv.ctx;W=sv.W;H=sv.H;view.yaw=sv.yaw;view.pitch=sv.pitch;}}
 const qcv=$('qBlock'),qctx=qcv.getContext('2d');const qv={yaw:rad(28),pitch:rad(30)};
-function drawLesson3d(){if($('qLesson').hidden)return;const r=qcv.getBoundingClientRect();if(!r.width)return;const dpr=window.devicePixelRatio||1;qcv.width=Math.round(r.width*dpr);qcv.height=Math.round(r.height*dpr);qctx.setTransform(dpr,0,0,dpr,0,0);draw3dOn({ctx:qctx,W:r.width,H:r.height,yaw:qv.yaw,pitch:qv.pitch});}
+function drawLesson3d(){if($('qLesson').hidden)return;const r=$('qCanvasWrap').getBoundingClientRect();if(!r.width)return;const dpr=window.devicePixelRatio||1;qcv.width=Math.round(r.width*dpr);qcv.height=Math.round(r.height*dpr);qctx.setTransform(dpr,0,0,dpr,0,0);draw3dOn({ctx:qctx,W:r.width,H:r.height,yaw:qv.yaw,pitch:qv.pitch});}
 function qSetView(id,yaw,pitch,note){['qvO','qvS','qvF','qvM'].forEach(b=>$(b).setAttribute('aria-pressed',String(b===id)));qv.yaw=yaw;qv.pitch=pitch;$('qViewNote').textContent=note;drawLesson3d();}
 $('qvO').onclick=()=>qSetView('qvO',rad(28),rad(30),NOTES.oblique);
 $('qvS').onclick=()=>qSetView('qvS',rad(state.S),rad(2),NOTES.strike);
@@ -2074,6 +2147,40 @@ function newRound(){quiz.i=0;quiz.score=0;quiz.missed=[];quiz.last=null;showItem
 $('qNew').onclick=newRound;
 renderTopics();
 
+/* ---------- Floating converter ---------- */
+(function(){
+  const fab=$('convFab'),panel=$('convPanel'),inp=$('convIn');
+  const open=v=>{panel.hidden=!v;fab.setAttribute('aria-expanded',String(v));if(v){inp.focus();inp.select();}};
+  fab.onclick=()=>open(panel.hidden);$('convClose').onclick=()=>{open(false);fab.focus();};
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden){open(false);fab.focus();}});
+  function dial(a){let s=`<circle r="44" class="c-ring"/>`;
+    for(let k=0;k<360;k+=30){const p1=cp(k,44),p2=cp(k,k%90?39:35);s+=`<line class="${k%90?'c-tick':'c-tick-major'}" x1="${p1[0].toFixed(1)}" y1="${p1[1].toFixed(1)}" x2="${p2[0].toFixed(1)}" y2="${p2[1].toFixed(1)}"/>`;}
+    [['N',0],['E',90],['S',180],['W',270]].forEach(([t,z])=>{const p=cp(z,53);s+=`<text class="c-card${t==='N'?' c-north':''}" style="font-size:12px" x="${p[0].toFixed(1)}" y="${p[1].toFixed(1)}">${t}</text>`;});
+    if(a!=null){const qs=[0,90,180,270];const ref=[0,180,180,0][Math.min(3,Math.floor(n360(a)/90))];
+      const t=cp(a,38);s+=`<path class="s-arc" d="${arcPath(ref,a,22)}"/><line class="s-sect-solid" x1="0" y1="0" x2="${t[0].toFixed(1)}" y2="${t[1].toFixed(1)}"/>${arrowHead(cp(a,40),a,8,'f-sect')}`;void qs;}
+    s+=`<circle r="2.5" class="f-ink"/>`;$('convDial').innerHTML=s;}
+  function rule(a,fromBearing){const v=Number(n360(a).toFixed(1))%360;
+    const due={0:'north',90:'east',180:'south',270:'west'};if(v in due)return`Exactly due ${due[v]}: azimuth <b>${az3(v)}</b> = bearing <b>${quad(v)}</b>`;
+    if(fromBearing){
+      if(v<=90)return`N…E: azimuth = the angle itself = <b>${az3(v)}</b>`;
+      if(v<=180)return`S…E: azimuth = 180° − ${f(180-v)}° = <b>${az3(v)}</b>`;
+      if(v<270)return`S…W: azimuth = 180° + ${f(v-180)}° = <b>${az3(v)}</b>`;
+      return`N…W: azimuth = 360° − ${f(360-v)}° = <b>${az3(v)}</b>`;}
+    if(v<=90)return`0°–90° is the NE quadrant: bearing = N ${f(v)}° E`;
+    if(v<=180)return`90°–180° is the SE quadrant: S (180° − ${f(v)}°) E = <b>${quad(v)}</b>`;
+    if(v<270)return`180°–270° is the SW quadrant: S (${f(v)}° − 180°) W = <b>${quad(v)}</b>`;
+    return`270°–360° is the NW quadrant: N (360° − ${f(v)}°) W = <b>${quad(v)}</b>`;}
+  let last='';
+  function run(){const raw=inp.value.trim();const isBear=/^[NSEW]/i.test(raw.replace(/\s/g,''));const a=parseBearing(raw);mark(inp,a!==null||!raw);
+    if(a===null){$('convOutLbl').textContent='—';$('convOut').textContent='?';$('convRule').textContent='Type an azimuth like 215 or a bearing like S35W.';dial(null);last='';return;}
+    if(isBear){$('convOutLbl').textContent='Azimuth';last=az3(a);}else{$('convOutLbl').textContent='Bearing';last=quad(a);}
+    $('convOut').textContent=last;$('convRule').innerHTML=rule(a,isBear);dial(a);}
+  inp.addEventListener('input',run);
+  $('convCopy').onclick=()=>{const b=$('convCopy');const done=()=>{b.textContent='Copied';setTimeout(()=>{b.textContent='Copy';},1500);};
+    try{navigator.clipboard.writeText(last).then(done,()=>{inp.value=last;inp.select();});}catch(e){inp.value=last;inp.select();}};
+  run();
+})();
+
 /* ---------- tabs ---------- */
 const tabs=['tab-app','tab-true','tab-tp','tab-dir','tab-thk','tab-drill','tab-net'];
 function selectTab(id){tabs.forEach(t=>{const on=t===id;$(t).setAttribute('aria-selected',String(on));$($(t).getAttribute('aria-controls')).hidden=!on;});}
@@ -2086,6 +2193,16 @@ new ResizeObserver(sizeCanvas).observe($('canvasWrap'));
 try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>draw3d());}catch(e){}
 new MutationObserver(()=>{draw3d();drawLesson3d();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw3d);
+(function(){
+  const root=document.documentElement,btn=$('themeBtn');
+  const sysDark=()=>{try{return window.matchMedia('(prefers-color-scheme: dark)').matches;}catch(e){return false;}};
+  const isDark=()=>root.getAttribute('data-theme')?root.getAttribute('data-theme')==='dark':sysDark();
+  const sync=()=>{const d=isDark();btn.setAttribute('aria-pressed',String(d));$('themeLbl').textContent=d?'Day mode':'Night mode';};
+  try{const saved=localStorage.getItem('sir-theme');if(saved==='dark'||saved==='light')root.setAttribute('data-theme',saved);}catch(e){}
+  btn.addEventListener('click',()=>{const next=isDark()?'light':'dark';root.setAttribute('data-theme',next);try{localStorage.setItem('sir-theme',next);}catch(e){}sync();});
+  try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',sync);}catch(e){}
+  sync();
+})();
 updateAll();sizeCanvas();newRound();
 })();
 </script>
