@@ -220,6 +220,16 @@ figure{margin:0}
 .canvas-wrap.small{height:300px}
 .lesson .guide{margin-top:4px}
 .gmode{margin-top:10px}
+[hidden]{display:none!important}
+.gfigwrap{position:relative;min-width:0}
+.gfig.zoomable{cursor:grab;user-select:none;-webkit-user-select:none}
+.gfig.dragging{cursor:grabbing}
+.zoombar{position:absolute;top:8px;right:8px;display:flex;align-items:center;gap:2px;background:var(--sheet);border-radius:8px;box-shadow:var(--shadow);padding:3px}
+.zoombar button{border:0;background:transparent;color:var(--ink);font:700 1.05rem var(--f-body);min-width:32px;height:32px;border-radius:6px;cursor:pointer}
+.zoombar button.zfit{font-size:.8rem;padding:0 8px}
+.zoombar button:hover{background:var(--soft)}
+.zpct{font:600 .78rem var(--f-body);color:var(--muted);min-width:42px;text-align:center}
+.zhint{font-size:.78rem;color:var(--muted);margin-top:6px}
 .qend{display:grid;gap:8px;background:var(--soft);border-radius:10px;padding:18px}
 .qend .big{font-size:2rem;font-weight:700}
 @media (max-width:880px){.lesson-views{grid-template-columns:minmax(0,1fr)}}
@@ -850,6 +860,7 @@ $('vSection').onclick=()=>setView('section',rad(state.sec-90),rad(2));
 
 /* ---------- step figure: map view that builds item by item ---------- */
 let figN=0;
+let FIGVIEW=null,FIGZOOMABLE=false,LASTFIG=null;
 function mapFig(items,k,opt){
   opt=opt||{};
   items=items.filter(Boolean);
@@ -863,6 +874,7 @@ function mapFig(items,k,opt){
   if(isMap){const hx=Math.max(Math.abs(minx),Math.abs(maxx)),hy=Math.max(Math.abs(miny),Math.abs(maxy));cx=0;cy=0;rx=2*hx;ry=2*hy;}
   else{cx=(minx+maxx)/2;cy=(miny+maxy)/2;rx=maxx-minx;ry=maxy-miny;}
   let sc=Math.min(rx>1e-9?(FW-2*pad)/rx:Infinity,ry>1e-9?(FH-2*pad)/ry:Infinity);if(!isFinite(sc))sc=100;
+  LASTFIG={cx,cy,sc};FIGZOOMABLE=true;if(FIGVIEW){sc*=FIGVIEW.z;cx+=FIGVIEW.px;cy+=FIGVIEW.py;}
   const S2=p=>[FW/2+(p[0]-cx)*sc,FH/2-(p[1]-cy)*sc];
   const sd=az=>[Math.sin(rad(az)),-Math.cos(rad(az))];
   const q=n=>n.toFixed(1);
@@ -871,6 +883,7 @@ function mapFig(items,k,opt){
   const OFFS=[[0,0],[0,-14],[0,14],[14,0],[-14,0],[12,-14],[-12,-14],[12,14],[-12,14],[0,-26],[0,26],[26,0],[-26,0],[22,-24],[-22,-24],[22,24],[-22,24]];
   const hit=b=>placed.some(o=>b[0]<o[2]&&b[2]>o[0]&&b[1]<o[3]&&b[3]>o[1]);
   const T=(p,s,cls,anchor)=>{
+    if(p[0]<-30||p[0]>FW+30||p[1]<-30||p[1]>FH+30)return'';
     const plain=String(s).replace(/<[^>]+>/g,'');const big=/t-pt/.test(cls);const cw=big?8.6:(/t-small/.test(cls)?5.9:6.6);
     const w=plain.length*cw+4,h=big?17:13;anchor=anchor||'start';
     const box=(x,y)=>{const x0=anchor==='middle'?x-w/2:anchor==='end'?x-w:x;return[x0,y-h/2,x0+w,y+h/2];};
@@ -887,7 +900,8 @@ function mapFig(items,k,opt){
    const o=S2([0,0]);
    if(o[0]>0&&o[0]<FW)grid+=`<line class="grid-ax" x1="${q(o[0])}" y1="0" x2="${q(o[0])}" y2="${FH}"/>`;
    if(o[1]>0&&o[1]<FH)grid+=`<line class="grid-ax" x1="0" y1="${q(o[1])}" x2="${FW}" y2="${q(o[1])}"/>`;
-   if(isMap)grid+=`<text class="t-axis t-north halo" x="${q(o[0]+6)}" y="14">N</text><text class="t-axis halo" x="${q(o[0]+6)}" y="${FH-8}">S</text><text class="t-axis halo" x="${FW-8}" y="${q(o[1]-7)}" text-anchor="end">E</text><text class="t-axis halo" x="8" y="${q(o[1]-7)}">W</text>`;
+   if(isMap&&o[0]>2&&o[0]<FW-16)grid+=`<text class="t-axis t-north halo" x="${q(o[0]+6)}" y="14">N</text><text class="t-axis halo" x="${q(o[0]+6)}" y="${FH-8}">S</text>`;
+   if(isMap&&o[1]>16&&o[1]<FH-2)grid+=`<text class="t-axis halo" x="${FW-8}" y="${q(o[1]-7)}" text-anchor="end">E</text><text class="t-axis halo" x="8" y="${q(o[1]-7)}">W</text>`;
    else grid+=`<text class="t-axis halo" x="${FW-8}" y="${FH-8}" text-anchor="end">↑ up</text>`;
   }
   let sbar='';
@@ -901,7 +915,7 @@ function mapFig(items,k,opt){
     if(it.step>k)continue;const now=it.step===k;const lc=it.lcls||'t-lab t-ink';
     if(it.type==='poly'){under+=`<polygon class="${it.cls}" points="${it.pts.map(S2).map(p=>q(p[0])+','+q(p[1])).join(' ')}"/>`;}
     else if(it.type==='line'||it.type==='ray'){
-      const p=S2(it.p),d=sd(it.az);const a=it.type==='line'?[p[0]-d[0]*900,p[1]-d[1]*900]:p;const b=[p[0]+d[0]*900,p[1]+d[1]*900];
+      const p=S2(it.p),d=sd(it.az);const a=it.type==='line'?[p[0]-d[0]*5000,p[1]-d[1]*5000]:p;const b=[p[0]+d[0]*5000,p[1]+d[1]*5000];
       if(now)glow+=L(a,b,'glow');body+=L(a,b,it.cls);
       if(it.label){const lp=it.lpos||100;const nrm=[-d[1],d[0]];const o=(it.side||1)*13;top+=T([p[0]+d[0]*lp+nrm[0]*o,p[1]+d[1]*lp+nrm[1]*o],it.label,lc,'middle');}
     } else if(it.type==='seg'||it.type==='arrow'){
@@ -960,18 +974,37 @@ class Guide{
   constructor(id){
     this.el=$(id);this.k=0;this.steps=[];this.all=false;
     this.el.innerHTML=`<div class="guide-head"><div><div class="eyebrow">Guided solve</div><h3>Step by step</h3><div class="seg gmode" role="group" aria-label="Solution method" hidden><button type="button" data-m="trig" aria-pressed="true">Trigonometry</button><button type="button" data-m="graph" aria-pressed="false">Graphical method</button></div></div><ol class="pips"></ol></div>
-      <div class="guide-body"><div class="gfig"></div><div class="gtext"><div class="label gcount"></div><h4 class="gtitle"></h4><p class="gwhy"></p><div class="calc"></div>
+      <div class="guide-body"><div class="gfigwrap"><div class="gfig"></div><div class="zoombar" hidden><button type="button" data-z="out" aria-label="Zoom out">−</button><span class="zpct">100%</span><button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="fit" class="zfit">Fit</button></div><div class="zhint" hidden>Drag to move · pinch, Ctrl + scroll or the buttons to zoom</div></div><div class="gtext"><div class="label gcount"></div><h4 class="gtitle"></h4><p class="gwhy"></p><div class="calc"></div>
       <div class="gnav"><button type="button" class="btn ghost gprev">Previous</button><button type="button" class="btn gnext">Next step</button><button type="button" class="linkbtn gtoggle">Show all steps as a list</button></div></div></div>
       <ol class="gall" hidden></ol>`;
     const q=s=>this.el.querySelector(s);
-    this.pips=q('.pips');this.fig=q('.gfig');this.count=q('.gcount');this.title=q('.gtitle');this.why=q('.gwhy');this.calc=q('.calc');this.prev=q('.gprev');this.next=q('.gnext');this.toggle=q('.gtoggle');this.list=q('.gall');this.mode='trig';this.sets={trig:[],graph:null};this.modeEl=q('.gmode');this.modeEl.addEventListener('click',e=>{const b=e.target.closest('button[data-m]');if(!b)return;this.mode=b.dataset.m;this.k=0;this.pick();this.render();});
+    this.pips=q('.pips');this.fig=q('.gfig');this.count=q('.gcount');this.title=q('.gtitle');this.why=q('.gwhy');this.calc=q('.calc');this.prev=q('.gprev');this.next=q('.gnext');this.toggle=q('.gtoggle');this.list=q('.gall');this.mode='trig';this.sets={trig:[],graph:null};this.modeEl=q('.gmode');this.modeEl.addEventListener('click',e=>{const b=e.target.closest('button[data-m]');if(!b)return;this.mode=b.dataset.m;this.k=0;this.view={z:1,px:0,py:0};this.pick();this.render();});
+    this.view={z:1,px:0,py:0};this.zoomable=false;this.base=null;this.zbar=q('.zoombar');this.zhint=q('.zhint');this.zpct=q('.zpct');
+    this.zbar.addEventListener('click',e=>{const b=e.target.closest('button[data-z]');if(!b)return;const m=b.dataset.z;if(m==='fit'){this.view={z:1,px:0,py:0};this.renderFig();}else this.zoomAt(this.view.z*(m==='in'?1.5:1/1.5),null);});
+    {const fg=this.fig,pts=new Map();let pinch=null;
+      fg.addEventListener('pointerdown',e=>{if(!this.zoomable)return;try{fg.setPointerCapture(e.pointerId);}catch(_){}pts.set(e.pointerId,[e.clientX,e.clientY]);if(pts.size===2){const[a,b]=[...pts.values()];pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1])||1,z:this.view.z};}fg.classList.add('dragging');});
+      fg.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const prev=pts.get(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);
+        if(pts.size===2&&pinch){const[a,b]=[...pts.values()];const d=Math.hypot(a[0]-b[0],a[1]-b[1]);this.zoomAt(pinch.z*d/pinch.d,[(a[0]+b[0])/2,(a[1]+b[1])/2]);}
+        else if(pts.size===1)this.panBy(e.clientX-prev[0],e.clientY-prev[1]);});
+      const up=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch=null;if(!pts.size)fg.classList.remove('dragging');};
+      fg.addEventListener('pointerup',up);fg.addEventListener('pointercancel',up);
+      fg.addEventListener('wheel',e=>{if(!this.zoomable||!(e.ctrlKey||e.metaKey))return;e.preventDefault();this.zoomAt(this.view.z*Math.exp(-e.deltaY*0.002),[e.clientX,e.clientY]);},{passive:false});
+    }
     this.prev.onclick=()=>this.go(this.k-1);
     this.next.onclick=()=>this.go(this.k>=this.steps.length-1?0:this.k+1);
     this.toggle.onclick=()=>{this.all=!this.all;this.render();};
     this.pips.addEventListener('click',e=>{const b=e.target.closest('button');if(b)this.go(+b.dataset.i);});
   }
   go(i){this.k=Math.max(0,Math.min(this.steps.length-1,i));this.render();}
-  set(steps,graph){this.sets={trig:steps,graph:graph&&graph.length?graph:null};this.pick();if(this.k>this.steps.length-1)this.k=Math.max(0,this.steps.length-1);this.render();}
+  svgK(){const sv=this.fig.querySelector('svg');if(!sv)return null;const r=sv.getBoundingClientRect();return r.width?{r,k:360/r.width}:null;}
+  panBy(dx,dy){if(!this.base)return;const m=this.svgK();if(!m)return;const sc=this.base.sc*this.view.z;this.view.px-=dx*m.k/sc;this.view.py+=dy*m.k/sc;this.renderFig();}
+  zoomAt(z2,client){if(!this.base)return;z2=Math.max(0.5,Math.min(8,z2));const m=this.svgK();let u=180,v=150;if(client&&m){u=(client[0]-m.r.left)*m.k;v=(client[1]-m.r.top)*m.k;}
+    const b=this.base,s1=b.sc*this.view.z,s2=b.sc*z2;const wx=b.cx+this.view.px+(u-180)/s1,wy=b.cy+this.view.py-(v-150)/s1;
+    this.view={z:z2,px:wx-(u-180)/s2-b.cx,py:wy+(v-150)/s2-b.cy};this.renderFig();}
+  renderFig(){const st=this.steps[this.k];FIGVIEW=this.view;FIGZOOMABLE=false;LASTFIG=null;try{this.fig.innerHTML=st&&st.fig?st.fig():'';}finally{FIGVIEW=null;}
+    this.zoomable=FIGZOOMABLE;this.base=LASTFIG;this.zbar.hidden=!this.zoomable;this.zhint.hidden=!this.zoomable;this.zpct.textContent=Math.round(this.view.z*100)+'%';
+    this.fig.classList.toggle('zoomable',this.zoomable);this.fig.style.touchAction=this.zoomable&&(this.view.z!==1||this.view.px||this.view.py)?'none':'pan-y';}
+  set(steps,graph){this.view={z:1,px:0,py:0};this.sets={trig:steps,graph:graph&&graph.length?graph:null};this.pick();if(this.k>this.steps.length-1)this.k=Math.max(0,this.steps.length-1);this.render();}
   pick(){this.steps=(this.mode==='graph'&&this.sets.graph)?this.sets.graph:this.sets.trig;}
   render(){
     const n=this.steps.length;if(!n){this.el.hidden=true;return;}this.el.hidden=false;this.modeEl.hidden=!this.sets.graph;const gmOn=this.mode==='graph'&&!!this.sets.graph;[...this.modeEl.children].forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.m==='graph')===gmOn)));
@@ -980,7 +1013,7 @@ class Guide{
     this.count.textContent=`Step ${this.k+1} of ${n}`;
     this.title.textContent=st.t;this.why.innerHTML=st.why;
     this.calc.innerHTML=(st.calc||[]).map(li).join('');this.calc.hidden=!(st.calc&&st.calc.length);
-    this.fig.innerHTML=st.fig?st.fig():'';
+    this.renderFig();
     this.prev.disabled=this.k===0;this.next.textContent=this.k===n-1?'Start over':'Next step';
     this.toggle.textContent=this.all?'Hide the list':'Show all steps as a list';
     this.list.hidden=!this.all;
