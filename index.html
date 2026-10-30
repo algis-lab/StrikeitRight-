@@ -220,6 +220,9 @@ figure{margin:0}
 .canvas-wrap.small{height:300px}
 .lesson .guide{margin-top:4px}
 .gmode{margin-top:10px}
+.hcm{display:inline-flex;align-items:center;gap:6px;margin:10px 0 0 12px;font-weight:600;font-size:.9rem;vertical-align:middle}
+.hcm input{width:64px;padding:6px 8px;font-size:.95rem}
+.cm{color:var(--accent);font-weight:700}
 .ggiven{background:var(--soft);border-radius:10px;padding:12px 16px;display:grid;gap:8px}
 .givl{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:6px 20px}
 .givl div{min-width:0}
@@ -870,19 +873,22 @@ $('vSection').onclick=()=>setView('section',rad(state.sec-90),rad(2));
 
 /* ---------- step figure: map view that builds item by item ---------- */
 let figN=0;
+let H_CM=2;try{const v=parseFloat(localStorage.getItem('sir-hcm'));if(v>0&&v<=100)H_CM=v;}catch(e){}
+const ALLGUIDES=[];
 let FIGVIEW=null,FIGZOOMABLE=false,LASTFIG=null;
 function mapFig(items,k,opt){
   opt=opt||{};
   items=items.filter(Boolean);
   const FW=360,FH=300,pad=48,uid='mc'+(++figN);
-  const pts=[];
-  items.forEach(it=>{if(it.type==='text'||it.type==='poly')return;['p','a','b','c'].forEach(key=>{if(it[key])pts.push(it[key]);});(it.extra||[]).forEach(p=>pts.push(p));});
-  if(!pts.length)pts.push([0,0]);
-  const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);
-  const minx=Math.min(...xs),maxx=Math.max(...xs),miny=Math.min(...ys),maxy=Math.max(...ys);
-  const isMap=opt.north!==false;let cx,cy,rx,ry;
-  if(isMap){const hx=Math.max(Math.abs(minx),Math.abs(maxx)),hy=Math.max(Math.abs(miny),Math.abs(maxy));cx=0;cy=0;rx=2*hx;ry=2*hy;}
-  else{cx=(minx+maxx)/2;cy=(miny+maxy)/2;rx=maxx-minx;ry=maxy-miny;}
+  const isMap=opt.north!==false;
+  const frame=lim=>{const pts=[];items.forEach(it=>{if(it.type==='text'||it.type==='poly')return;if(it.step>lim)return;['p','a','b','c'].forEach(key=>{if(it[key])pts.push(it[key]);});(it.extra||[]).forEach(p=>pts.push(p));});
+    if(!pts.length)pts.push([0,0]);const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);const minx=Math.min(...xs),maxx=Math.max(...xs),miny=Math.min(...ys),maxy=Math.max(...ys);
+    if(isMap){const hx=Math.max(Math.abs(minx),Math.abs(maxx)),hy=Math.max(Math.abs(miny),Math.abs(maxy));return{cx:0,cy:0,rx:2*hx,ry:2*hy};}
+    return{cx:(minx+maxx)/2,cy:(miny+maxy)/2,rx:maxx-minx,ry:maxy-miny};};
+  // One fixed frame for every step, so lines never jump between steps.
+  // Only when the finished drawing is far bigger than the current step (e.g. a section almost along strike) do we frame the current step instead.
+  const fAll=frame(Infinity),fNow=frame(k);const big=f=>Math.max(f.rx,f.ry)||1e-9;
+  let {cx,cy,rx,ry}=(k<99&&big(fAll)/big(fNow)>3)?fNow:fAll;
   let sc=Math.min(rx>1e-9?(FW-2*pad)/rx:Infinity,ry>1e-9?(FH-2*pad)/ry:Infinity);if(!isFinite(sc))sc=100;
   LASTFIG={cx,cy,sc};FIGZOOMABLE=true;if(FIGVIEW){sc*=FIGVIEW.z;cx+=FIGVIEW.px;cy+=FIGVIEW.py;}
   const S2=p=>[FW/2+(p[0]-cx)*sc,FH/2-(p[1]-cy)*sc];
@@ -983,12 +989,12 @@ function sideFig(rows){
 class Guide{
   constructor(id){
     this.el=$(id);this.k=0;this.steps=[];this.all=false;
-    this.el.innerHTML=`<div class="guide-head"><div><div class="eyebrow">Guided solve</div><h3>Step by step</h3><div class="seg gmode" role="group" aria-label="Solution method" hidden><button type="button" data-m="trig" aria-pressed="true">Trigonometry</button><button type="button" data-m="graph" aria-pressed="false">Graphical method</button></div></div><ol class="pips"></ol></div>
+    this.el.innerHTML=`<div class="guide-head"><div><div class="eyebrow">Guided solve</div><h3>Step by step</h3><div class="seg gmode" role="group" aria-label="Solution method" hidden><button type="button" data-m="trig" aria-pressed="true">Trigonometry</button><button type="button" data-m="graph" aria-pressed="false">Graphical method</button></div><label class="hcm" hidden>My h = <input type="text" class="hcmin" inputmode="decimal" value="2" aria-label="Your depth h in centimetres"> cm</label></div><ol class="pips"></ol></div>
       <div class="ggiven" hidden></div><div class="guide-body"><div class="gfigwrap"><div class="gfig"></div><div class="zoombar" hidden><button type="button" data-z="out" aria-label="Zoom out">−</button><span class="zpct">100%</span><button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="fit" class="zfit">Fit</button></div><div class="zhint" hidden>Drag to move · pinch, Ctrl + scroll or the buttons to zoom</div></div><div class="gtext"><div class="label gcount"></div><h4 class="gtitle"></h4><p class="gwhy"></p><div class="calc"></div>
       <div class="gnav"><button type="button" class="btn ghost gprev">Previous</button><button type="button" class="btn gnext">Next step</button><button type="button" class="linkbtn gtoggle">Show all steps as a list</button></div></div></div>
       <ol class="gall" hidden></ol>`;
     const q=s=>this.el.querySelector(s);
-    this.pips=q('.pips');this.givenEl=q('.ggiven');this.givenFn=null;this.fig=q('.gfig');this.count=q('.gcount');this.title=q('.gtitle');this.why=q('.gwhy');this.calc=q('.calc');this.prev=q('.gprev');this.next=q('.gnext');this.toggle=q('.gtoggle');this.list=q('.gall');this.mode='trig';this.sets={trig:[],graph:null};this.modeEl=q('.gmode');this.modeEl.addEventListener('click',e=>{const b=e.target.closest('button[data-m]');if(!b)return;this.mode=b.dataset.m;this.k=0;this.view={z:1,px:0,py:0};this.pick();this.render();});
+    this.pips=q('.pips');this.hcmEl=q('.hcm');this.hcmIn=q('.hcmin');this.hcmIn.addEventListener('input',()=>{const v=parseNum(this.hcmIn.value,0.1,100);mark(this.hcmIn,v!==null);if(v===null)return;H_CM=v;try{localStorage.setItem('sir-hcm',String(v));}catch(e){}ALLGUIDES.forEach(g=>g.render());});ALLGUIDES.push(this);this.givenEl=q('.ggiven');this.givenFn=null;this.fig=q('.gfig');this.count=q('.gcount');this.title=q('.gtitle');this.why=q('.gwhy');this.calc=q('.calc');this.prev=q('.gprev');this.next=q('.gnext');this.toggle=q('.gtoggle');this.list=q('.gall');this.mode='trig';this.sets={trig:[],graph:null};this.modeEl=q('.gmode');this.modeEl.addEventListener('click',e=>{const b=e.target.closest('button[data-m]');if(!b)return;this.mode=b.dataset.m;this.k=0;this.view={z:1,px:0,py:0};this.pick();this.render();});
     this.view={z:1,px:0,py:0};this.zoomable=false;this.base=null;this.zbar=q('.zoombar');this.zhint=q('.zhint');this.zpct=q('.zpct');
     this.zbar.addEventListener('click',e=>{const b=e.target.closest('button[data-z]');if(!b)return;const m=b.dataset.z;if(m==='fit'){this.view={z:1,px:0,py:0};this.renderFig();}else this.zoomAt(this.view.z*(m==='in'?1.5:1/1.5),null);});
     {const fg=this.fig,pts=new Map();let pinch=null;
@@ -1023,7 +1029,9 @@ class Guide{
     this.count.textContent=`Step ${this.k+1} of ${n}`;
     if(this.givenFn){let h='';try{h=this.givenFn();}catch(e){}this.givenEl.innerHTML=h;this.givenEl.hidden=!h;}else this.givenEl.hidden=true;
     this.title.textContent=st.t;this.why.innerHTML=st.why;
-    this.calc.innerHTML=(st.calc||[]).map(li).join('');this.calc.hidden=!(st.calc&&st.calc.length);
+    const gm=this.mode==='graph'&&!!this.sets.graph;this.hcmEl.hidden=!gm;if(document.activeElement!==this.hcmIn)this.hcmIn.value=String(H_CM);
+    const conv=t=>gm?String(t).replace(/(\d+(?:\.\d+)?) units?\b/g,(m,n)=>`${m} <span class="cm">= ${f(+n*H_CM,1)} cm</span>`):t;
+    this.calc.innerHTML=(st.calc||[]).map(t=>li(conv(t))).join('');this.calc.hidden=!(st.calc&&st.calc.length);
     this.renderFig();
     this.prev.disabled=this.k===0;this.next.textContent=this.k===n-1?'Start over':'Next step';
     this.toggle.textContent=this.all?'Hide the list':'Show all steps as a list';
@@ -1838,7 +1846,13 @@ const sideAz=(az,uRef,uOther)=>{const cr=uRef[0]*uOther[1]-uRef[1]*uOther[0];ret
 const TOOLS_NOTE='You need: pencil, ruler with a scale, protractor, set square and dividers (or a drawing compass).';
 const DW=(doTxt,whyTxt)=>`<span class="gdo"><b>Do:</b> ${doTxt}</span>`+(whyTxt?`<span class="gwhyit"><b>Why:</b> ${whyTxt}</span>`:'');
 const FOLD_WHY='A fold line is a hinge. Imagine a vertical wall (a cross-section) standing on this line, then fold it down flat onto your paper. Everything drawn on the "underground" side of the fold line shows true angles and true depths.';
-const UNDER_DO=(fl,dirTxt,ang,sym)=>`Pick one side of ${fl} to be "underground" in the folded wall (either side works; keep it the same for the rest of this fold). Put the protractor's centre on O with its base along ${fl} and 0° pointing ${dirTxt}. Count ${sym} = ${ang}° toward the underground side, mark it, and draw a line from O through the mark.`;
+const UNDER_DO=(fl,dirTxt,ang,sym,cw,awayTxt)=>`Choose which side of ${fl} is "underground" in the folded wall. Here we use the side ${awayTxt}, so the construction does not overlap other lines. Put the protractor's centre on O with its base along ${fl} and 0° pointing ${dirTxt}. From there, count ${sym} = ${ang}° <b>${cw?'clockwise':'counterclockwise'}</b> (toward that side), mark it, and draw a line from O through the mark.`;
+const SIDE_WHY='Clockwise or counterclockwise is your choice, not a property of the bed. The vertical wall can be folded down onto either side of the fold line and gives exactly the same angle, so the answer does not change. What matters is that you stay on the same side for the depth line in the next step.';
+function betaCalc(sec,S,secName){secName=secName||'section';const a=n360(sec),b=n360(S);const d0=Math.abs(a-b);const out=[`β = |${secName} − strike| = |${f(a)}° − ${f(b)}°| = ${f(d0)}°`];let d=d0;
+  if(d>180){out.push(`That is more than 180°, so go the short way round: 360° − ${f(d)}° = ${f(360-d)}°`);d=360-d;}
+  if(d>90){out.push(`That is more than 90°. A line has two ends, so use the smaller angle: 180° − ${f(d)}° = ${f(180-d)}°`);d=180-d;}
+  out[out.length-1]+=` → <b>β = ${f(d)}°</b>`;return out;}
+const isCW=(nAz,flAz)=>angDiff(nAz,n360(flAz+90))<1;
 const SETUP_DO=(S,sec,secLbl)=>`Draw a north arrow and mark a point O. Put the protractor's centre on O with 0° on north. Count clockwise to ${az3(S)}, mark it, and draw the strike line through O (extend it both ways). Do the same at ${az3(sec)} for the ${secLbl}.`;
 function graphApparent(S,D,dip,sec,ap){
   if(dip<0.05||ap.beta<0.5)return null;
@@ -1872,11 +1886,11 @@ function graphApparent(S,D,dip,sec,ap){
   ];
   const M=i=>()=>mapFig(it,i);
   return[
-    {t:'Set up the map',why:DW(`${TOOLS_NOTE} `+SETUP_DO(S,sec,'section line'),'These two lines are the only map information the construction needs. β is shown for reference only; you never measure it in the graphical method.'),calc:[`Strike <b>${az3(S)}</b> (${quad(S)})`,`Section <b>${az3(sec)}</b> (${quad(sec)})`,`(β = ${f(beta)}°, for reference)`],fig:M(0)},
+    {t:'Set up the map',why:DW(`${TOOLS_NOTE} `+SETUP_DO(S,sec,'section line'),'These two lines are the only map information the construction needs. β is shown for reference only; you never measure it in the graphical method.'),calc:[`Strike <b>${az3(S)}</b> (${quad(S)})`,`Section <b>${az3(sec)}</b> (${quad(sec)})`,...betaCalc(sec,S),'(β is for reference: the drawing does not need it)'],fig:M(0)},
     {t:'Draw fold line FL1 along the dip direction',why:DW('Put the set square on the strike line at O and draw a line at 90° to it, on the side the bed dips toward. Label it FL1 and put a small arrow on the down-dip end.',FOLD_WHY+' A wall along the dip direction is the one that shows the true dip.'),calc:[ddCalc(S,D),`So FL1 trends <b>${az3(D)}</b>`],fig:M(1)},
-    {t:'Lay off the true dip on FL1',why:DW(UNDER_DO('FL1','down-dip (along the arrow)',f(dip),'δ'),'In the folded wall, the bed leaves the surface at O and slopes down at the true dip. The line you drew is the bed in that wall.'),calc:[`δ = <b>${f(dip)}°</b>, measured from the down-dip end of FL1`],fig:M(2)},
+    {t:'Lay off the true dip on FL1',why:DW(UNDER_DO('FL1','down-dip (along the arrow)',f(dip),'δ',isCW(nAz,D),'away from the section line'),'In the folded wall, the bed leaves the surface at O and slopes down at the true dip. The line you drew is the bed in that wall. '+SIDE_WHY),calc:[`δ = <b>${f(dip)}°</b>, measured from the down-dip end of FL1`],fig:M(2)},
     {t:'Draw the depth line and find A',why:DW('Choose a depth h that gives a comfortable drawing, for example 3 cm (here h = 1 unit). On the underground side, draw a line parallel to FL1 at distance h from it. Mark A′ where it crosses the bed line. Then, with the set square, drop a perpendicular from A′ back to FL1 and mark its foot A.','The depth line is a level h below the surface. A′ is where the bed reaches that level in the wall, and A is the map point directly above it.'),calc:['h = 1 unit',`OA measures ≈ ${f(x0,3)} units (this is h ÷ tan δ)`],fig:M(3)},
-    {t:'Draw the structure contour through A',why:DW('Through A, draw a line parallel to the strike line (slide the set square along a ruler). Extend it until it crosses the section line, and mark that point B. B must be on the down-dip side of O.','The bed is a flat plane, so all its points at depth h lie on one straight line parallel to strike. That line is a structure contour, and it passes through A. B is where the section line reaches depth h.'),calc:[`OB measures ≈ ${f(s,3)} units`],fig:M(4)},
+    {t:'Draw the structure contour through A',why:DW('Through A, draw a line parallel to the strike line (slide the set square along a ruler). Extend it until it crosses the section line, and mark that point B. B must be on the down-dip side of O.','The bed is a flat plane, so all its points at depth h lie on one straight line parallel to strike. That line is a structure contour, and it passes through A. B is where the section line reaches depth h.'),calc:[`OB measures ≈ ${f(s,3)} units`,beta<15?`Note: the section is only ${f(beta)}° from strike, so B lands far from O. Use a small h or a large sheet, and zoom out to see it here.`:''].filter(Boolean),fig:M(4)},
     {t:'Fold along the section and mark B′',why:DW('Now use the section line as a second fold line, FL2. At B, draw a short line at 90° to FL2 (on either side). Set your dividers to the same h and mark that distance along the new line. Call the end B′.','This folds up the wall that stands on the section line. In that wall, B is on the surface and the bed is h below it, at B′.'),calc:['BB′ = h = 1 unit'],fig:M(5)},
     {t:'Join O to B′ and read α',why:DW('Draw a straight line from O to B′. Put the protractor\'s centre on O with its base along FL2, and read the angle between FL2 and OB′.','OB′ is the bed as seen in the section wall: it starts at O on the surface and reaches depth h at B′. Its angle with the surface is the apparent dip.'),calc:['Triangle O–B–B′ has a right angle at B',`Check: tan α = BB′ ÷ OB = 1 ÷ ${f(s,3)} = ${f4(1/s)}`,`Protractor reading: <b>α ≈ ${f(aMeas)}°</b>`],fig:M(6)},
     {t:'Answer',why:DW('Write the apparent dip with its plunge direction: the end of the section line on the side where B is.','Graphical answers are usually good to about ±1°, so a protractor reading within a degree of the calculated value is correct.'),calc:[`<b>α ≈ ${f(ap.a)}° → ${az3(T)}</b> (${quad(T)})`,endCalc(sec,T,D)],fig:M(99)},
@@ -1910,8 +1924,8 @@ function graphTrueOne(S,D,dip,a,A,beta){
   ];
   const M=i=>()=>mapFig(it,i);
   return[
-    {t:'Set up the map',why:DW(`${TOOLS_NOTE} `+SETUP_DO(S,A,'section line (the direction the apparent dip plunges)'),'β is shown for reference only; the construction never needs it.'),calc:[`Strike <b>${az3(S)}</b>, section toward <b>${az3(A)}</b>`,`(β = ${f(beta)}°, for reference)`],fig:M(0)},
-    {t:'Lay off the apparent dip on FL1',why:DW('Use the section line as fold line FL1. '+UNDER_DO('FL1',`toward the plunge direction (${az3(A)})`,f(a),'α'),FOLD_WHY),calc:[`α = <b>${f(a)}°</b>, measured from the plunge end of FL1`],fig:M(1)},
+    {t:'Set up the map',why:DW(`${TOOLS_NOTE} `+SETUP_DO(S,A,'section line (the direction the apparent dip plunges)'),'β is shown for reference only; the construction never needs it.'),calc:[`Strike <b>${az3(S)}</b>, section toward <b>${az3(A)}</b>`,...betaCalc(A,S),'(β is for reference: the drawing does not need it)'],fig:M(0)},
+    {t:'Lay off the apparent dip on FL1',why:DW('Use the section line as fold line FL1. '+UNDER_DO('FL1',`toward the plunge direction (${az3(A)})`,f(a),'α',isCW(nAz,A),'facing away from the dip direction'),FOLD_WHY+' '+SIDE_WHY),calc:[`α = <b>${f(a)}°</b>, measured from the plunge end of FL1`],fig:M(1)},
     {t:'Draw the depth line and find P',why:DW('Choose a depth h that gives a comfortable drawing, for example 3 cm (here h = 1 unit). On the underground side, draw a line parallel to FL1 at distance h from it. Mark P′ where it crosses the α line. Drop a perpendicular from P′ back to FL1 and mark its foot P.','P′ is where the bed reaches depth h along the section, and P is the map point directly above it.'),calc:['h = 1 unit',`OP measures ≈ ${f(s,3)} units (this is h ÷ tan α)`],fig:M(2)},
     {t:'Draw the structure contour through P',why:DW('Through P, draw a line parallel to the strike line (slide the set square along a ruler). Make it long.','All points of the bed at depth h lie on one line parallel to strike: the structure contour.'),calc:['Contour ∥ strike, through P'],fig:M(3)},
     {t:'Find the dip direction (FL2)',why:DW('Put the set square on the contour and slide it until its edge passes through O. Draw the line from O at 90° to the contour, and mark where it meets the contour: F. Label the line OF as FL2 and read its azimuth with the protractor.','The quickest way from O down to depth h is straight down-dip, at right angles to the contour. So O→F is the dip direction.'),calc:[`OF measures ≈ ${f(d,3)} units`,`FL2 trends ≈ <b>${az3(D)}</b>`],fig:M(4)},
@@ -1947,7 +1961,7 @@ function graphTrueTwo(a1,A1,a2,A2,r,p1,p2,d){
     {type:'arc',c:O,r:64,a1:r.D,a2:dAz,label:'δ',lcls:'t-lab t-bed',step:6},
   ];
   const M=i=>()=>mapFig(it,i);
-  const pStep=(g,a,A,lab,i)=>g?{t:`Lay off α${lab} and find P${lab}`,why:DW(UNDER_DO(`FL${i}`,`toward ${az3(A)}`,f(a),`α${lab}`)+` Then, on that side, draw a line parallel to FL${i} at distance h (use the same h for both lines, here 1 unit). Where it crosses the α${lab} line, drop a perpendicular back to FL${i}; the foot is P${lab}.`,`P${lab} is the map point above where the bed reaches depth h along this section.`+(i===1?' '+FOLD_WHY:'')),calc:[`α${lab} = <b>${f(a)}°</b>`,`OP${lab} measures ≈ ${f(vlen(g.p),3)} units`],fig:M(i)}
+  const pStep=(g,a,A,lab,i)=>g?{t:`Lay off α${lab} and find P${lab}`,why:DW(UNDER_DO(`FL${i}`,`toward ${az3(A)}`,f(a),`α${lab}`,isCW(g.nAz,A),'away from the other section line')+` Then, on that side, draw a line parallel to FL${i} at distance h (use the same h for both lines, here 1 unit). Where it crosses the α${lab} line, drop a perpendicular back to FL${i}; the foot is P${lab}.`,`P${lab} is the map point above where the bed reaches depth h along this section.`+(i===1?' '+FOLD_WHY:'')),calc:[`α${lab} = <b>${f(a)}°</b>`,`OP${lab} measures ≈ ${f(vlen(g.p),3)} units`],fig:M(i)}
     :{t:`α${lab} is 0°`,why:DW(`Nothing to construct on FL${i}.`,`An apparent dip of 0° means FL${i} already runs along strike. The contour in the next step is drawn parallel to it.`),calc:[`FL${i} = strike direction`],fig:M(i)};
   return[
     {t:'Set up the map',why:DW(`${TOOLS_NOTE} Draw a north arrow and mark O. With the protractor (0° on north, counting clockwise), draw the two directions in which the apparent dips plunge. Label them FL1 and FL2.`,'Each direction is a fold line. Strike is unknown here; the construction will find it.'),calc:[`FL1 → ${az3(A1)} (α₁ = ${f(a1)}°)`,`FL2 → ${az3(A2)} (α₂ = ${f(a2)}°)`],fig:M(0)},
@@ -1988,7 +2002,7 @@ function graphDir(S,D,dip,a,beta,d1,d2){
   const M=i=>()=>mapFig(it,i);
   return[
     {t:'Set up the map',why:DW(`${TOOLS_NOTE} Draw a north arrow and mark O. With the protractor (0° on north, counting clockwise), draw the strike line through O at ${az3(S)}.`,''),calc:[`Strike <b>${az3(S)}</b>`,ddCalc(S,D)],fig:M(0)},
-    {t:'Lay off the true dip on FL1',why:DW('At O, draw FL1 at 90° to strike, toward the dip direction. '+UNDER_DO('FL1','down-dip',f(dip),'δ'),FOLD_WHY),calc:[`δ = <b>${f(dip)}°</b>`],fig:M(1)},
+    {t:'Lay off the true dip on FL1',why:DW('At O, draw FL1 at 90° to strike, toward the dip direction. '+UNDER_DO('FL1','down-dip',f(dip),'δ',true,'on your right as you face down-dip'),FOLD_WHY+' '+SIDE_WHY),calc:[`δ = <b>${f(dip)}°</b>`],fig:M(1)},
     {t:'Draw the depth line and find A',why:DW('Choose a depth h (for example 3 cm; here 1 unit). On the underground side, draw a line parallel to FL1 at distance h. Mark A′ where it crosses the δ line, and drop a perpendicular from A′ to FL1; the foot is A. Keep the depth line: you will use it again in step 5.','A is the map point above where the bed reaches depth h, going straight down-dip.'),calc:['h = 1 unit',`OA ≈ ${f(x0,3)} units`],fig:M(2)},
     {t:'Draw the structure contour through A',why:DW('Through A, draw a long line parallel to strike.','The bed is at depth h all along this line.'),calc:['Contour ∥ strike, through A'],fig:M(3)},
     {t:'Find the map distance for α',why:DW(`From O, lay off the wanted apparent dip α = ${f(a)}° from FL1, on the same underground side as δ. Mark C′ where this line crosses the depth line. Drop a perpendicular from C′ to FL1; the foot is C.`,'OC is how far a section dipping at α must travel on the map before the bed is h deep. Because α is gentler than δ, C lies beyond A.'),calc:[`OC measures ≈ ${f(s,3)} units (this is h ÷ tan α)`],fig:M(4)},
