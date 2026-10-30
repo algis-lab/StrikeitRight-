@@ -220,6 +220,9 @@ figure{margin:0}
 .canvas-wrap.small{height:300px}
 .lesson .guide{margin-top:4px}
 .gmode{margin-top:10px}
+.gdo,.gwhyit{display:block}
+.gwhyit{margin-top:8px;color:var(--muted)}
+.gdo b,.gwhyit b{color:var(--ink)}
 [hidden]{display:none!important}
 .gfigwrap{position:relative;min-width:0}
 .gfig.zoomable{cursor:grab;user-select:none;-webkit-user-select:none}
@@ -1358,10 +1361,10 @@ function tool3(){
   const gsteps=[
     {t:'Plot the points to scale',why:`${TOOLS_NOTE} Pick a map scale (for example 1 cm = 100 m). `+(bear?'From A, lay off each bearing with the protractor and measure each distance with the ruler.':'Plot each point from its easting and northing on graph paper.')+' Write each elevation beside its point.',calc:pts.map(p=>`${p.k}: ${f(p.z)} m`),fig:GM(0)},
     {t:'Rank by elevation',why:'Label the points high (H), middle (M) and low (L). We want a second point at the middle elevation.',calc:[`H = ${Hh.k}, M = ${M.k}, L = ${Lo.k}`],fig:GM(1)},
-    {t:'Set up a proportional scale',why:`Draw ${Hh.k}${Lo.k}. From ${Hh.k}, draw a helper line at any angle. Along it, mark equal steps for elevation: ${f(Hh.z-Lo.z)} m down to ${Lo.k}'s level and ${f(Hh.z-M.z)} m down to ${M.k}'s. Join the ${f(Lo.z)} mark to ${Lo.k}.`,calc:[`Mark for ${f(Lo.z)} m: ${f(Hh.z-Lo.z)} steps from ${Hh.k}`,`Mark for ${f(M.z)} m: ${f(Hh.z-M.z)} steps from ${Hh.k}`,'Any step size works'],fig:GM(2)},
-    {t:'Find X with a parallel line',why:`Slide a set square along a ruler to draw a line through the ${f(M.z)} mark parallel to the last line. Where it meets ${Hh.k}${Lo.k} is X, at ${f(M.z)} m. Parallel lines cut both lines in the same ratio, so no arithmetic is needed.`,calc:[`${Hh.k}X measures ≈ ${f(HL*t)} m at map scale`],fig:GM(3)},
-    {t:'Join M and X: strike',why:`${M.k} and X are at the same elevation, so ${M.k}X is a structure contour. It runs along strike. Read its bearing with the protractor.`,calc:[`Protractor reading ≈ <b>${az3(S)}</b> (${quad(S)})`],fig:GM(4)},
-    {t:'Fold up and measure the dip',why:`From ${ref.k}, draw a line at right angles to the strike line, meeting it at G. Fold the section up along G${ref.k}: at ${ref.k}, draw a perpendicular and mark Δz at the same scale as the map. Join G to the top. The angle at G is the true dip.`,calc:[`G${ref.k} ≈ ${f(dist)} m, Δz = ${f(dz)} m`,`Protractor reading at G: <b>δ ≈ ${f(dip)}°</b>`],fig:GM(5)},
+    {t:'Set up a proportional scale',why:DW(`Draw the line ${Hh.k}${Lo.k}. From ${Hh.k}, draw a helper line at any convenient angle (about 30°–40° from ${Hh.k}${Lo.k}). Choose a ruler step that fits, for example 1 mm for every 1 m of elevation. Along the helper line, measure the drop to ${Lo.k} (${f(Hh.z-Lo.z)} m) and mark it; measure the drop to ${M.k} (${f(Hh.z-M.z)} m) and mark it. Join the ${Lo.k} mark to point ${Lo.k}.`,'The helper line is a scale of how far each elevation is below the high point.'),calc:[`Drop from ${Hh.k} to ${Lo.k} = ${f(Hh.z)} − ${f(Lo.z)} = <b>${f(Hh.z-Lo.z)} m</b>`,`Drop from ${Hh.k} to ${M.k} = ${f(Hh.z)} − ${f(M.z)} = <b>${f(Hh.z-M.z)} m</b>`,'Use the same ruler step for both marks'],fig:GM(2)},
+    {t:'Find X with a parallel line',why:DW(`Put a set square against the line you just drew (from the ${Lo.k} mark to ${Lo.k}). Slide it along a ruler until it passes through the ${M.k} mark, and draw that parallel line. Where it meets ${Hh.k}${Lo.k}, mark X.`,`Parallel lines cut both lines in the same ratio, so X is at ${M.k}'s elevation (${f(M.z)} m). No arithmetic is needed.`),calc:[`Shortcut by arithmetic: ${Hh.k}X = ${Hh.k}${Lo.k} × (${f(Hh.z-M.z)} ÷ ${f(Hh.z-Lo.z)}) ≈ ${f(HL*t)} m`],fig:GM(3)},
+    {t:'Join M and X: that line is strike',why:DW(`Draw a long line through ${M.k} and X. Read its azimuth with the protractor (0° on north, counting clockwise).`,`${M.k} and X are at the same elevation, so ${M.k}X is a horizontal line on the bed: a structure contour, which runs along strike.`),calc:[`Protractor reading ≈ <b>${az3(S)}</b> (${quad(S)})`],fig:GM(4)},
+    {t:'Fold up and measure the dip',why:DW(`From ${ref.k}, use the set square to draw a line at 90° to the strike line, and mark where it meets it: G. This line G${ref.k} is the dip direction; use it as a fold line. At ${ref.k}, draw a short line at 90° to G${ref.k} and mark Δz = ${f(dz)} m along it, at the map scale. Join G to the end of that mark, and read the angle at G with the protractor.`,`G is on the bed at ${f(M.z)} m and ${ref.k} is ${f(dz)} m ${ref===Lo?'lower':'higher'}. In the wall folded flat on G${ref.k}, the bed runs from G to the end of the Δz mark, so the angle at G is the true dip.`),calc:[`G${ref.k} ≈ ${f(dist)} m, Δz = ${f(dz)} m`,`Protractor reading at G: <b>δ ≈ ${f(dip)}°</b>`],fig:GM(5)},
     {t:'Read the angle (enlarged)',why:`Here is the folded triangle from the last step, enlarged. The bed runs from G down to the top of the Δz line, so the angle at G is the true dip.`,calc:[`tan δ = Δz ÷ G${ref.k} = ${f(dz)} ÷ ${f(dist)} → δ ≈ ${f(dip)}°`],fig:()=>sideFig([{base:dist,h:dz,title:`Folded section along G${ref.k} (enlarged)`,cls:'s-bed',baseLab:`G${ref.k} = ${f(dist)} m`,hLab:`Δz = ${f(dz)} m`,angLab:`δ ${f(dip)}°`,angCls:'t-bed'}])},
     {t:'Answer',why:'The bed dips at right angles to strike, toward the lower point.',calc:[`<b>Strike ${az3(S)} (${quad(S)}), dip ≈ ${f(dip)}° toward ${az3(D)}</b>`],fig:GM(99)},
   ];
@@ -1825,6 +1828,10 @@ function stepsNet(){
 /* ---------- Graphical (orthographic) methods ---------- */
 const sideAz=(az,uRef,uOther)=>{const cr=uRef[0]*uOther[1]-uRef[1]*uOther[0];return n360(az+(cr>0?90:-90));};// perpendicular pointing away from uOther
 const TOOLS_NOTE='You need: pencil, ruler with a scale, protractor, set square and dividers (or a drawing compass).';
+const DW=(doTxt,whyTxt)=>`<span class="gdo"><b>Do:</b> ${doTxt}</span>`+(whyTxt?`<span class="gwhyit"><b>Why:</b> ${whyTxt}</span>`:'');
+const FOLD_WHY='A fold line is a hinge. Imagine a vertical wall (a cross-section) standing on this line, then fold it down flat onto your paper. Everything drawn on the "underground" side of the fold line shows true angles and true depths.';
+const UNDER_DO=(fl,dirTxt,ang,sym)=>`Pick one side of ${fl} to be "underground" in the folded wall (either side works; keep it the same for the rest of this fold). Put the protractor's centre on O with its base along ${fl} and 0° pointing ${dirTxt}. Count ${sym} = ${ang}° toward the underground side, mark it, and draw a line from O through the mark.`;
+const SETUP_DO=(S,sec,secLbl)=>`Draw a north arrow and mark a point O. Put the protractor's centre on O with 0° on north. Count clockwise to ${az3(S)}, mark it, and draw the strike line through O (extend it both ways). Do the same at ${az3(sec)} for the ${secLbl}.`;
 function graphApparent(S,D,dip,sec,ap){
   if(dip<0.05||ap.beta<0.5)return null;
   const T=ap.toward,beta=ap.beta,uD=dir2(D),uT=dir2(T),uS=dir2(S);
@@ -1837,14 +1844,18 @@ function graphApparent(S,D,dip,sec,ap){
     {type:'pt',p:O,label:'O',step:0,ldx:-16,ldy:-12},
     {type:'line',p:O,az:T,cls:'s-sect',step:0,label:'section',lcls:'t-lab t-sect',lpos:-70},
     beta>1?{type:'arc',c:O,r:30,a1:sEnd,a2:T,label:'β',step:0}:null,
+    {type:'arrow',a:O,b:v2(uD,x0*0.55),cls:'s-line',head:'f-ink',step:1},
     {type:'line',p:O,az:D,cls:'s-guide',step:1,label:'FL1',lcls:'t-lab t-ink',lpos:-60},
-    {type:'seg',a:O,b:v2(dir2(dipAz),vlen(A1)*1.15),cls:'s-bed',step:2},
+    {type:'seg',a:O,b:v2(dir2(dipAz),vlen(A1)*1.15),cls:'s-bed',step:2,label:'bed',lcls:'t-lab t-bed',side:-1},
     {type:'arc',c:O,r:44,a1:D,a2:dipAz,label:'δ',lcls:'t-lab t-bed',step:2},
-    {type:'seg',a:A,b:A1,cls:'s-line',step:3,label:'h'},
+    {type:'line',p:A1,az:D,cls:'s-guide',step:3,label:'depth-h line',lcls:'t-small',lpos:-90},
+    {type:'pt',p:A1,label:'A′',step:3},
+    {type:'seg',a:A1,b:A,cls:'s-line',step:3,label:'h'},
     {type:'right',c:A,a1:n360(D+180),a2:nAz,step:3},
-    {type:'pt',p:A,label:'A',step:3,cls:'f-bed'},{type:'pt',p:A1,label:'A′',step:3},
+    {type:'pt',p:A,label:'A',step:3,cls:'f-bed'},
     {type:'line',p:A,az:S,cls:'s-bed-dash',step:4,label:'contour',lcls:'t-lab t-bed',lpos:70,extra:[B]},
     {type:'pt',p:B,label:'B',step:4,cls:'f-sect'},
+    {type:'line',p:O,az:T,cls:'s-sect',step:5,label:'FL2',lcls:'t-lab t-sect',lpos:-40},
     {type:'seg',a:B,b:B1,cls:'s-line',step:5,label:'h'},
     {type:'right',c:B,a1:n360(T+180),a2:n2Az,step:5},
     {type:'pt',p:B1,label:'B′',step:5},
@@ -1853,21 +1864,21 @@ function graphApparent(S,D,dip,sec,ap){
   ];
   const M=i=>()=>mapFig(it,i);
   return[
-    {t:'Draw strike and the section',why:`${TOOLS_NOTE} Plot a point O. With the protractor, draw the strike line and the section line through it.`,calc:[`Strike <b>${az3(S)}</b> (${quad(S)})`,`Section <b>${az3(sec)}</b> (${quad(sec)}), β = ${f(beta)}°`],fig:M(0)},
-    {t:'Draw fold line FL1',why:'Draw a line through O at right angles to strike, toward the dip direction. Imagine the vertical section along this line folded flat onto the paper, hinged on FL1. In that folded section, angles and lengths are true.',calc:[ddCalc(S,D),`So FL1 trends <b>${az3(D)}</b>`],fig:M(1)},
-    {t:'Lay off the true dip',why:'In the folded section, the bed slopes at the true dip below horizontal. With the protractor at O, draw a line making δ with FL1.',calc:[`δ = <b>${f(dip)}°</b> from FL1`],fig:M(2)},
-    {t:'Pick a depth h',why:'Choose any convenient depth h (here 1 unit, for example 2 cm). Find the point A on FL1 where a perpendicular up to the dip line measures exactly h. Mark the top A′. The bed lies a depth h below A.',calc:['h = 1 unit',`OA measures ≈ ${f(x0,3)} units`],fig:M(3)},
-    {t:'Draw the structure contour',why:'Through A, draw a line parallel to strike. Everywhere along it, the bed sits at the same depth h. This is a structure contour. Extend it until it crosses the section line at B.',calc:[`OB measures ≈ ${f(s,3)} units`],fig:M(4)},
-    {t:'Fold up along the section',why:'Now treat the section line as a second fold line. At B, draw a perpendicular and mark off the same depth h with dividers, giving B′.',calc:['BB′ = h = 1 unit'],fig:M(5)},
-    {t:'Measure the apparent dip',why:'Join O to B′. The angle between OB′ and the section line is the apparent dip. Read it with the protractor.',calc:[`Protractor reading: <b>α ≈ ${f(aMeas)}°</b>`,`Check: tan α = h ÷ OB = 1 ÷ ${f(s,3)} = ${f4(1/s)}`],fig:M(6)},
-    {t:'Answer',why:'The apparent dip plunges toward the end of the section on the down-dip side, where B is. Graphical answers are usually good to about ±1°.',calc:[`<b>α ≈ ${f(ap.a)}° → ${az3(T)}</b> (${quad(T)})`,endCalc(sec,T,D)],fig:M(99)},
+    {t:'Set up the map',why:DW(`${TOOLS_NOTE} `+SETUP_DO(S,sec,'section line'),'These two lines are the only map information the construction needs. β is shown for reference only; you never measure it in the graphical method.'),calc:[`Strike <b>${az3(S)}</b> (${quad(S)})`,`Section <b>${az3(sec)}</b> (${quad(sec)})`,`(β = ${f(beta)}°, for reference)`],fig:M(0)},
+    {t:'Draw fold line FL1 along the dip direction',why:DW('Put the set square on the strike line at O and draw a line at 90° to it, on the side the bed dips toward. Label it FL1 and put a small arrow on the down-dip end.',FOLD_WHY+' A wall along the dip direction is the one that shows the true dip.'),calc:[ddCalc(S,D),`So FL1 trends <b>${az3(D)}</b>`],fig:M(1)},
+    {t:'Lay off the true dip on FL1',why:DW(UNDER_DO('FL1','down-dip (along the arrow)',f(dip),'δ'),'In the folded wall, the bed leaves the surface at O and slopes down at the true dip. The line you drew is the bed in that wall.'),calc:[`δ = <b>${f(dip)}°</b>, measured from the down-dip end of FL1`],fig:M(2)},
+    {t:'Draw the depth line and find A',why:DW('Choose a depth h that gives a comfortable drawing, for example 3 cm (here h = 1 unit). On the underground side, draw a line parallel to FL1 at distance h from it. Mark A′ where it crosses the bed line. Then, with the set square, drop a perpendicular from A′ back to FL1 and mark its foot A.','The depth line is a level h below the surface. A′ is where the bed reaches that level in the wall, and A is the map point directly above it.'),calc:['h = 1 unit',`OA measures ≈ ${f(x0,3)} units (this is h ÷ tan δ)`],fig:M(3)},
+    {t:'Draw the structure contour through A',why:DW('Through A, draw a line parallel to the strike line (slide the set square along a ruler). Extend it until it crosses the section line, and mark that point B. B must be on the down-dip side of O.','The bed is a flat plane, so all its points at depth h lie on one straight line parallel to strike. That line is a structure contour, and it passes through A. B is where the section line reaches depth h.'),calc:[`OB measures ≈ ${f(s,3)} units`],fig:M(4)},
+    {t:'Fold along the section and mark B′',why:DW('Now use the section line as a second fold line, FL2. At B, draw a short line at 90° to FL2 (on either side). Set your dividers to the same h and mark that distance along the new line. Call the end B′.','This folds up the wall that stands on the section line. In that wall, B is on the surface and the bed is h below it, at B′.'),calc:['BB′ = h = 1 unit'],fig:M(5)},
+    {t:'Join O to B′ and read α',why:DW('Draw a straight line from O to B′. Put the protractor\'s centre on O with its base along FL2, and read the angle between FL2 and OB′.','OB′ is the bed as seen in the section wall: it starts at O on the surface and reaches depth h at B′. Its angle with the surface is the apparent dip.'),calc:['Triangle O–B–B′ has a right angle at B',`Check: tan α = BB′ ÷ OB = 1 ÷ ${f(s,3)} = ${f4(1/s)}`,`Protractor reading: <b>α ≈ ${f(aMeas)}°</b>`],fig:M(6)},
+    {t:'Answer',why:DW('Write the apparent dip with its plunge direction: the end of the section line on the side where B is.','Graphical answers are usually good to about ±1°, so a protractor reading within a degree of the calculated value is correct.'),calc:[`<b>α ≈ ${f(ap.a)}° → ${az3(T)}</b> (${quad(T)})`,endCalc(sec,T,D)],fig:M(99)},
   ];
 }
 function graphTrueOne(S,D,dip,a,A,beta){
   const uT=dir2(A),uS=dir2(S),uD=dir2(D);const s=1/Math.tan(rad(a));const P=v2(uT,s);
   const nAz=sideAz(A,uT,uD);const P1=vadd(P,v2(dir2(nAz),1));
   const d=s*Math.sin(rad(beta));const F=v2(uD,d);const n2Az=sideAz(D,uD,uT);const F1=vadd(F,v2(dir2(n2Az),1));
-  const appAz=vaz(P1),dipAz=vaz(F1);const sEnd=angDiff(S,A)<=90?S:n360(S+180);
+  const appAz=vaz(P1),dipAz=vaz(F1);const sEnd=angDiff(S,A)<=90?S:n360(S+180);const dMeas=deg(Math.atan(1/d));
   const it=[
     {type:'line',p:O,az:S,cls:'s-strike',step:0,label:`strike ${az3(S)}`,lcls:'t-lab t-strike',lpos:-110,extra:[v2(uS,s*0.5),v2(uS,-s*0.5)]},
     {type:'pt',p:O,label:'O',step:0,ldx:-16,ldy:-12},
@@ -1875,27 +1886,30 @@ function graphTrueOne(S,D,dip,a,A,beta){
     beta>1?{type:'arc',c:O,r:30,a1:sEnd,a2:A,label:'β',step:0}:null,
     {type:'seg',a:O,b:v2(dir2(appAz),vlen(P1)*1.12),cls:'s-sect-solid',step:1},
     {type:'arc',c:O,r:44,a1:A,a2:appAz,label:'α',lcls:'t-lab t-sect',step:1},
-    {type:'seg',a:P,b:P1,cls:'s-line',step:2,label:'h'},
+    {type:'line',p:P1,az:A,cls:'s-guide',step:2,label:'depth-h line',lcls:'t-small',lpos:60},
+    {type:'pt',p:P1,label:'P′',step:2},
+    {type:'seg',a:P1,b:P,cls:'s-line',step:2,label:'h'},
     {type:'right',c:P,a1:n360(A+180),a2:nAz,step:2},
-    {type:'pt',p:P,label:'P',step:2,cls:'f-sect'},{type:'pt',p:P1,label:'P′',step:2},
+    {type:'pt',p:P,label:'P',step:2,cls:'f-sect'},
     {type:'line',p:P,az:S,cls:'s-bed-dash',step:3,label:'contour',lcls:'t-lab t-bed',lpos:70,extra:[F]},
     {type:'line',p:O,az:D,cls:'s-guide',step:4,label:'FL2',lcls:'t-lab t-ink',lpos:-50},
     {type:'right',c:F,a1:n360(D+180),a2:S,step:4},
     {type:'pt',p:F,label:'F',step:4,cls:'f-bed'},
     {type:'seg',a:F,b:F1,cls:'s-line',step:5,label:'h'},
     {type:'pt',p:F1,label:'F′',step:5},
-    {type:'seg',a:O,b:v2(dir2(dipAz),vlen(F1)*1.12),cls:'s-bed',step:5},
-    {type:'arc',c:O,r:58,a1:D,a2:dipAz,label:'δ',lcls:'t-lab t-bed',step:5},
+    {type:'seg',a:O,b:v2(dir2(dipAz),vlen(F1)*1.12),cls:'s-bed',step:6},
+    {type:'arc',c:O,r:58,a1:D,a2:dipAz,label:'δ',lcls:'t-lab t-bed',step:6},
   ];
-  const M=i=>()=>mapFig(it,i);const dMeas=deg(Math.atan(1/d));
+  const M=i=>()=>mapFig(it,i);
   return[
-    {t:'Draw strike and the section',why:`${TOOLS_NOTE} Plot a point O, then draw the strike line and the section line (the direction the apparent dip plunges).`,calc:[`Strike <b>${az3(S)}</b>, section toward <b>${az3(A)}</b>, β = ${f(beta)}°`],fig:M(0)},
-    {t:'Lay off the apparent dip',why:'Use the section line as fold line FL1. With the protractor at O, draw a line making the apparent dip α with it.',calc:[`α = <b>${f(a)}°</b> from FL1`],fig:M(1)},
-    {t:'Pick a depth h',why:'Choose a convenient depth h (here 1 unit). Find the point P on FL1 where a perpendicular up to the α line measures h. The bed lies a depth h below P.',calc:['h = 1 unit',`OP measures ≈ ${f(s,3)} units`],fig:M(2)},
-    {t:'Draw the structure contour',why:'Through P, draw a line parallel to strike. The bed is at depth h everywhere along it.',calc:['Contour ∥ strike through P'],fig:M(3)},
-    {t:'Find the dip direction',why:'From O, draw a line at right angles to the contour, meeting it at F. This is the dip direction and becomes fold line FL2. It is the shortest route down to depth h.',calc:[`OF measures ≈ ${f(d,3)} units, trending ${az3(D)}`],fig:M(4)},
-    {t:'Fold up and measure δ',why:'At F, draw a perpendicular to FL2 and mark off the same depth h with dividers, giving F′. Join O to F′. The angle between OF′ and FL2 is the true dip.',calc:[`Protractor reading: <b>δ ≈ ${f(dMeas)}°</b>`],fig:M(5)},
-    {t:'Answer',why:'The bed dips toward the contour, on the same side of strike as P. True dip should come out steeper than the apparent dip.',calc:[`<b>δ ≈ ${f(dip)}° toward ${az3(D)}</b> (${quad(D)})`],fig:M(99)},
+    {t:'Set up the map',why:DW(`${TOOLS_NOTE} `+SETUP_DO(S,A,'section line (the direction the apparent dip plunges)'),'β is shown for reference only; the construction never needs it.'),calc:[`Strike <b>${az3(S)}</b>, section toward <b>${az3(A)}</b>`,`(β = ${f(beta)}°, for reference)`],fig:M(0)},
+    {t:'Lay off the apparent dip on FL1',why:DW('Use the section line as fold line FL1. '+UNDER_DO('FL1',`toward the plunge direction (${az3(A)})`,f(a),'α'),FOLD_WHY),calc:[`α = <b>${f(a)}°</b>, measured from the plunge end of FL1`],fig:M(1)},
+    {t:'Draw the depth line and find P',why:DW('Choose a depth h that gives a comfortable drawing, for example 3 cm (here h = 1 unit). On the underground side, draw a line parallel to FL1 at distance h from it. Mark P′ where it crosses the α line. Drop a perpendicular from P′ back to FL1 and mark its foot P.','P′ is where the bed reaches depth h along the section, and P is the map point directly above it.'),calc:['h = 1 unit',`OP measures ≈ ${f(s,3)} units (this is h ÷ tan α)`],fig:M(2)},
+    {t:'Draw the structure contour through P',why:DW('Through P, draw a line parallel to the strike line (slide the set square along a ruler). Make it long.','All points of the bed at depth h lie on one line parallel to strike: the structure contour.'),calc:['Contour ∥ strike, through P'],fig:M(3)},
+    {t:'Find the dip direction (FL2)',why:DW('Put the set square on the contour and slide it until its edge passes through O. Draw the line from O at 90° to the contour, and mark where it meets the contour: F. Label the line OF as FL2 and read its azimuth with the protractor.','The quickest way from O down to depth h is straight down-dip, at right angles to the contour. So O→F is the dip direction.'),calc:[`OF measures ≈ ${f(d,3)} units`,`FL2 trends ≈ <b>${az3(D)}</b>`],fig:M(4)},
+    {t:'Fold up along FL2 and mark F′',why:DW('At F, draw a short line at 90° to FL2. Set your dividers to the same h and mark that distance along it. Call the end F′.','This folds up the wall standing on the dip direction. In that wall, F is on the surface and the bed is h below it, at F′.'),calc:['FF′ = h = 1 unit'],fig:M(5)},
+    {t:'Join O to F′ and read δ',why:DW('Draw a straight line from O to F′. Put the protractor\'s centre on O with its base along FL2, and read the angle between FL2 and OF′.','OF′ is the bed seen in the dip-direction wall, from the surface at O to depth h at F′. Its angle is the true dip.'),calc:['Triangle O–F–F′ has a right angle at F',`Check: tan δ = FF′ ÷ OF = 1 ÷ ${f(d,3)} = ${f4(1/d)}`,`Protractor reading: <b>δ ≈ ${f(dMeas)}°</b>`],fig:M(6)},
+    {t:'Answer',why:DW('Write the true dip with the dip direction (the azimuth of FL2).','Check: the true dip must be at least as steep as the apparent dip you started with.'),calc:[`<b>δ ≈ ${f(dip)}° toward ${az3(D)}</b> (${quad(D)})`,`${f(dip)}° ≥ ${f(a)}° ✓`],fig:M(99)},
   ];
 }
 function graphTrueTwo(a1,A1,a2,A2,r,p1,p2,d){
@@ -1906,7 +1920,8 @@ function graphTrueTwo(a1,A1,a2,A2,r,p1,p2,d){
   const part=(g,A,lab,step,rr)=>g?[
     {type:'seg',a:O,b:v2(dir2(vaz(g.p1)),vlen(g.p1)*1.12),cls:'s-sect-solid',step},
     {type:'arc',c:O,r:rr,a1:A,a2:vaz(g.p1),label:`α${lab}`,lcls:'t-lab t-sect',step},
-    {type:'seg',a:g.p,b:g.p1,cls:'s-line',step,label:'h'},
+    {type:'line',p:g.p1,az:A,cls:'s-guide',step},
+    {type:'seg',a:g.p1,b:g.p,cls:'s-line',step,label:'h'},
     {type:'right',c:g.p,a1:n360(A+180),a2:g.nAz,step},
     {type:'pt',p:g.p,label:`P${lab}`,step,cls:'f-sect'}]:[];
   const it=[
@@ -1914,24 +1929,26 @@ function graphTrueTwo(a1,A1,a2,A2,r,p1,p2,d){
     {type:'ray',p:O,az:A1,cls:'s-sect',step:0,label:`FL1 ${az3(A1)}`,lcls:'t-lab t-sect',lpos:40},
     {type:'ray',p:O,az:A2,cls:'s-sect',step:0,label:`FL2 ${az3(A2)}`,lcls:'t-lab t-sect',lpos:40,side:-1},
     ...part(g1,A1,'₁',1,40),...part(g2,A2,'₂',2,52),
-    {type:'line',p:F,az:r.S,cls:'s-strike',step:3,label:'contour at depth h = strike',lcls:'t-lab t-strike',lpos:110,extra:[F]},
+    {type:'line',p:F,az:r.S,cls:'s-strike',step:3,label:'contour = strike',lcls:'t-lab t-strike',lpos:90,extra:[F]},
     {type:'line',p:O,az:r.D,cls:'s-guide',step:4,label:'FL3',lcls:'t-lab t-ink',lpos:-50},
     {type:'right',c:F,a1:n360(r.D+180),a2:r.S,step:4},
     {type:'pt',p:F,label:'F',step:4,cls:'f-bed'},
     {type:'seg',a:F,b:F1,cls:'s-line',step:5,label:'h'},
-    {type:'seg',a:O,b:v2(dir2(dAz),vlen(F1)*1.12),cls:'s-bed',step:5},
-    {type:'arc',c:O,r:64,a1:r.D,a2:dAz,label:'δ',lcls:'t-lab t-bed',step:5},
+    {type:'pt',p:F1,label:'F′',step:5},
+    {type:'seg',a:O,b:v2(dir2(dAz),vlen(F1)*1.12),cls:'s-bed',step:6},
+    {type:'arc',c:O,r:64,a1:r.D,a2:dAz,label:'δ',lcls:'t-lab t-bed',step:6},
   ];
   const M=i=>()=>mapFig(it,i);
-  const pStep=(g,a,A,lab,i)=>g?{t:`Lay off α${lab} and find P${lab}`,why:`Fold the section along FL${i} flat onto the paper. At O, draw a line making α${lab} with FL${i}. Choose a depth h (here 1 unit) and find the point P${lab} on FL${i} where the perpendicular up to the α${lab} line measures h.`,calc:[`α${lab} = <b>${f(a)}°</b>`,`OP${lab} measures ≈ ${f(vlen(g.p),3)} units`],fig:M(i)}
-    :{t:`α${lab} is 0°`,why:`An apparent dip of 0° means FL${i} already runs along strike. There is no P${lab}: the contour will be drawn parallel to this direction.`,calc:[`FL${i} = strike direction`],fig:M(i)};
+  const pStep=(g,a,A,lab,i)=>g?{t:`Lay off α${lab} and find P${lab}`,why:DW(UNDER_DO(`FL${i}`,`toward ${az3(A)}`,f(a),`α${lab}`)+` Then, on that side, draw a line parallel to FL${i} at distance h (use the same h for both lines, here 1 unit). Where it crosses the α${lab} line, drop a perpendicular back to FL${i}; the foot is P${lab}.`,`P${lab} is the map point above where the bed reaches depth h along this section.`+(i===1?' '+FOLD_WHY:'')),calc:[`α${lab} = <b>${f(a)}°</b>`,`OP${lab} measures ≈ ${f(vlen(g.p),3)} units`],fig:M(i)}
+    :{t:`α${lab} is 0°`,why:DW(`Nothing to construct on FL${i}.`,`An apparent dip of 0° means FL${i} already runs along strike. The contour in the next step is drawn parallel to it.`),calc:[`FL${i} = strike direction`],fig:M(i)};
   return[
-    {t:'Draw both section directions',why:`${TOOLS_NOTE} Plot O and draw the two directions in which the apparent dips plunge. Each one will be a fold line.`,calc:[`FL1 → ${az3(A1)} (α₁ = ${f(a1)}°)`,`FL2 → ${az3(A2)} (α₂ = ${f(a2)}°)`],fig:M(0)},
+    {t:'Set up the map',why:DW(`${TOOLS_NOTE} Draw a north arrow and mark O. With the protractor (0° on north, counting clockwise), draw the two directions in which the apparent dips plunge. Label them FL1 and FL2.`,'Each direction is a fold line. Strike is unknown here; the construction will find it.'),calc:[`FL1 → ${az3(A1)} (α₁ = ${f(a1)}°)`,`FL2 → ${az3(A2)} (α₂ = ${f(a2)}°)`],fig:M(0)},
     pStep(g1,a1,A1,'₁',1),pStep(g2,a2,A2,'₂',2),
-    {t:'Join P₁ and P₂: the strike',why:'P₁ and P₂ are both on the bed at the same depth h, so the line through them is a structure contour, which is parallel to strike. Measure its bearing with the protractor.',calc:[`Protractor reading: strike ≈ <b>${az3(r.S)}</b> (${quad(r.S)})`],fig:M(3)},
-    {t:'Draw the dip direction',why:'From O, draw a line at right angles to the contour, meeting it at F. This is the dip direction and becomes fold line FL3.',calc:[`OF measures ≈ ${f(d,3)} units, trending ${az3(r.D)}`],fig:M(4)},
-    {t:'Fold up and measure δ',why:'At F, draw a perpendicular to FL3 and mark off the depth h. Join O to the top. The angle at O between that line and FL3 is the true dip.',calc:[`Protractor reading: <b>δ ≈ ${f(r.dip)}°</b>`],fig:M(5)},
-    {t:'Answer',why:'The bed dips from O toward the contour. True dip must be at least as steep as both apparent dips.',calc:[`<b>δ ≈ ${f(r.dip)}° toward ${az3(r.D)}</b> (${quad(r.D)})`],fig:M(99)},
+    {t:'Join P₁ and P₂: that line is strike',why:DW('Draw a long straight line through P₁ and P₂. Read its azimuth with the protractor.','P₁ and P₂ are both above the bed at the same depth h, so the line through them is a structure contour, and contours run parallel to strike.'),calc:[`Protractor reading: strike ≈ <b>${az3(r.S)}</b> (${quad(r.S)})`],fig:M(3)},
+    {t:'Find the dip direction (FL3)',why:DW('With the set square, draw a line from O at 90° to the contour. Mark where it meets the contour: F. Label OF as FL3 and read its azimuth.','The shortest way from O down to depth h is straight down-dip, at right angles to the contour.'),calc:[`OF measures ≈ ${f(d,3)} units, FL3 trends ≈ <b>${az3(r.D)}</b>`],fig:M(4)},
+    {t:'Fold up along FL3 and mark F′',why:DW('At F, draw a short line at 90° to FL3 and mark the same h along it with dividers. Call the end F′.','In the wall standing on the dip direction, F is on the surface and the bed is h below it, at F′.'),calc:['FF′ = h = 1 unit'],fig:M(5)},
+    {t:'Join O to F′ and read δ',why:DW('Draw a straight line from O to F′. Put the protractor\'s centre on O with its base along FL3 and read the angle between FL3 and OF′.','OF′ is the bed seen in the dip-direction wall. Its angle is the true dip.'),calc:['Triangle O–F–F′ has a right angle at F',`Check: tan δ = FF′ ÷ OF = 1 ÷ ${f(d,3)} = ${f4(1/d)}`,`Protractor reading: <b>δ ≈ ${f(r.dip)}°</b>`],fig:M(6)},
+    {t:'Answer',why:DW('Write the strike, the true dip and the dip direction.','Check: the true dip must be at least as steep as both apparent dips.'),calc:[`<b>δ ≈ ${f(r.dip)}° toward ${az3(r.D)}</b> (${quad(r.D)}), strike ${az3(r.S)}`],fig:M(99)},
   ];
 }
 function graphDir(S,D,dip,a,beta,d1,d2){
@@ -1945,14 +1962,16 @@ function graphDir(S,D,dip,a,beta,d1,d2){
     {type:'line',p:O,az:D,cls:'s-guide',step:1,label:'FL1 (dip direction)',lcls:'t-lab t-ink',lpos:-60},
     {type:'seg',a:O,b:v2(dir2(vaz(A1)),vlen(A1)*1.15),cls:'s-bed',step:1},
     {type:'arc',c:O,r:44,a1:D,a2:vaz(A1),label:'δ',lcls:'t-lab t-bed',step:1},
-    {type:'seg',a:A,b:A1,cls:'s-line',step:2,label:'h'},
+    {type:'line',p:A1,az:D,cls:'s-guide',step:2,label:'depth-h line',lcls:'t-small',lpos:120},
+    {type:'pt',p:A1,label:'A′',step:2},
+    {type:'seg',a:A1,b:A,cls:'s-line',step:2,label:'h'},
     {type:'right',c:A,a1:n360(D+180),a2:nAz,step:2},
     {type:'pt',p:A,label:'A',step:2,cls:'f-bed'},
     {type:'line',p:A,az:S,cls:'s-bed-dash',step:3,label:'contour',lcls:'t-lab t-bed',lpos:70,extra:[P1,P2]},
-    {type:'line',p:A1,az:D,cls:'s-guide',step:4},
     {type:'seg',a:O,b:v2(dir2(vaz(C1)),vlen(C1)*1.08),cls:'s-sect-solid',step:4},
     {type:'arc',c:O,r:60,a1:D,a2:vaz(C1),label:'α',lcls:'t-lab t-sect',step:4},
-    {type:'seg',a:C,b:C1,cls:'s-line',step:4},
+    {type:'pt',p:C1,label:'C′',step:4},
+    {type:'seg',a:C1,b:C,cls:'s-line',step:4},
     {type:'pt',p:C,label:'C',step:4,cls:'f-sect'},
     {type:'warc',c:O,R:s,a1:n360(d1-ext),a2:n360(d2+ext),step:5},
     {type:'seg',a:O,b:P1,cls:'s-sect-solid',step:5},{type:'seg',a:O,b:P2,cls:'s-sect-solid',step:5},
@@ -1960,13 +1979,13 @@ function graphDir(S,D,dip,a,beta,d1,d2){
   ];
   const M=i=>()=>mapFig(it,i);
   return[
-    {t:'Draw the strike',why:`${TOOLS_NOTE} Plot O and draw the strike line through it.`,calc:[`Strike <b>${az3(S)}</b>`,ddCalc(S,D),`True dip δ = ${f(dip)}°`],fig:M(0)},
-    {t:'Lay off the true dip on FL1',why:'Draw fold line FL1 through O toward the dip direction. With the protractor, draw a line from O making the true dip δ with FL1.',calc:[`δ = <b>${f(dip)}°</b>`],fig:M(1)},
-    {t:'Pick a depth h',why:'Choose a depth h (here 1 unit). Find A on FL1 where the perpendicular up to the δ line measures h. The bed is at depth h below A.',calc:['h = 1 unit',`OA ≈ ${f(x0,3)} units`],fig:M(2)},
-    {t:'Draw the structure contour',why:'Through A, draw a line parallel to strike. The bed is at depth h all along it.',calc:['Contour ∥ strike through A'],fig:M(3)},
-    {t:'Find the map distance for α',why:'Draw a helper line parallel to FL1 at height h (through the top of the A perpendicular). From O, lay off the wanted apparent dip α. Where the α line meets the helper line, drop straight down to FL1 at C. OC is how far a section with dip α must travel to reach depth h.',calc:[`α = <b>${f(a)}°</b>`,`OC measures ≈ ${f(s,3)} units`],fig:M(4)},
-    {t:'Swing an arc to the contour',why:'Set your compass to OC and draw an arc centred on O. It cuts the contour at two points, P₁ and P₂. The lines O→P₁ and O→P₂ both reach depth h after the same distance, so both show apparent dip α. Read their bearings with the protractor.',calc:[`Protractor readings: <b>${az3(d1)}</b> and <b>${az3(d2)}</b>`],fig:M(5)},
-    {t:'Answer',why:'If the arc does not reach the contour, α is steeper than the true dip and there is no answer.',calc:[`<b>${f(a)}° → ${az3(d1)}</b> or <b>${f(a)}° → ${az3(d2)}</b>`,`β from strike ≈ ${f(beta)}°`],fig:M(99)},
+    {t:'Set up the map',why:DW(`${TOOLS_NOTE} Draw a north arrow and mark O. With the protractor (0° on north, counting clockwise), draw the strike line through O at ${az3(S)}.`,''),calc:[`Strike <b>${az3(S)}</b>`,ddCalc(S,D)],fig:M(0)},
+    {t:'Lay off the true dip on FL1',why:DW('At O, draw FL1 at 90° to strike, toward the dip direction. '+UNDER_DO('FL1','down-dip',f(dip),'δ'),FOLD_WHY),calc:[`δ = <b>${f(dip)}°</b>`],fig:M(1)},
+    {t:'Draw the depth line and find A',why:DW('Choose a depth h (for example 3 cm; here 1 unit). On the underground side, draw a line parallel to FL1 at distance h. Mark A′ where it crosses the δ line, and drop a perpendicular from A′ to FL1; the foot is A. Keep the depth line: you will use it again in step 5.','A is the map point above where the bed reaches depth h, going straight down-dip.'),calc:['h = 1 unit',`OA ≈ ${f(x0,3)} units`],fig:M(2)},
+    {t:'Draw the structure contour through A',why:DW('Through A, draw a long line parallel to strike.','The bed is at depth h all along this line.'),calc:['Contour ∥ strike, through A'],fig:M(3)},
+    {t:'Find the map distance for α',why:DW(`From O, lay off the wanted apparent dip α = ${f(a)}° from FL1, on the same underground side as δ. Mark C′ where this line crosses the depth line. Drop a perpendicular from C′ to FL1; the foot is C.`,'OC is how far a section dipping at α must travel on the map before the bed is h deep. Because α is gentler than δ, C lies beyond A.'),calc:[`OC measures ≈ ${f(s,3)} units (this is h ÷ tan α)`],fig:M(4)},
+    {t:'Swing an arc to the contour',why:DW('Open your drawing compass to the length OC. With the point on O, draw an arc that crosses the contour. Mark the two crossings P₁ and P₂, draw O→P₁ and O→P₂, and read their azimuths with the protractor.','Both O→P₁ and O→P₂ reach depth h after the same map distance OC, so both sections show the same apparent dip α.'),calc:[`Protractor readings: <b>${az3(d1)}</b> and <b>${az3(d2)}</b>`],fig:M(5)},
+    {t:'Answer',why:DW('Write both directions; either is a correct answer.','If the arc never reaches the contour, α is steeper than the true dip and no direction works.'),calc:[`<b>${f(a)}° → ${az3(d1)}</b> or <b>${f(a)}° → ${az3(d2)}</b>`,`(β from strike ≈ ${f(beta)}°)`],fig:M(99)},
   ];
 }
 
