@@ -220,6 +220,13 @@ figure{margin:0}
 .canvas-wrap.small{height:300px}
 .lesson .guide{margin-top:4px}
 .gmode{margin-top:10px}
+.ggiven{background:var(--soft);border-radius:10px;padding:12px 16px;display:grid;gap:8px}
+.givl{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:6px 20px}
+.givl div{min-width:0}
+.givl dt{font-size:.78rem;color:var(--muted)}
+.givl dd{margin:0;font-weight:700;overflow-wrap:anywhere}
+.givfind{font-size:.92rem}
+.givfind b{color:var(--accent)}
 .gdo,.gwhyit{display:block}
 .gwhyit{margin-top:8px;color:var(--muted)}
 .gdo b,.gwhyit b{color:var(--ink)}
@@ -977,11 +984,11 @@ class Guide{
   constructor(id){
     this.el=$(id);this.k=0;this.steps=[];this.all=false;
     this.el.innerHTML=`<div class="guide-head"><div><div class="eyebrow">Guided solve</div><h3>Step by step</h3><div class="seg gmode" role="group" aria-label="Solution method" hidden><button type="button" data-m="trig" aria-pressed="true">Trigonometry</button><button type="button" data-m="graph" aria-pressed="false">Graphical method</button></div></div><ol class="pips"></ol></div>
-      <div class="guide-body"><div class="gfigwrap"><div class="gfig"></div><div class="zoombar" hidden><button type="button" data-z="out" aria-label="Zoom out">−</button><span class="zpct">100%</span><button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="fit" class="zfit">Fit</button></div><div class="zhint" hidden>Drag to move · pinch, Ctrl + scroll or the buttons to zoom</div></div><div class="gtext"><div class="label gcount"></div><h4 class="gtitle"></h4><p class="gwhy"></p><div class="calc"></div>
+      <div class="ggiven" hidden></div><div class="guide-body"><div class="gfigwrap"><div class="gfig"></div><div class="zoombar" hidden><button type="button" data-z="out" aria-label="Zoom out">−</button><span class="zpct">100%</span><button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="fit" class="zfit">Fit</button></div><div class="zhint" hidden>Drag to move · pinch, Ctrl + scroll or the buttons to zoom</div></div><div class="gtext"><div class="label gcount"></div><h4 class="gtitle"></h4><p class="gwhy"></p><div class="calc"></div>
       <div class="gnav"><button type="button" class="btn ghost gprev">Previous</button><button type="button" class="btn gnext">Next step</button><button type="button" class="linkbtn gtoggle">Show all steps as a list</button></div></div></div>
       <ol class="gall" hidden></ol>`;
     const q=s=>this.el.querySelector(s);
-    this.pips=q('.pips');this.fig=q('.gfig');this.count=q('.gcount');this.title=q('.gtitle');this.why=q('.gwhy');this.calc=q('.calc');this.prev=q('.gprev');this.next=q('.gnext');this.toggle=q('.gtoggle');this.list=q('.gall');this.mode='trig';this.sets={trig:[],graph:null};this.modeEl=q('.gmode');this.modeEl.addEventListener('click',e=>{const b=e.target.closest('button[data-m]');if(!b)return;this.mode=b.dataset.m;this.k=0;this.view={z:1,px:0,py:0};this.pick();this.render();});
+    this.pips=q('.pips');this.givenEl=q('.ggiven');this.givenFn=null;this.fig=q('.gfig');this.count=q('.gcount');this.title=q('.gtitle');this.why=q('.gwhy');this.calc=q('.calc');this.prev=q('.gprev');this.next=q('.gnext');this.toggle=q('.gtoggle');this.list=q('.gall');this.mode='trig';this.sets={trig:[],graph:null};this.modeEl=q('.gmode');this.modeEl.addEventListener('click',e=>{const b=e.target.closest('button[data-m]');if(!b)return;this.mode=b.dataset.m;this.k=0;this.view={z:1,px:0,py:0};this.pick();this.render();});
     this.view={z:1,px:0,py:0};this.zoomable=false;this.base=null;this.zbar=q('.zoombar');this.zhint=q('.zhint');this.zpct=q('.zpct');
     this.zbar.addEventListener('click',e=>{const b=e.target.closest('button[data-z]');if(!b)return;const m=b.dataset.z;if(m==='fit'){this.view={z:1,px:0,py:0};this.renderFig();}else this.zoomAt(this.view.z*(m==='in'?1.5:1/1.5),null);});
     {const fg=this.fig,pts=new Map();let pinch=null;
@@ -1014,6 +1021,7 @@ class Guide{
     const st=this.steps[this.k];
     this.pips.innerHTML=this.steps.map((s,i)=>`<li><button type="button" data-i="${i}" class="${i<this.k?'done':''}" ${i===this.k?'aria-current="step"':''} aria-label="Step ${i+1}: ${s.t.replace(/"/g,'')}">${i+1}</button></li>`).join('');
     this.count.textContent=`Step ${this.k+1} of ${n}`;
+    if(this.givenFn){let h='';try{h=this.givenFn();}catch(e){}this.givenEl.innerHTML=h;this.givenEl.hidden=!h;}else this.givenEl.hidden=true;
     this.title.textContent=st.t;this.why.innerHTML=st.why;
     this.calc.innerHTML=(st.calc||[]).map(li).join('');this.calc.hidden=!(st.calc&&st.calc.length);
     this.renderFig();
@@ -2164,7 +2172,7 @@ function openLesson(){
   const it=quiz.cur;it.load();updateAll();
   const tp=TOPICS.find(t=>t.id===it.topic);selectTab(tp.tab);
   $('qCompass').innerHTML=$('compass').innerHTML;
-  const g=it.guide();quizGuide.k=0;quizGuide.set(g.sets.trig.slice(),g.sets.graph?g.sets.graph.slice():null);
+  const g=it.guide();quizGuide.givenFn=g.givenFn;quizGuide.k=0;quizGuide.set(g.sets.trig.slice(),g.sets.graph?g.sets.graph.slice():null);
   $('qLessonNote').textContent=`This problem is also loaded into the lab above (attitude bar and the ${tp.label} tab), so you can keep experimenting there.`;
   $('qLesson').hidden=false;qSetView('qvO',rad(28),rad(30),NOTES.oblique);
   requestAnimationFrame(drawLesson3d);
@@ -2198,6 +2206,23 @@ $('qNext').onclick=()=>{
 function newRound(){quiz.i=0;quiz.score=0;quiz.missed=[];quiz.last=null;showItem();}
 $('qNew').onclick=newRound;
 renderTopics();
+
+/* ---------- Given-values panels ---------- */
+const gv=id=>{const el=$(id);return el?String(el.value).trim():'';};
+const GIV=(rows,find)=>`<div class="label">Given</div><dl class="givl">${rows.filter(Boolean).map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl><div class="givfind"><b>Find:</b> ${find}</div>`;
+const plRows=()=>[['Strike',`${az3(state.S)} (${quad(state.S)})`],['True dip δ',`${f(state.dip)}° toward ${az3(state.D)} (${letters8(state.D)})`]];
+guide1.givenFn=()=>GIV([...plRows(),['Section line',`${az3(state.sec)} (${quad(state.sec)})`]],'the apparent dip α on that section');
+guide2.givenFn=()=>$('tmTwo').checked
+  ?GIV([['Apparent dip α₁',`${gv('tA1')}° toward ${gv('tD1')}`],['Apparent dip α₂',`${gv('tA2')}° toward ${gv('tD2')}`]],'the strike and the true dip δ')
+  :GIV([['Strike',`${az3(state.S)} (${quad(state.S)})`],['Apparent dip α',`${gv('oA')}° toward ${gv('oDir')}`]],'the true dip δ and dip direction');
+guide3.givenFn=()=>$('tpBear').checked
+  ?GIV([['A',`origin, ${gv('bAz')} m`],['B',`${gv('bBd')} m toward ${gv('bBb')} from A, ${gv('bBz')} m`],['C',`${gv('bCd')} m toward ${gv('bCb')} from A, ${gv('bCz')} m`]],'the strike and true dip of the bed')
+  :GIV(['A','B','C'].map(k=>[k,`E ${gv('x'+k+'e')}, N ${gv('x'+k+'n')}, ${gv('x'+k+'z')} m`]),'the strike and true dip of the bed');
+guide4.givenFn=()=>GIV([...plRows(),['Wanted apparent dip α',`${gv('tgtA')}°`]],'the section directions that show this apparent dip');
+guide5.givenFn=()=>GIV([...plRows(),['Measured distance L',`${gv('kL')} m`],['Traverse direction',gv('kDir')],['Ground slope σ',`${gv('kSlope')}° ${$('kUp').checked?'uphill':'downhill'}`]],'the true thickness t');
+guide6.givenFn=()=>GIV([...plRows(),['Outcrop from collar',`${gv('dDist')} m toward ${gv('dBear')}`],['Outcrop height above collar',`${gv('dZ')} m`],$('dIncl').checked?['Hole',`trend ${gv('dTrend')}, plunge ${gv('dPlunge')}°`]:['Hole','vertical']],$('dIncl').checked?'the hole length L to the bed':'the vertical depth V to the bed');
+guide7.givenFn=()=>GIV([...plRows(),['Projection',net.proj==='area'?'equal-area (Schmidt)':'equal-angle (Wulff)']],'the great circle and pole of the plane');
+[guide1,guide2,guide3,guide4,guide5,guide6,guide7].forEach(g=>g.render());
 
 /* ---------- Floating converter ---------- */
 (function(){
