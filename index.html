@@ -331,8 +331,8 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
   <section class="card plane" aria-label="Bed attitude">
     <div class="plane-inputs">
       <label class="field" for="inStrike"><span>Strike</span><input id="inStrike" type="text" value="N35E" autocomplete="off" spellcheck="false"></label>
-      <label class="field" for="inDip"><span>Dip</span><input id="inDip" type="text" value="40 SE" autocomplete="off" spellcheck="false"></label>
-      <p class="hint">Strike as <span class="f">35</span>, <span class="f">035</span> or <span class="f">N35E</span>. Dip as <span class="f">40</span> or <span class="f">40 SE</span>. With no dip letter, the right-hand rule is used (dip direction = strike + 90°).</p>
+      <label class="field" for="inDip"><span>True dip (δ)</span><input id="inDip" type="text" value="40 SE" autocomplete="off" spellcheck="false"></label>
+      <p class="hint">Strike as <span class="f">35</span>, <span class="f">035</span> or <span class="f">N35E</span>. Dip as <span class="f">40</span> or <span class="f">40 SE</span>. With no dip letter, the right-hand rule is used (dip direction = strike + 90°). This is the <b>true dip</b>: the steepest tilt of the bed, measured at 90° to strike. Apparent dips are worked out from it in the solvers below.</p>
     </div>
     <div>
       <dl class="notations" id="notations"></dl>
