@@ -47,6 +47,29 @@ input:focus-visible,button:focus-visible{outline:2px solid var(--sect);outline-o
 input[aria-invalid=true]{border-color:var(--strike);box-shadow:inset 0 0 0 1px var(--strike)}
 .hint{grid-column:1/-1;margin:0;font-size:.82rem;color:var(--muted)}
 .f{font-family:var(--f-mono);font-size:.86rem;background:var(--soft);padding:1px 5px;border-radius:3px}
+.dash{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0}
+.dash-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px}
+.dash-note{font-size:.8rem}
+.nocaps{text-transform:none}
+@media (max-width:560px){.dash{gap:8px}.tile{padding:12px}.tile dd{font-size:1.1rem}.tglyph{width:28px;height:28px}}
+.tile{background:var(--soft);border-radius:10px;padding:14px 16px;display:grid;gap:4px;min-width:0;align-content:start}
+.tile-top{display:flex;justify-content:space-between;align-items:start;gap:8px}
+.tile dt{font-weight:700;font-size:.92rem;color:var(--ink)}
+.tcap{display:block;font-size:.74rem;color:var(--muted);letter-spacing:.02em}
+.tile dd{margin:6px 0 0;font-weight:700;font-size:1.45rem;line-height:1.15;color:var(--ink);overflow-wrap:anywhere}
+.tsub{font-size:.78rem;color:var(--muted)}
+.tglyph{width:36px;height:36px;flex:none}
+.tg-ring{fill:var(--sheet);stroke:var(--rule);stroke-width:1.4}
+.tg-n{font:700 5.5px var(--f-body);fill:var(--strike);text-anchor:middle;dominant-baseline:central}
+.tg-strike{stroke:var(--strike);stroke-width:2.4;stroke-linecap:round}
+.tg-dip{stroke:var(--bed);stroke-width:2.4;stroke-linecap:round}
+.tg-dipf{fill:var(--bed)}
+.tg-dot{fill:var(--strike)}
+.tg-sect{stroke:var(--sect);stroke-width:2.4;stroke-linecap:round;stroke-dasharray:4 3}
+.tg-base{stroke:var(--ink);stroke-width:1.6}
+.tg-arc{fill:none;stroke:var(--ink);stroke-width:1.2}
+.tg-pole{fill:var(--sheet);stroke:var(--bed);stroke-width:1.8}
+@media (max-width:1100px){.dash{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .notations{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin:0;border-top:1px solid var(--rule)}
 .notations div{padding:10px 12px 10px 0;border-bottom:1px solid var(--rule);min-width:0}
 .notations dt{font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.1em;font-size:.74rem;color:var(--muted)}
@@ -220,24 +243,39 @@ figure{margin:0}
 .canvas-wrap.small{height:300px}
 .lesson .guide{margin-top:4px}
 .gmode{margin-top:10px}
+.ggiven{background:var(--soft);border-radius:12px;padding:14px 16px 16px;display:grid;gap:12px}
+.giv-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.giv-n{font-size:.78rem}
+.givl{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.gtile{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;min-width:0;display:grid;gap:6px;align-content:start}
+.gtile-top{display:flex;justify-content:space-between;align-items:start;gap:8px}
+.gtile dt{font-size:.8rem;font-weight:700;color:var(--muted)}
+.gtile dd{margin:0;font-weight:800;font-size:1.3rem;line-height:1.2;color:var(--ink);overflow-wrap:anywhere}
+.gtile dd small{display:block;font-size:.8rem;font-weight:600;color:var(--muted);margin-top:2px}
+.gtile .tglyph{width:32px;height:32px}
+.givfind{display:flex;align-items:center;gap:10px;background:var(--accent-soft);color:var(--ink);border-radius:10px;padding:10px 14px;font-size:.95rem}
+.givfind svg{color:var(--accent);flex:none}
+.givfind b{color:var(--accent)}
 .hcm{display:inline-flex;align-items:center;gap:6px;margin:10px 0 0 12px;font-weight:600;font-size:.9rem;vertical-align:middle}
 .hcm input{width:64px;padding:6px 8px;font-size:.95rem}
 .cm{color:var(--accent);font-weight:700}
-.ggiven{background:var(--soft);border-radius:10px;padding:12px 16px;display:grid;gap:8px}
-.givl{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:6px 20px}
-.givl div{min-width:0}
-.givl dt{font-size:.78rem;color:var(--muted)}
-.givl dd{margin:0;font-weight:700;overflow-wrap:anywhere}
-.givfind{font-size:.92rem}
-.givfind b{color:var(--accent)}
+
 .gdo,.gwhyit{display:block}
 .gwhyit{margin-top:8px;color:var(--muted)}
 .gdo b,.gwhyit b{color:var(--ink)}
 [hidden]{display:none!important}
 .gfigwrap{position:relative;min-width:0}
+@keyframes drawln{from{stroke-dasharray:var(--len) var(--len);stroke-dashoffset:var(--len)}to{stroke-dasharray:var(--len) var(--len);stroke-dashoffset:0}}
+@keyframes fadein{from{opacity:0}}
+.anim{animation:drawln var(--dur) ease-in-out var(--d) backwards}
+.animfade{animation:fadein .45s ease-out var(--d) backwards}
+@media (prefers-reduced-motion:reduce){.anim,.animfade{animation:none}}
 .gfig.zoomable{cursor:grab;user-select:none;-webkit-user-select:none}
 .gfig.dragging{cursor:grabbing}
-.zoombar{position:absolute;top:8px;right:8px;display:flex;align-items:center;gap:2px;background:var(--sheet);border-radius:8px;box-shadow:var(--shadow);padding:3px}
+.zoombar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
+.zgroup{display:inline-flex;align-items:center;gap:2px;background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:2px}
+.zanim[aria-pressed=true]{background:var(--accent-soft);color:var(--accent)}
+.zanim[aria-pressed=false]{color:var(--muted)}
 .zoombar button{border:0;background:transparent;color:var(--ink);font:700 1.05rem var(--f-body);min-width:32px;height:32px;border-radius:6px;cursor:pointer}
 .zoombar button.zfit{font-size:.8rem;padding:0 8px}
 .zoombar button:hover{background:var(--soft)}
@@ -248,9 +286,26 @@ figure{margin:0}
 @media (max-width:880px){.lesson-views{grid-template-columns:minmax(0,1fr)}}
 
 /* Floating converter */
-.conv-fab{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:50;display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:12px 18px;font:700 .95rem var(--f-body);cursor:pointer;box-shadow:0 6px 20px rgba(15,18,34,.25)}
-.conv-fab:hover{opacity:.92}
-.conv-panel{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:50;width:min(320px,calc(100vw - 32px));background:var(--sheet);color:var(--ink);border-radius:12px;padding:16px;display:grid;gap:12px;box-shadow:0 12px 40px rgba(15,18,34,.28)}
+.conv-fab{position:fixed;right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:50;display:inline-flex;align-items:center;gap:12px;background:var(--accent);color:var(--accent-ink);border:3px solid var(--sheet);border-radius:999px;padding:10px 22px 10px 10px;font:700 1rem var(--f-body);cursor:pointer;box-shadow:0 8px 28px rgba(65,105,225,.45),0 2px 6px rgba(15,18,34,.2);text-align:left;transition:transform .15s ease,box-shadow .15s ease}
+.conv-fab:hover{transform:translateY(-2px);box-shadow:0 12px 34px rgba(65,105,225,.55),0 2px 6px rgba(15,18,34,.2)}
+.conv-fab[aria-expanded=true]{transform:none}
+.conv-ic{width:44px;height:44px;border-radius:50%;background:var(--accent-ink);color:var(--accent);display:grid;place-items:center;flex:none;position:relative}
+.conv-ic::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--accent-ink);opacity:0;animation:convPulse 2.4s ease-out infinite}
+@keyframes convPulse{0%{transform:scale(.9);opacity:.7}70%,100%{transform:scale(1.35);opacity:0}}
+.conv-fab[aria-expanded=true] .conv-ic::after{animation:none}
+.conv-txt{display:grid;line-height:1.15}
+.conv-t1{font-size:1.02rem;font-weight:800}
+.conv-t2{font-size:.76rem;font-weight:600;opacity:.85}
+.conv-nudge{position:fixed;right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(98px + env(safe-area-inset-bottom,0px));z-index:50;width:min(280px,calc(100vw - 40px));background:var(--sheet);color:var(--ink);border:1px solid var(--rule);border-radius:12px;padding:14px 16px;display:grid;gap:6px;box-shadow:0 12px 36px rgba(15,18,34,.22);animation:fadein .35s ease-out}
+.conv-nudge::after{content:"";position:absolute;right:40px;bottom:-8px;width:14px;height:14px;background:var(--sheet);border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);transform:rotate(45deg)}
+.conv-nudge b{font-size:.98rem;padding-right:20px}
+.conv-nudge span{font-size:.85rem;color:var(--muted)}
+.conv-nudge-go{justify-self:start;margin-top:4px;background:var(--accent);color:var(--accent-ink);border:0;border-radius:6px;padding:8px 12px;font:700 .85rem var(--f-body);cursor:pointer}
+.conv-nudge-x{position:absolute;top:6px;right:6px;background:none;border:0;color:var(--muted);font-size:1.2rem;line-height:1;width:28px;height:28px;border-radius:50%;cursor:pointer}
+.conv-nudge-x:hover{background:var(--soft)}
+@media (max-width:560px){.conv-fab{padding:6px 16px 6px 6px;gap:10px}.conv-ic{width:38px;height:38px}.conv-t2{display:none}.conv-nudge{bottom:calc(82px + env(safe-area-inset-bottom,0px))}}
+@media (prefers-reduced-motion:reduce){.conv-ic::after{animation:none}.conv-fab,.conv-fab:hover{transition:none;transform:none}.conv-nudge{animation:none}}
+.conv-panel{position:fixed;right:calc(20px + env(safe-area-inset-right,0px));bottom:calc(98px + env(safe-area-inset-bottom,0px));z-index:50;width:min(320px,calc(100vw - 32px));background:var(--sheet);color:var(--ink);border-radius:12px;padding:16px;display:grid;gap:12px;box-shadow:0 12px 40px rgba(15,18,34,.28)}
 .conv-head{display:flex;justify-content:space-between;align-items:center;font-size:1.05rem}
 .conv-x{background:var(--soft);color:var(--ink);border:0;border-radius:50%;width:30px;height:30px;font-size:1.2rem;line-height:1;cursor:pointer}
 .conv-body{display:flex;align-items:center;gap:14px}
@@ -288,6 +343,8 @@ h3{font-size:1.1rem;letter-spacing:0}
 .hero-cta{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;margin-top:10px}
 .hero-cta .btn{min-width:180px;text-align:center;text-decoration:none;padding:14px 22px;font-size:1rem}
 .wrap{padding-block:0 96px}
+.wrap,.topbar-in{max-width:1440px}
+@media (min-width:1024px){.wrap,.topbar-in,.hero{padding-left:max(40px,env(safe-area-inset-left,0px));padding-right:max(40px,env(safe-area-inset-right,0px))}}
 .card{border:0;border-radius:10px;box-shadow:var(--shadow)}
 .btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:5px;font:600 .95rem/1 var(--f-body);padding:12px 18px}
 .btn.ghost{background:var(--accent-soft);color:var(--accent);border:0}
@@ -313,8 +370,17 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
 .c-ring,.net-prim{fill:var(--sheet)}
 .halo{stroke:var(--soft)}
 .notes>div:first-child h2{font-size:1.8rem}
-.note{background:var(--sheet);border:0;border-radius:10px;padding:18px;box-shadow:var(--shadow)}
-.note-grid{gap:14px}
+.note-grid{gap:16px;grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:1200px){.note-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:860px){.note-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.note-grid{grid-template-columns:minmax(0,1fr)}}
+.note{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:18px 18px 16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;transition:transform .15s ease,box-shadow .15s ease}
+.note:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(15,18,34,.06),0 16px 36px rgba(65,105,225,.14)}
+@media (prefers-reduced-motion:reduce){.note,.note:hover{transition:none;transform:none}}
+.ntag{align-self:flex-start;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:.72rem;letter-spacing:.04em;padding:4px 10px;border-radius:999px}
+.note h3{margin:2px 0 0}
+.note p{color:var(--muted);flex:1}
+.nform{margin-top:4px;background:var(--soft);border-radius:8px;padding:9px 12px;font-weight:700;font-size:.92rem;color:var(--ink);font-variant-numeric:tabular-nums}
 .foot{border-top:1px solid var(--rule)}
 .foot b{color:var(--accent)}
 .linkbtn{color:var(--accent)}
@@ -341,11 +407,11 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
   <section class="card plane" aria-label="Bed attitude">
     <div class="plane-inputs">
       <label class="field" for="inStrike"><span>Strike</span><input id="inStrike" type="text" value="N35E" autocomplete="off" spellcheck="false"></label>
-      <label class="field" for="inDip"><span>True dip (δ)</span><input id="inDip" type="text" value="40 SE" autocomplete="off" spellcheck="false"></label>
+      <label class="field" for="inDip"><span>True dip (<span class="nocaps">δ</span>)</span><input id="inDip" type="text" value="40 SE" autocomplete="off" spellcheck="false"></label>
       <p class="hint">Strike as <span class="f">35</span>, <span class="f">035</span> or <span class="f">N35E</span>. Dip as <span class="f">40</span> or <span class="f">40 SE</span>. With no dip letter, the right-hand rule is used (dip direction = strike + 90°). This is the <b>true dip</b>: the steepest tilt of the bed, measured at 90° to strike. Apparent dips are worked out from it in the solvers below.</p>
     </div>
     <div>
-      <dl class="notations" id="notations"></dl>
+      <div class="dash-head"><div class="label">Attitude dashboard</div><span class="muted dash-note">Updates as you type</span></div><dl class="dash" id="notations"></dl>
       <p class="warn" id="planeWarn" hidden></p>
     </div>
   </section>
@@ -648,20 +714,21 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
   <section class="notes" aria-label="Field notes" id="notes">
     <div><div class="eyebrow">Recommendations</div><h2>Field notes for the board exam</h2></div>
     <div class="note-grid">
-      <div class="note"><h3>Sanity-check every answer</h3><p>Apparent dip is never bigger than true dip. It equals true dip only on a section perpendicular to strike, and drops to zero along strike. If your α comes out larger than δ, you used the wrong angle.</p></div>
-      <div class="note"><h3>Know which angle β is</h3><p>β is measured from the strike line. If a problem gives the angle from the dip direction instead (call it θ), use tan α = tan δ × cos θ. Same answer, different trig function.</p></div>
-      <div class="note"><h3>Convert bearings to azimuth first</h3><p>N35E is 035°, S20W is 200°, N70W is 290°. Subtracting azimuths avoids most quadrant mistakes. Then fold the difference into 0–90° to get β.</p></div>
-      <div class="note"><h3>Lock the notation</h3><p>Write strike with the right-hand rule: dip is 90° clockwise from strike. So 035/40 always means dipping toward 125° (SE). Writing the dip quadrant letter as well (40 SE) is still a good habit.</p></div>
-      <div class="note"><h3>One picture solves them all</h3><p>Every guide here uses the same trick: imagine the bed 1 unit deeper. That deeper line runs parallel to strike. True dip is the shortest walk to it; apparent dip is a longer, slanted walk. Draw that and you never need to memorize a formula.</p></div>
-      <div class="note"><h3>Three-point recipe</h3><p>Label the points high, middle and low. On the high–low line, find the spot at the middle elevation by simple ratio. Join it to the middle point: that line is strike. Dip is the elevation drop over the perpendicular distance.</p></div>
-      <div class="note"><h3>Mind the plunge direction</h3><p>A section line has two ends. The apparent dip plunges toward the end on the down-dip side of strike. Always state it, as in 34.5° → 090°.</p></div>
-      <div class="note"><h3>Thickness: flat ground first</h3><p>On flat ground with a traverse square to strike, t = w × sin δ. Only add the Δz·cos δ term when the ground slopes, and only use the width measured at right angles to strike.</p></div>
-      <div class="note"><h3>Drillhole: draw the dip section</h3><p>Measure the collar's distance from the outcrop's strike line in the dip direction, then depth = x × tan δ. Distance along strike never changes the depth.</p></div>
-      <div class="note"><h3>Stereonet habits</h3><p>Always rotate the tracing paper, never the net. Dips and plunges are counted in from the rim along a straight E–W or N–S line. Poles plot 90° away from the great circle, on the opposite side.</p></div>
-      <div class="note"><h3>Memorize the curve shape</h3><p>Sweep the slider in the Apparent dip tab. For moderate dips, α stays close to δ until β drops below about 45°, then falls quickly. This lets you eyeball multiple-choice answers.</p></div>
+      <article class="note"><span class="ntag">Check</span><h3>Sanity-check every answer</h3><p>Apparent dip is never bigger than true dip. It equals true dip only on a section perpendicular to strike, and drops to zero along strike. If your α comes out larger than δ, you used the wrong angle.</p><div class="nform">α ≤ δ, always</div></article>
+      <article class="note"><span class="ntag">Apparent dip</span><h3>Know which angle β is</h3><p>β is measured from the strike line. If a problem gives the angle from the dip direction instead (call it θ), use cos θ instead of sin β. Same answer, different trig function.</p><div class="nform">tan α = tan δ × sin β</div></article>
+      <article class="note"><span class="ntag">Notation</span><h3>Convert bearings to azimuth first</h3><p>N35E is 035°, S20W is 200°, N70W is 290°. Subtracting azimuths avoids most quadrant mistakes. Then fold the difference into 0–90° to get β.</p><div class="nform">S20°W = 180° + 20° = 200°</div></article>
+      <article class="note"><span class="ntag">Notation</span><h3>Lock the notation</h3><p>Write strike with the right-hand rule: dip is 90° clockwise from strike. So 035/40 always means dipping toward 125° (SE). Writing the dip quadrant letter as well (40 SE) is still a good habit.</p><div class="nform">dip direction = strike + 90°</div></article>
+      <article class="note"><span class="ntag">Method</span><h3>One picture solves them all</h3><p>Every guide here uses the same trick: imagine the bed one depth h deeper. That deeper line runs parallel to strike. True dip is the shortest walk to it; apparent dip is a longer, slanted walk.</p><div class="nform">tan (dip) = h ÷ map distance</div></article>
+      <article class="note"><span class="ntag">Three-point</span><h3>Three-point recipe</h3><p>Label the points high, middle and low. On the high–low line, find the spot at the middle elevation by simple ratio. Join it to the middle point: that line is strike. Dip is the elevation drop over the perpendicular distance.</p><div class="nform">tan δ = Δz ÷ d</div></article>
+      <article class="note"><span class="ntag">Apparent dip</span><h3>Mind the plunge direction</h3><p>A section line has two ends. The apparent dip plunges toward the end on the down-dip side of strike. Always state it, as in 34.5° → 090°.</p><div class="nform">ends: T and T ± 180°</div></article>
+      <article class="note"><span class="ntag">Thickness</span><h3>Thickness: flat ground first</h3><p>On flat ground with a traverse square to strike, use the simple form. Only add the Δz·cos δ term when the ground slopes, and only use the width measured at right angles to strike.</p><div class="nform">t = w × sin δ</div></article>
+      <article class="note"><span class="ntag">Drillhole</span><h3>Drillhole: draw the dip section</h3><p>Measure the collar's distance from the outcrop's strike line in the dip direction. Distance along strike never changes the depth.</p><div class="nform">V = x × tan δ</div></article>
+      <article class="note"><span class="ntag">Stereonet</span><h3>Stereonet habits</h3><p>Always rotate the tracing paper, never the net. Dips and plunges are counted in from the rim along a straight E–W or N–S line. Poles plot 90° away from the great circle, on the opposite side.</p><div class="nform">pole plunge = 90° − δ</div></article>
+      <article class="note"><span class="ntag">Apparent dip</span><h3>Memorize the curve shape</h3><p>Sweep the slider in the Apparent dip tab. For moderate dips, α stays close to δ until β drops below about 45°, then falls quickly. This lets you eyeball multiple-choice answers.</p><div class="nform">β → 90° gives α → δ</div></article>
+      <article class="note"><span class="ntag">Exam habit</span><h3>Sketch it in ten seconds</h3><p>Before any calculation, draw a quick compass on scratch paper with the strike line and a dip arrow. It tells you which quadrant the answer must be in, so you can strike out impossible choices first.</p><div class="nform">sketch → estimate → solve</div></article>
     </div>
   </section>
-  <button type="button" class="conv-fab" id="convFab" aria-expanded="false" aria-controls="convPanel"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 5.5 14 12 12 18.5 10 12z" fill="currentColor"/></svg><span>Az ⇄ Bearing</span></button>
+  <div class="conv-nudge" id="convNudge" role="status" hidden><button type="button" class="conv-nudge-x" id="convNudgeX" aria-label="Dismiss tip">×</button><b>Want to convert azimuth ⇄ bearing?</b><span>Type 215 or S35W and get the other one, with the rule shown.</span><button type="button" class="conv-nudge-go" id="convNudgeGo">Open converter</button></div><button type="button" class="conv-fab" id="convFab" aria-expanded="false" aria-controls="convPanel"><span class="conv-ic"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 5 14.2 12 12 19 9.8 12z" fill="currentColor"/></svg></span><span class="conv-txt"><span class="conv-t1">Azimuth ⇄ Bearing</span><span class="conv-t2">Bearing ⇄ Azimuth converter</span></span></button>
 <div class="conv-panel" id="convPanel" role="dialog" aria-label="Azimuth and bearing converter" hidden>
   <div class="conv-head"><b>Azimuth ⇄ Bearing</b><button type="button" class="conv-x" id="convClose" aria-label="Close converter">×</button></div>
   <label class="field" for="convIn"><span>Type an azimuth or a bearing</span><input id="convIn" type="text" value="N35E" autocomplete="off" spellcheck="false"></label>
@@ -741,17 +808,24 @@ function readPlane(){
   } else D=n360(s+90);
   state.D=D;state.S=n360(D-90);state.dip=dm.dip;
 }
+function glyph(kind,a,b){const P=(az,r)=>[(r*Math.sin(rad(az))).toFixed(1),(-r*Math.cos(rad(az))).toFixed(1)];let g=`<circle r="15" class="tg-ring"/><text class="tg-n" x="0" y="-9.5">N</text>`;
+  if(kind==='line'||kind==='linedip'||kind==='opp'){const p=P(a,13),q=P(a+180,13);g+=`<line class="tg-strike" x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}"/>`;if(kind==='opp')g+=`<circle class="tg-dot" cx="${q[0]}" cy="${q[1]}" r="2.6"/>`;if(kind==='linedip'){const t=P(b,6);g+=`<line class="tg-dip" x1="0" y1="0" x2="${t[0]}" y2="${t[1]}"/>`;}}
+  if(kind==='arrow'){const p=P(a,12),h1=P(a-28,7),h2=P(a+28,7);g+=`<line class="tg-dip" x1="0" y1="0" x2="${p[0]}" y2="${p[1]}"/><path class="tg-dip" d="M${(+p[0]-+h1[0]+ +P(a,12)[0]-+P(a,12)[0]).toFixed(1)}"/>`;g=g.replace(/<path class="tg-dip"[^>]*\/>/,'');const tip=P(a,13),l=P(a+180-25,6),r=P(a+180+25,6);g+=`<polygon class="tg-dipf" points="${tip[0]},${tip[1]} ${(+tip[0]+ +l[0]).toFixed(1)},${(+tip[1]+ +l[1]).toFixed(1)} ${(+tip[0]+ +r[0]).toFixed(1)},${(+tip[1]+ +r[1]).toFixed(1)}"/>`;}
+  if(kind==='sect'){const p=P(a,13),q=P(a+180,13);g+=`<line class="tg-sect" x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}"/>`;}
+  if(kind==='angle'){const ang=rad(Math.max(3,Math.min(80,a||0)));const L=Math.min(19,13/Math.sin(ang));g+=`<line class="tg-base" x1="-11" y1="-3" x2="11" y2="-3"/><line class="tg-sect" x1="-9" y1="-3" x2="${(-9+L*Math.cos(ang)).toFixed(1)}" y2="${(-3+L*Math.sin(ang)).toFixed(1)}"/><path class="tg-arc" d="M-1,-3 A8,8 0 0 1 ${(-9+8*Math.cos(ang)).toFixed(1)},${(-3+8*Math.sin(ang)).toFixed(1)}"/>`;}
+  if(kind==='pole'){const r=13*(1-(b||0)/90);const p=P(a,r);g+=`<rect class="tg-pole" x="${(+p[0]-3).toFixed(1)}" y="${(+p[1]-3).toFixed(1)}" width="6" height="6"/>`;}
+  return`<svg class="tglyph" viewBox="-17 -17 34 34" aria-hidden="true">${g}</svg>`;}
 function renderNotations(){
   const {S,D,dip}=state;
-  const items=[
-    ['Strike (RHR azimuth)',az3(S)],
-    ['Strike / dip, quadrant',`${quad(S)}, ${f(dip)}° ${letters8(D)}`],
-    ['Dip / dip direction',`${f(dip)} / ${az3(D)}`],
-    ['Dip direction',quad(D)],
-    ['Opposite strike end',az3(S+180)],
-    ['Pole to plane',`${f(90-dip)}° → ${az3(D+180)}`],
+  const tiles=[
+    ['Strike','RHR azimuth',az3(S),`${quad(S)} as a bearing`,glyph('line',S)],
+    ['Strike & dip','Quadrant notation',`${quad(S)}, ${f(dip)}° ${letters8(D)}`,'How most exam items write it',glyph('linedip',S,D)],
+    ['Dip / dip direction','Dip-direction notation',`${f(dip)} / ${az3(D)}`,'Dip first, then where it points',glyph('arrow',D)],
+    ['Dip direction','As a bearing',quad(D),`${az3(D)} = strike + 90°`,glyph('arrow',D)],
+    ['Opposite strike end','Same line, other end',az3(S+180),`${quad(S+180)} · strike ± 180°`,glyph('opp',S)],
+    ['Pole to plane','Plunge → trend',`${f(90-dip)}° → ${az3(D+180)}`,'90° − dip, dip direction + 180°',glyph('pole',D+180,90-dip)],
   ];
-  $('notations').innerHTML=items.map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
+  $('notations').innerHTML=tiles.map(([k,cap,v,sub,gl])=>`<div class="tile"><div class="tile-top"><div><dt>${k}</dt><span class="tcap">${cap}</span></div>${gl}</div><dd>${v}</dd><span class="tsub">${sub}</span></div>`).join('');
 }
 function apparent(dip,D,A){
   const c=Math.cos(rad(A-D));
@@ -875,7 +949,9 @@ $('vSection').onclick=()=>setView('section',rad(state.sec-90),rad(2));
 let figN=0;
 let H_CM=2;try{const v=parseFloat(localStorage.getItem('sir-hcm'));if(v>0&&v<=100)H_CM=v;}catch(e){}
 const ALLGUIDES=[];
-let FIGVIEW=null,FIGZOOMABLE=false,LASTFIG=null;
+let FIGVIEW=null,FIGZOOMABLE=false,LASTFIG=null,FIGANIM=false;
+let ANIM_ON=true;try{if(localStorage.getItem('sir-anim')==='off')ANIM_ON=false;}catch(e){}
+const REDUCED=()=>{try{return window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){return false;}};
 function mapFig(items,k,opt){
   opt=opt||{};
   items=items.filter(Boolean);
@@ -926,36 +1002,46 @@ function mapFig(items,k,opt){
     for(let i=0;i<4;i++)sbar+=`<rect x="${q(x0+i*seg)}" y="${y0}" width="${q(seg)}" height="6" class="${i%2?'sbar-w':'sbar-k'}"/>`;
     sbar+=`<text class="t-small" x="${x0}" y="${y0-8}" text-anchor="middle">0</text><text class="t-small" x="${q(x0+px)}" y="${y0-8}" text-anchor="middle">${f(len)}</text><text class="t-small" x="${q(x0+px+8)}" y="${y0+3}">m</text>`;}
   let glow='',body='',top='',under='';
+  const AN=FIGANIM&&k<99;const DUR=1.4;const STROKE=['line','ray','seg','arrow','arc','warc','right'];
+  const nNew=AN?items.filter(it=>it.step===k&&STROKE.includes(it.type)).length:0;const gap=nNew>1?Math.min(0.5,1.3/(nNew-1)):0;let ai=0,pj=0;
+  const st=(len,d)=>` style="--len:${q(Math.max(1,len))};--d:${d.toFixed(2)}s;--dur:${DUR}s"`;
+  const clip=(a,b)=>{let t0=0,t1=1;const dx=b[0]-a[0],dy=b[1]-a[1];const P=[-dx,dx,-dy,dy],Q=[a[0]+20,FW+20-a[0],a[1]+20,FH+20-a[1]];for(let i=0;i<4;i++){if(Math.abs(P[i])<1e-12){if(Q[i]<0)return null;continue;}const r=Q[i]/P[i];if(P[i]<0){if(r>t1)return null;if(r>t0)t0=r;}else{if(r<t0)return null;if(r<t1)t1=r;}}return[[a[0]+t0*dx,a[1]+t0*dy],[a[0]+t1*dx,a[1]+t1*dy]];};
+  const LA=(a,b,cls,d)=>d==null?L(a,b,cls):`<line class="${cls} anim"${st(Math.hypot(b[0]-a[0],b[1]-a[1]),d)} x1="${q(a[0])}" y1="${q(a[1])}" x2="${q(b[0])}" y2="${q(b[1])}"/>`;
+  const PA=(path,cls,len,d)=>d==null?`<path class="${cls}" d="${path}"/>`:`<path class="${cls} anim"${st(len,d)} d="${path}"/>`;
+  const FD=d=>d==null?'':` animfade" style="--d:${d.toFixed(2)}s`;
+  const TF=(html,d)=>d==null?html:html.replace('class="','class="animfade" style="--d:'+d.toFixed(2)+'s" data-x="').replace('class="animfade" style="--d:'+d.toFixed(2)+'s" data-x="','style="--d:'+d.toFixed(2)+'s" class="animfade ');
   for(const it of items){if(it.step<=k&&it.type==='pt'){const pp=S2(it.p);placed.push([pp[0]-7,pp[1]-7,pp[0]+7,pp[1]+7]);}}
   for(const it of items){
     if(it.step>k)continue;const now=it.step===k;const lc=it.lcls||'t-lab t-ink';
-    if(it.type==='poly'){under+=`<polygon class="${it.cls}" points="${it.pts.map(S2).map(p=>q(p[0])+','+q(p[1])).join(' ')}"/>`;}
+    const d=(AN&&now&&STROKE.includes(it.type))?(ai++)*gap:null;const ld=d==null?null:d+DUR*0.75;
+    if(it.type==='poly'){under+=`<polygon class="${it.cls}${AN&&now?FD(0):''}" points="${it.pts.map(S2).map(p=>q(p[0])+','+q(p[1])).join(' ')}"/>`;}
     else if(it.type==='line'||it.type==='ray'){
-      const p=S2(it.p),d=sd(it.az);const a=it.type==='line'?[p[0]-d[0]*5000,p[1]-d[1]*5000]:p;const b=[p[0]+d[0]*5000,p[1]+d[1]*5000];
-      if(now)glow+=L(a,b,'glow');body+=L(a,b,it.cls);
-      if(it.label){const lp=it.lpos||100;const nrm=[-d[1],d[0]];const o=(it.side||1)*13;top+=T([p[0]+d[0]*lp+nrm[0]*o,p[1]+d[1]*lp+nrm[1]*o],it.label,lc,'middle');}
+      const p=S2(it.p),dv=sd(it.az);const a0=it.type==='line'?[p[0]-dv[0]*5000,p[1]-dv[1]*5000]:p;const b0=[p[0]+dv[0]*5000,p[1]+dv[1]*5000];
+      const cl=clip(a0,b0);if(cl){const[a,b]=cl;if(now)glow+=LA(a,b,'glow',d);body+=LA(a,b,it.cls,d);}
+      if(it.label){const lp=it.lpos||100;const nrm=[-dv[1],dv[0]];const o=(it.side||1)*13;top+=TF(T([p[0]+dv[0]*lp+nrm[0]*o,p[1]+dv[1]*lp+nrm[1]*o],it.label,lc,'middle'),ld);}
     } else if(it.type==='seg'||it.type==='arrow'){
-      const a=S2(it.a),b=S2(it.b);if(now)glow+=L(a,b,'glow');body+=L(a,b,it.cls);
-      if(it.type==='arrow'){const ang=Math.atan2(b[1]-a[1],b[0]-a[0]),hs=11;body+=`<polygon class="${it.head||'f-bed'}" points="${q(b[0])},${q(b[1])} ${q(b[0]-hs*Math.cos(ang-0.42))},${q(b[1]-hs*Math.sin(ang-0.42))} ${q(b[0]-hs*Math.cos(ang+0.42))},${q(b[1]-hs*Math.sin(ang+0.42))}"/>`;}
-      if(it.label){const m=[(a[0]+b[0])/2,(a[1]+b[1])/2];const len=Math.hypot(b[0]-a[0],b[1]-a[1])||1;const nrm=[-(b[1]-a[1])/len,(b[0]-a[0])/len];const o=(it.side||1)*14;top+=T([m[0]+nrm[0]*o,m[1]+nrm[1]*o],it.label,lc,'middle');}
+      const a=S2(it.a),b=S2(it.b);if(now)glow+=LA(a,b,'glow',d);body+=LA(a,b,it.cls,d);
+      if(it.type==='arrow'){const ang=Math.atan2(b[1]-a[1],b[0]-a[0]),hs=11;body+=`<polygon class="${it.head||'f-bed'}${d==null?'':FD(d+DUR*0.9)}" points="${q(b[0])},${q(b[1])} ${q(b[0]-hs*Math.cos(ang-0.42))},${q(b[1]-hs*Math.sin(ang-0.42))} ${q(b[0]-hs*Math.cos(ang+0.42))},${q(b[1]-hs*Math.sin(ang+0.42))}"/>`;}
+      if(it.label){const m=[(a[0]+b[0])/2,(a[1]+b[1])/2];const len=Math.hypot(b[0]-a[0],b[1]-a[1])||1;const nrm=[-(b[1]-a[1])/len,(b[0]-a[0])/len];const o=(it.side||1)*14;top+=TF(T([m[0]+nrm[0]*o,m[1]+nrm[1]*o],it.label,lc,'middle'),ld);}
     } else if(it.type==='pt'){
-      const p=S2(it.p);if(now)glow+=`<circle class="glow-dot" cx="${q(p[0])}" cy="${q(p[1])}" r="11"/>`;
-      body+=`<circle cx="${q(p[0])}" cy="${q(p[1])}" r="4.5" class="${it.cls||'f-ink'}"/>`;
+      const pd=AN&&now?1.7+0.15*(pj++):null;
+      const p=S2(it.p);if(now)glow+=`<circle class="glow-dot${pd==null?'':FD(pd)}" cx="${q(p[0])}" cy="${q(p[1])}" r="11"/>`;
+      body+=`<circle cx="${q(p[0])}" cy="${q(p[1])}" r="4.5" class="${it.cls||'f-ink'}${pd==null?'':FD(pd)}"/>`;
       const dx=it.ldx??9,dy=it.ldy??-10;
-      top+=T([p[0]+dx,p[1]+dy],it.label,'t-pt'+(it.lcolor?' '+it.lcolor:''));if(it.sub)top+=T([p[0]+dx,p[1]+dy+15],it.sub,'t-small');
+      top+=TF(T([p[0]+dx,p[1]+dy],it.label,'t-pt'+(it.lcolor?' '+it.lcolor:'')),pd);if(it.sub)top+=TF(T([p[0]+dx,p[1]+dy+15],it.sub,'t-small'),pd);
     } else if(it.type==='arc'){
       const c=S2(it.c);let dd=n360(it.a2-it.a1);if(dd>180)dd-=360;
       const p1=[c[0]+it.r*Math.sin(rad(it.a1)),c[1]-it.r*Math.cos(rad(it.a1))],p2=[c[0]+it.r*Math.sin(rad(it.a2)),c[1]-it.r*Math.cos(rad(it.a2))];
-      const path=`M${q(p1[0])},${q(p1[1])} A${it.r},${it.r} 0 0 ${dd>0?1:0} ${q(p2[0])},${q(p2[1])}`;
-      if(now)glow+=`<path class="glow" d="${path}"/>`;body+=`<path class="s-arc" d="${path}"/>`;
-      if(it.label){const m=it.a1+dd/2,lr=it.r+16;top+=T([c[0]+lr*Math.sin(rad(m)),c[1]-lr*Math.cos(rad(m))],it.label,lc,'middle');}
+      const path=`M${q(p1[0])},${q(p1[1])} A${it.r},${it.r} 0 0 ${dd>0?1:0} ${q(p2[0])},${q(p2[1])}`;const len=it.r*Math.abs(rad(dd));
+      if(now)glow+=PA(path,'glow',len,d);body+=PA(path,'s-arc',len,d);
+      if(it.label){const m=it.a1+dd/2,lr=it.r+16;top+=TF(T([c[0]+lr*Math.sin(rad(m)),c[1]-lr*Math.cos(rad(m))],it.label,lc,'middle'),ld);}
     } else if(it.type==='warc'){
-      const c=S2(it.c),R=it.R*sc;let dd=n360(it.a2-it.a1);if(dd>180)dd-=360;const p1=[c[0]+R*Math.sin(rad(it.a1)),c[1]-R*Math.cos(rad(it.a1))],p2=[c[0]+R*Math.sin(rad(it.a2)),c[1]-R*Math.cos(rad(it.a2))];const path=`M${q(p1[0])},${q(p1[1])} A${q(R)},${q(R)} 0 0 ${dd>0?1:0} ${q(p2[0])},${q(p2[1])}`;if(now)glow+=`<path class="glow" d="${path}"/>`;body+=`<path class="s-guide" d="${path}"/>`;
+      const c=S2(it.c),R=it.R*sc;let dd=n360(it.a2-it.a1);if(dd>180)dd-=360;const p1=[c[0]+R*Math.sin(rad(it.a1)),c[1]-R*Math.cos(rad(it.a1))],p2=[c[0]+R*Math.sin(rad(it.a2)),c[1]-R*Math.cos(rad(it.a2))];const path=`M${q(p1[0])},${q(p1[1])} A${q(R)},${q(R)} 0 0 ${dd>0?1:0} ${q(p2[0])},${q(p2[1])}`;const len=R*Math.abs(rad(dd));if(now)glow+=PA(path,'glow',len,d);body+=PA(path,'s-guide',len,d);
     } else if(it.type==='right'){
       const c=S2(it.c),u=sd(it.a1),v=sd(it.a2),z=9;
-      body+=`<polyline class="s-line" points="${q(c[0]+u[0]*z)},${q(c[1]+u[1]*z)} ${q(c[0]+u[0]*z+v[0]*z)},${q(c[1]+u[1]*z+v[1]*z)} ${q(c[0]+v[0]*z)},${q(c[1]+v[1]*z)}"/>`;
+      body+=`<polyline class="s-line${d==null?'':' anim'}"${d==null?'':st(18,d)} points="${q(c[0]+u[0]*z)},${q(c[1]+u[1]*z)} ${q(c[0]+u[0]*z+v[0]*z)},${q(c[1]+u[1]*z+v[1]*z)} ${q(c[0]+v[0]*z)},${q(c[1]+v[1]*z)}"/>`;
     } else if(it.type==='text'){
-      const p=S2(it.p);top+=T([p[0]+(it.dx||0),p[1]+(it.dy||0)],it.s,it.cls||'t-lab t-ink',it.anchor);
+      const p=S2(it.p);top+=TF(T([p[0]+(it.dx||0),p[1]+(it.dy||0)],it.s,it.cls||'t-lab t-ink',it.anchor),AN&&now?1.6:null);
     }
   }
   const north=opt.north===false&&opt.caption?`<text class="t-title halo" x="14" y="20">${opt.caption}</text>`:'';
@@ -990,13 +1076,13 @@ class Guide{
   constructor(id){
     this.el=$(id);this.k=0;this.steps=[];this.all=false;
     this.el.innerHTML=`<div class="guide-head"><div><div class="eyebrow">Guided solve</div><h3>Step by step</h3><div class="seg gmode" role="group" aria-label="Solution method" hidden><button type="button" data-m="trig" aria-pressed="true">Trigonometry</button><button type="button" data-m="graph" aria-pressed="false">Graphical method</button></div><label class="hcm" hidden>My h = <input type="text" class="hcmin" inputmode="decimal" value="2" aria-label="Your depth h in centimetres"> cm</label></div><ol class="pips"></ol></div>
-      <div class="ggiven" hidden></div><div class="guide-body"><div class="gfigwrap"><div class="gfig"></div><div class="zoombar" hidden><button type="button" data-z="out" aria-label="Zoom out">−</button><span class="zpct">100%</span><button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="fit" class="zfit">Fit</button></div><div class="zhint" hidden>Drag to move · pinch, Ctrl + scroll or the buttons to zoom</div></div><div class="gtext"><div class="label gcount"></div><h4 class="gtitle"></h4><p class="gwhy"></p><div class="calc"></div>
+      <div class="ggiven" hidden></div><div class="guide-body"><div class="gfigwrap"><div class="gfig"></div><div class="zoombar" hidden><div class="zgroup" role="group" aria-label="Zoom"><button type="button" data-z="out" aria-label="Zoom out">−</button><span class="zpct">100%</span><button type="button" data-z="in" aria-label="Zoom in">+</button><button type="button" data-z="fit" class="zfit">Fit</button></div><div class="zgroup" role="group" aria-label="Drawing animation"><button type="button" data-z="replay" class="zfit" aria-label="Replay the drawing">↻ Replay</button><button type="button" data-z="anim" class="zfit zanim" aria-pressed="true">Animation: On</button></div></div><div class="zhint" hidden>Drag to move · pinch, Ctrl + scroll or the buttons to zoom</div></div><div class="gtext"><div class="label gcount"></div><h4 class="gtitle"></h4><p class="gwhy"></p><div class="calc"></div>
       <div class="gnav"><button type="button" class="btn ghost gprev">Previous</button><button type="button" class="btn gnext">Next step</button><button type="button" class="linkbtn gtoggle">Show all steps as a list</button></div></div></div>
       <ol class="gall" hidden></ol>`;
     const q=s=>this.el.querySelector(s);
     this.pips=q('.pips');this.hcmEl=q('.hcm');this.hcmIn=q('.hcmin');this.hcmIn.addEventListener('input',()=>{const v=parseNum(this.hcmIn.value,0.1,100);mark(this.hcmIn,v!==null);if(v===null)return;H_CM=v;try{localStorage.setItem('sir-hcm',String(v));}catch(e){}ALLGUIDES.forEach(g=>g.render());});ALLGUIDES.push(this);this.givenEl=q('.ggiven');this.givenFn=null;this.fig=q('.gfig');this.count=q('.gcount');this.title=q('.gtitle');this.why=q('.gwhy');this.calc=q('.calc');this.prev=q('.gprev');this.next=q('.gnext');this.toggle=q('.gtoggle');this.list=q('.gall');this.mode='trig';this.sets={trig:[],graph:null};this.modeEl=q('.gmode');this.modeEl.addEventListener('click',e=>{const b=e.target.closest('button[data-m]');if(!b)return;this.mode=b.dataset.m;this.k=0;this.view={z:1,px:0,py:0};this.pick();this.render();});
     this.view={z:1,px:0,py:0};this.zoomable=false;this.base=null;this.zbar=q('.zoombar');this.zhint=q('.zhint');this.zpct=q('.zpct');
-    this.zbar.addEventListener('click',e=>{const b=e.target.closest('button[data-z]');if(!b)return;const m=b.dataset.z;if(m==='fit'){this.view={z:1,px:0,py:0};this.renderFig();}else this.zoomAt(this.view.z*(m==='in'?1.5:1/1.5),null);});
+    this.zbar.addEventListener('click',e=>{const b=e.target.closest('button[data-z]');if(!b)return;const m=b.dataset.z;if(m==='replay'){this.forceAnim=true;this.renderFig();return;}if(m==='anim'){ANIM_ON=!ANIM_ON;try{localStorage.setItem('sir-anim',ANIM_ON?'on':'off');}catch(e){}ALLGUIDES.forEach(g=>g.syncAnimBtn());return;}if(m==='fit'){this.view={z:1,px:0,py:0};this.renderFig();}else this.zoomAt(this.view.z*(m==='in'?1.5:1/1.5),null);});
     {const fg=this.fig,pts=new Map();let pinch=null;
       fg.addEventListener('pointerdown',e=>{if(!this.zoomable)return;try{fg.setPointerCapture(e.pointerId);}catch(_){}pts.set(e.pointerId,[e.clientX,e.clientY]);if(pts.size===2){const[a,b]=[...pts.values()];pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1])||1,z:this.view.z};}fg.classList.add('dragging');});
       fg.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const prev=pts.get(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);
@@ -1011,13 +1097,14 @@ class Guide{
     this.toggle.onclick=()=>{this.all=!this.all;this.render();};
     this.pips.addEventListener('click',e=>{const b=e.target.closest('button');if(b)this.go(+b.dataset.i);});
   }
-  go(i){this.k=Math.max(0,Math.min(this.steps.length-1,i));this.render();}
+  syncAnimBtn(){const b=this.el.querySelector('.zanim');if(b){b.setAttribute('aria-pressed',String(ANIM_ON));b.textContent=ANIM_ON?'Animation: On':'Animation: Off';}}
+  go(i){this.k=Math.max(0,Math.min(this.steps.length-1,i));this.animNext=true;this.render();}
   svgK(){const sv=this.fig.querySelector('svg');if(!sv)return null;const r=sv.getBoundingClientRect();return r.width?{r,k:360/r.width}:null;}
   panBy(dx,dy){if(!this.base)return;const m=this.svgK();if(!m)return;const sc=this.base.sc*this.view.z;this.view.px-=dx*m.k/sc;this.view.py+=dy*m.k/sc;this.renderFig();}
   zoomAt(z2,client){if(!this.base)return;z2=Math.max(0.5,Math.min(8,z2));const m=this.svgK();let u=180,v=150;if(client&&m){u=(client[0]-m.r.left)*m.k;v=(client[1]-m.r.top)*m.k;}
     const b=this.base,s1=b.sc*this.view.z,s2=b.sc*z2;const wx=b.cx+this.view.px+(u-180)/s1,wy=b.cy+this.view.py-(v-150)/s1;
     this.view={z:z2,px:wx-(u-180)/s2-b.cx,py:wy+(v-150)/s2-b.cy};this.renderFig();}
-  renderFig(){const st=this.steps[this.k];FIGVIEW=this.view;FIGZOOMABLE=false;LASTFIG=null;try{this.fig.innerHTML=st&&st.fig?st.fig():'';}finally{FIGVIEW=null;}
+  renderFig(){const st=this.steps[this.k];FIGANIM=!REDUCED()&&(this.forceAnim||(!!this.animNext&&ANIM_ON));this.animNext=false;this.forceAnim=false;this.syncAnimBtn();FIGVIEW=this.view;FIGZOOMABLE=false;LASTFIG=null;try{this.fig.innerHTML=st&&st.fig?st.fig():'';}finally{FIGVIEW=null;FIGANIM=false;}
     this.zoomable=FIGZOOMABLE;this.base=LASTFIG;this.zbar.hidden=!this.zoomable;this.zhint.hidden=!this.zoomable;this.zpct.textContent=Math.round(this.view.z*100)+'%';
     this.fig.classList.toggle('zoomable',this.zoomable);this.fig.style.touchAction=this.zoomable&&(this.view.z!==1||this.view.px||this.view.py)?'none':'pan-y';}
   set(steps,graph){this.view={z:1,px:0,py:0};this.sets={trig:steps,graph:graph&&graph.length?graph:null};this.pick();if(this.k>this.steps.length-1)this.k=Math.max(0,this.steps.length-1);this.render();}
@@ -1982,7 +2069,7 @@ function graphDir(S,D,dip,a,beta,d1,d2){
     {type:'line',p:O,az:S,cls:'s-strike',step:0,label:`strike ${az3(S)}`,lcls:'t-lab t-strike',lpos:-110,extra:[v2(uS,s*0.4),v2(uS,-s*0.4)]},
     {type:'pt',p:O,label:'O',step:0,ldx:-16,ldy:-12},
     {type:'line',p:O,az:D,cls:'s-guide',step:1,label:'FL1 (dip direction)',lcls:'t-lab t-ink',lpos:-60},
-    {type:'seg',a:O,b:v2(dir2(vaz(A1)),vlen(A1)*1.15),cls:'s-bed',step:1},
+    {type:'seg',a:O,b:v2(dir2(vaz(A1)),vlen(A1)*1.15),cls:'s-bed',step:1,label:'δ line',lcls:'t-lab t-bed'},
     {type:'arc',c:O,r:44,a1:D,a2:vaz(A1),label:'δ',lcls:'t-lab t-bed',step:1},
     {type:'line',p:A1,az:D,cls:'s-guide',step:2,label:'depth-h line',lcls:'t-small',lpos:120},
     {type:'pt',p:A1,label:'A′',step:2},
@@ -1990,7 +2077,7 @@ function graphDir(S,D,dip,a,beta,d1,d2){
     {type:'right',c:A,a1:n360(D+180),a2:nAz,step:2},
     {type:'pt',p:A,label:'A',step:2,cls:'f-bed'},
     {type:'line',p:A,az:S,cls:'s-bed-dash',step:3,label:'contour',lcls:'t-lab t-bed',lpos:70,extra:[P1,P2]},
-    {type:'seg',a:O,b:v2(dir2(vaz(C1)),vlen(C1)*1.08),cls:'s-sect-solid',step:4},
+    {type:'seg',a:O,b:v2(dir2(vaz(C1)),vlen(C1)*1.08),cls:'s-sect-solid',step:4,label:`α ${f(a)}°`,lcls:'t-lab t-sect',side:-1},
     {type:'arc',c:O,r:60,a1:D,a2:vaz(C1),label:'α',lcls:'t-lab t-sect',step:4},
     {type:'pt',p:C1,label:'C′',step:4},
     {type:'seg',a:C1,b:C,cls:'s-line',step:4},
@@ -2005,7 +2092,7 @@ function graphDir(S,D,dip,a,beta,d1,d2){
     {t:'Lay off the true dip on FL1',why:DW('At O, draw FL1 at 90° to strike, toward the dip direction. '+UNDER_DO('FL1','down-dip',f(dip),'δ',true,'on your right as you face down-dip'),FOLD_WHY+' '+SIDE_WHY),calc:[`δ = <b>${f(dip)}°</b>`],fig:M(1)},
     {t:'Draw the depth line and find A',why:DW('Choose a depth h (for example 3 cm; here 1 unit). On the underground side, draw a line parallel to FL1 at distance h. Mark A′ where it crosses the δ line, and drop a perpendicular from A′ to FL1; the foot is A. Keep the depth line: you will use it again in step 5.','A is the map point above where the bed reaches depth h, going straight down-dip.'),calc:['h = 1 unit',`OA ≈ ${f(x0,3)} units`],fig:M(2)},
     {t:'Draw the structure contour through A',why:DW('Through A, draw a long line parallel to strike.','The bed is at depth h all along this line.'),calc:['Contour ∥ strike, through A'],fig:M(3)},
-    {t:'Find the map distance for α',why:DW(`From O, lay off the wanted apparent dip α = ${f(a)}° from FL1, on the same underground side as δ. Mark C′ where this line crosses the depth line. Drop a perpendicular from C′ to FL1; the foot is C.`,'OC is how far a section dipping at α must travel on the map before the bed is h deep. Because α is gentler than δ, C lies beyond A.'),calc:[`OC measures ≈ ${f(s,3)} units (this is h ÷ tan α)`],fig:M(4)},
+    {t:'Find the map distance for α',why:DW(`The blue line comes from the <b>wanted apparent dip α = ${f(a)}°</b> in the Given box: it is the line that dips at exactly the angle you want to see. Put the protractor's centre on O again, with its base along FL1 and 0° pointing down-dip, exactly as you did for δ. Count the wanted apparent dip α = ${f(a)}° <b>clockwise</b> (the same way you counted δ), mark it, and draw a line from O through the mark. This is the blue <b>α line</b>. Because ${f(a)}° is less than ${f(dip)}°, it sits between FL1 and the δ line. Mark C′ where the α line crosses the depth line. Then drop a perpendicular from C′ back to FL1; the foot is C.`,'OC is how far a section dipping at α must travel on the map before the bed is h deep. Because α is gentler than δ, C lies beyond A.'),calc:[`Blue α line = the wanted apparent dip from the Given: <b>α = ${f(a)}°</b>`,`α line: ${f(a)}° from FL1, counted clockwise like δ`,`OC = h ÷ tan α = 1 ÷ tan ${f(a)}° = 1 ÷ ${f4(Math.tan(rad(a)))} = <b>${f(s,3)} units</b>`,`Compare: OA = h ÷ tan δ = ${f(x0,3)} units, so C is farther out than A`],fig:M(4)},
     {t:'Swing an arc to the contour',why:DW('Open your drawing compass to the length OC. With the point on O, draw an arc that crosses the contour. Mark the two crossings P₁ and P₂, draw O→P₁ and O→P₂, and read their azimuths with the protractor.','Both O→P₁ and O→P₂ reach depth h after the same map distance OC, so both sections show the same apparent dip α.'),calc:[`Protractor readings: <b>${az3(d1)}</b> and <b>${az3(d2)}</b>`],fig:M(5)},
     {t:'Answer',why:DW('Write both directions; either is a correct answer.','If the arc never reaches the contour, α is steeper than the true dip and no direction works.'),calc:[`<b>${f(a)}° → ${az3(d1)}</b> or <b>${f(a)}° → ${az3(d2)}</b>`,`(β from strike ≈ ${f(beta)}°)`],fig:M(99)},
   ];
@@ -2223,16 +2310,16 @@ renderTopics();
 
 /* ---------- Given-values panels ---------- */
 const gv=id=>{const el=$(id);return el?String(el.value).trim():'';};
-const GIV=(rows,find)=>`<div class="label">Given</div><dl class="givl">${rows.filter(Boolean).map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl><div class="givfind"><b>Find:</b> ${find}</div>`;
-const plRows=()=>[['Strike',`${az3(state.S)} (${quad(state.S)})`],['True dip δ',`${f(state.dip)}° toward ${az3(state.D)} (${letters8(state.D)})`]];
-guide1.givenFn=()=>GIV([...plRows(),['Section line',`${az3(state.sec)} (${quad(state.sec)})`]],'the apparent dip α on that section');
+const GIV=(rows,find)=>{rows=rows.filter(Boolean);return`<div class="giv-head"><div class="label">Given</div><span class="muted giv-n">${rows.length} value${rows.length===1?'':'s'} · updates as you type</span></div><dl class="givl">${rows.map(([k,v,g])=>`<div class="gtile"><div class="gtile-top"><dt>${k}</dt>${g||''}</div><dd>${v}</dd></div>`).join('')}</dl><div class="givfind"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></svg><span><b>Find:</b> ${find}</span></div>`;};
+const plRows=()=>[['Strike',`${az3(state.S)} <small>${quad(state.S)}</small>`,glyph('line',state.S)],['True dip δ',`${f(state.dip)}° <small>toward ${az3(state.D)} (${letters8(state.D)})</small>`,glyph('arrow',state.D)]];
+guide1.givenFn=()=>GIV([...plRows(),['Section line',`${az3(state.sec)} <small>${quad(state.sec)}</small>`,glyph('sect',state.sec)]],'the apparent dip α on that section');
 guide2.givenFn=()=>$('tmTwo').checked
   ?GIV([['Apparent dip α₁',`${gv('tA1')}° toward ${gv('tD1')}`],['Apparent dip α₂',`${gv('tA2')}° toward ${gv('tD2')}`]],'the strike and the true dip δ')
   :GIV([['Strike',`${az3(state.S)} (${quad(state.S)})`],['Apparent dip α',`${gv('oA')}° toward ${gv('oDir')}`]],'the true dip δ and dip direction');
 guide3.givenFn=()=>$('tpBear').checked
   ?GIV([['A',`origin, ${gv('bAz')} m`],['B',`${gv('bBd')} m toward ${gv('bBb')} from A, ${gv('bBz')} m`],['C',`${gv('bCd')} m toward ${gv('bCb')} from A, ${gv('bCz')} m`]],'the strike and true dip of the bed')
   :GIV(['A','B','C'].map(k=>[k,`E ${gv('x'+k+'e')}, N ${gv('x'+k+'n')}, ${gv('x'+k+'z')} m`]),'the strike and true dip of the bed');
-guide4.givenFn=()=>GIV([...plRows(),['Wanted apparent dip α',`${gv('tgtA')}°`]],'the section directions that show this apparent dip');
+guide4.givenFn=()=>GIV([...plRows(),['Wanted apparent dip α',`${gv('tgtA')}° <small>draws the blue α line</small>`,glyph('angle',parseFloat(gv('tgtA'))||0)]],'the section directions that show this apparent dip');
 guide5.givenFn=()=>GIV([...plRows(),['Measured distance L',`${gv('kL')} m`],['Traverse direction',gv('kDir')],['Ground slope σ',`${gv('kSlope')}° ${$('kUp').checked?'uphill':'downhill'}`]],'the true thickness t');
 guide6.givenFn=()=>GIV([...plRows(),['Outcrop from collar',`${gv('dDist')} m toward ${gv('dBear')}`],['Outcrop height above collar',`${gv('dZ')} m`],$('dIncl').checked?['Hole',`trend ${gv('dTrend')}, plunge ${gv('dPlunge')}°`]:['Hole','vertical']],$('dIncl').checked?'the hole length L to the bed':'the vertical depth V to the bed');
 guide7.givenFn=()=>GIV([...plRows(),['Projection',net.proj==='area'?'equal-area (Schmidt)':'equal-angle (Wulff)']],'the great circle and pole of the plane');
@@ -2241,7 +2328,11 @@ guide7.givenFn=()=>GIV([...plRows(),['Projection',net.proj==='area'?'equal-area 
 /* ---------- Floating converter ---------- */
 (function(){
   const fab=$('convFab'),panel=$('convPanel'),inp=$('convIn');
-  const open=v=>{panel.hidden=!v;fab.setAttribute('aria-expanded',String(v));if(v){inp.focus();inp.select();}};
+  const nudge=$('convNudge');const hideNudge=()=>{nudge.hidden=true;try{localStorage.setItem('sir-conv-tip','seen');}catch(e){}};
+  const open=v=>{panel.hidden=!v;fab.setAttribute('aria-expanded',String(v));if(v){hideNudge();inp.focus();inp.select();}};
+  $('convNudgeX').onclick=hideNudge;$('convNudgeGo').onclick=()=>open(true);
+  let seenTip=false;try{seenTip=localStorage.getItem('sir-conv-tip')==='seen';}catch(e){}
+  if(!seenTip){setTimeout(()=>{if(panel.hidden)nudge.hidden=false;},1500);setTimeout(()=>{if(!nudge.hidden)nudge.hidden=true;},16000);}
   fab.onclick=()=>open(panel.hidden);$('convClose').onclick=()=>{open(false);fab.focus();};
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden){open(false);fab.focus();}});
   function dial(a){let s=`<circle r="44" class="c-ring"/>`;
