@@ -187,6 +187,14 @@ figure{margin:0}
 .grid-ax{stroke:var(--muted);stroke-width:1.1;opacity:.6}
 .t-axis{font:700 11px var(--f-body);fill:var(--muted);dominant-baseline:central}
 .t-north{fill:var(--strike)}
+.thk3d{margin:6px 0 0;display:grid;gap:8px;background:var(--sheet);border:1.5px solid var(--accent-soft);border-radius:14px;padding:16px 18px;box-shadow:var(--shadow)}
+.thk3d h3{font-size:1.2rem}
+.thk3d .canvas-wrap{height:400px}
+.thk-legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.82rem;color:var(--muted)}
+.k-ink{background:var(--ink)}
+.k-dash{background:repeating-linear-gradient(90deg,var(--muted) 0 5px,transparent 5px 9px)}
+#thkCv{width:100%;height:100%;display:block}
+@media (max-width:560px){.thk3d .canvas-wrap{height:320px}.thk3d{padding:14px 12px}}
 .band{fill:var(--bedfill);opacity:.28;stroke:none}
 .net-prim{fill:var(--paper);stroke:var(--ink);stroke-width:1.6}
 .net-g{stroke:var(--rule);stroke-width:.8;fill:none}
@@ -639,6 +647,13 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
           <dl class="vars" id="vars5"></dl>
         </div>
       </div>
+      <figure class="thk3d">
+        <div class="fig-head"><div><div class="label">3D field view</div><h3>Where the cross-section is cut</h3></div>
+          <div class="seg" role="group" aria-label="3D view presets"><button type="button" id="thkO" aria-pressed="true">Oblique</button><button type="button" id="thkS" aria-pressed="false">Look along strike</button><button type="button" id="thkM" aria-pressed="false">Map</button></div></div>
+        <div class="canvas-wrap" id="thkWrap"><canvas id="thkCv" aria-label="3D block showing the bed, the traverse and the cross-section plane"></canvas><span class="canvas-tip">Drag to rotate</span></div>
+        <div class="thk-legend"><span class="key"><i class="k-bed"></i>Bed and its contacts</span><span class="key"><i class="k-ink"></i>Your traverse (1 → 2)</span><span class="key"><i class="k-sect"></i>Cross-section wall ⟂ strike, and true thickness t</span><span class="key"><i class="k-dash"></i>Contact 2 slid along strike into the wall (2′)</span></div>
+        <p class="view-note" id="thkNote"></p>
+      </figure>
       <div class="guide" id="guide5"></div>
     </div>
 
@@ -1596,7 +1611,7 @@ function tool5(){
   ]);
   vars();
   const ans=$('thkAns');
-  const err=m=>{ans.className='answer err';ans.innerHTML=`<span class="big">${m}</span>`;guide5.set([]);};
+  const err=m=>{ans.className='answer err';ans.innerHTML=`<span class="big">${m}</span>`;guide5.set([]);THK=null;drawThk3d();};
   if(L===null||L<=0||A===null||sg===null)return err('Enter a distance, a traverse direction and a ground slope (0 for flat ground).');
   const fb=foldBeta(A,S),beta=fb.beta;
   if(beta<0.5)return err('A traverse along strike stays inside one layer, so it never crosses from one contact to the other. Walk across strike.');
@@ -1605,6 +1620,7 @@ function tool5(){
   const cosAD=Math.cos(rad(A-D));const w=h*cosAD;
   const raw=w*sd+dz*cd;const t=Math.abs(raw);const tv=cd>1e-6?t/cd:Infinity;
   vars(t,w,dz,tv);
+  THK={S,D,dip,A,h,dz,w,t};drawThk3d();
   ans.className='answer bed';ans.innerHTML=`<span class="label">True thickness</span><span class="big">${f(t)} m</span><span class="sub">Width ⟂ strike ${f(Math.abs(w))} m · vertical thickness ${isFinite(tv)?f(tv)+' m':'—'}</span>`;
   // map items
   const uS=dir2(S),uD=dir2(D),uA=dir2(A);const E=v2(uA,h);const F=v2(uD,w);
@@ -1624,9 +1640,9 @@ function tool5(){
   const K=Math.max(Math.abs(w),Math.abs(dz),t,10)*1.25;
   const c1a=v2(e,-6*K),c1b=v2(e,6*K),c2a=vadd(qP,v2(e,-6*K)),c2b=vadd(qP,v2(e,6*K));
   const secItems=[
-    {type:'poly',pts:[c1a,c1b,c2b,c2a],cls:'band',step:3},
-    {type:'line',p:O,az:90+dip,cls:'s-bed',step:3,label:'contact 1',lcls:'t-lab t-bed',lpos:-90,side:-1,extra:[v2(e,K*0.6),v2(e,-K*0.6)]},
-    {type:'line',p:qP,az:90+dip,cls:'s-bed',step:3,label:'contact 2',lcls:'t-lab t-bed',lpos:90,extra:[qP]},
+    {type:'poly',pts:[O,v2(e,6*K),vadd(qP,v2(e,6*K)),qP],cls:'band',step:3},
+    {type:'ray',p:O,az:90+dip,cls:'s-bed',step:3,label:'contact 1',lcls:'t-lab t-bed',lpos:120,side:-1,extra:[v2(e,K*0.6),v2(e,-K*0.3)]},
+    {type:'ray',p:qP,az:90+dip,cls:'s-bed',step:3,label:'contact 2',lcls:'t-lab t-bed',lpos:90,extra:[qP]},
     {type:'seg',a:O,b:qP,cls:'s-ground',step:3,label:'ground',lcls:'t-small',side:-1},
     {type:'pt',p:O,label:'1',step:3,ldx:-14},{type:'pt',p:qP,label:'2',step:3},
     dip>1?{type:'arc',c:O,r:34,a1:90,a2:90+dip,label:`δ`,step:3}:null,
@@ -1635,6 +1651,24 @@ function tool5(){
   ];
   const M=i=>()=>mapFig(mapItems,i,{scale:1});
   const X=i=>()=>mapFig(secItems,i,{scale:1,north:false,caption:'Cross-section ⟂ strike, looking along strike'});
+  const tick=[w,0];
+  const gsec=[
+    {type:'poly',pts:[O,v2(e,6*K),vadd(qP,v2(e,6*K)),qP],cls:'band',step:2},
+    {type:'line',p:O,az:90,cls:'s-guide',step:0,label:'section line (level of contact 1)',lcls:'t-small',lpos:-60,side:-1,extra:[v2(e,K*0.6),v2(e,-K*0.6)]},
+    Math.abs(dz)>1e-9?{type:'seg',a:tick,b:qP,cls:'s-line',step:0,label:`Δz ${f(Math.abs(dz))} m`,lcls:'t-lab t-ink'}:null,
+    Math.abs(dz)>1e-9?{type:'right',c:tick,a1:dz>0?0:180,a2:w>=0?270:90,step:0}:null,
+    Math.abs(dz)>1e-9?{type:'seg',a:O,b:qP,cls:'s-ground',step:0,label:'ground',lcls:'t-small',side:-1}:null,
+    {type:'seg',a:O,b:tick,cls:'s-sect-solid',step:0,label:`w ${f(Math.abs(w))} m`,lcls:'t-lab t-sect',side:-1},
+    {type:'pt',p:O,label:'1',step:0,ldx:-14},
+    Math.abs(dz)>1e-9?{type:'pt',p:tick,label:'',step:0,cls:'f-sect'}:null,
+    {type:'pt',p:qP,label:'2′',step:0},
+    {type:'ray',p:O,az:90+dip,cls:'s-bed',step:1,label:'contact 1',lcls:'t-lab t-bed',lpos:120,side:-1},
+    dip>1?{type:'arc',c:O,r:34,a1:90,a2:90+dip,label:`δ ${f(dip)}°`,lcls:'t-lab t-bed',step:1}:null,
+    {type:'ray',p:qP,az:90+dip,cls:'s-bed',step:2,label:'contact 2',lcls:'t-lab t-bed',lpos:90},
+    {type:'seg',a:qP,b:foot,cls:'s-sect-solid',step:3,label:`t = ${f(t)} m`,lcls:'t-lab t-sect'},
+    {type:'right',c:foot,a1:vaz(vsub(qP,foot)),a2:vaz(e),step:3},
+  ];
+  const XG=i=>()=>mapFig(gsec,i,{scale:1,north:false,caption:'Cross-section ⟂ strike (the blue wall, laid flat)'});
   const steps=[
     {t:'Plot strike and the traverse',why:'Contact 1 is where you start. Draw the strike through it, then your traverse in its measured direction to contact 2. β is the map angle between strike and the traverse.',
       calc:[`Strike <b>${az3(S)}</b>, dip ${f(dip)}° toward ${az3(D)}`,`Traverse <b>${az3(A)}</b> (${quad(A)}), measured ${f(L)} m`,`|${f(A)}° − ${f(S)}°| = ${f(fb.raw)}°${fb.raw>90?` → 180° − ${f(fb.raw)}°`:''} → <b>β = ${f(beta)}°</b>`],fig:M(0)},
@@ -1644,7 +1678,7 @@ function tool5(){
       :{t:'Flat ground',why:'With no ground slope, the measured distance is already horizontal and both contacts are at the same height.',calc:[`h = L = <b>${f(h)} m</b>`,`Δz = <b>0</b>`],fig:M(0)},
     {t:'Width at right angles to strike',why:'Only the part of the traverse that runs across strike matters. Drop a perpendicular from contact 1 to the line of contact 2. That distance w is the width measured in the dip direction.',
       calc:[`w = h × sin β = ${f(h,2)} × sin ${f(beta)}°`,`w = ${f(h,2)} × ${f4(Math.sin(rad(beta)))} = <b>${f(Math.abs(w),2)} m</b>${w<0?' (traverse heads up-dip)':''}`],fig:M(2)},
-    {t:'Draw the cross-section',why:'Now look along strike. In this vertical slice the bed is a band tilted at the true dip δ, and the ground runs from contact 1 to contact 2.',
+    {t:'Draw the cross-section',why:'Now look along strike (try the "Look along strike" button in the 3D field view above to see this wall in the ground). In this vertical slice the bed is a band tilted at the true dip δ, and the ground runs from contact 1 to contact 2.',
       calc:[`Band dips δ = <b>${f(dip)}°</b>`,`Contact 2 sits <b>${f(Math.abs(w),2)} m</b> across and <b>${f(dz,2)} m</b> ${dz>=0?'up':'down'}`],fig:X(3)},
     {t:'Measure at right angles to the bed',why:'True thickness is the shortest distance between the two contacts, at 90° to bedding. The horizontal width contributes w·sin δ, and any height change contributes Δz·cos δ.',
       calc:[`t = | w·sin δ + Δz·cos δ |`,`t = | ${f(w,2)} × ${f4(sd)} + ${f(dz,2)} × ${f4(cd)} |`,`t = | ${f(w*sd,2)} + ${f(dz*cd,2)} | = <b>${f(t,2)} m</b>`,sg===0?'Flat ground shortcut: t = w × sin δ':''].filter(Boolean),fig:X(4)},
@@ -1665,16 +1699,103 @@ function tool5(){
   ];
   const GM5=i=>()=>mapFig(gm5,i,{scale:1});
   const gsteps5=[
-    {t:'Plot the traverse and contacts',why:`${TOOLS_NOTE} Pick a map scale. Draw the traverse from contact 1 in its measured direction`+(sg>0?', using the horizontal distance (read it off a scaled profile of the slope)':'')+'. Through each contact, draw a line along strike: these are the contact traces.',calc:[`Strike ${az3(S)}, traverse ${az3(A)}`,sg>0?`From the slope profile: horizontal ≈ ${f(h)} m, Δz ≈ ${f(dz)} m`:`Horizontal distance = ${f(L)} m`],fig:GM5(0)},
-    {t:'Project onto a section ⟂ strike',why:'Draw a section line through contact 1 at right angles to strike. Slide contact 2 along its trace until it meets the section at 2′. The distance from 1 to 2′ is the width w.',calc:[`Ruler reading: w ≈ ${f(Math.abs(w))} m`],fig:GM5(1)},
-    {t:'Draw the cross-section',why:'On a fresh horizontal line at the same scale, plot contact 1 and contact 2′'+(sg>0?`, placing 2′ ${f(Math.abs(dz))} m ${dz>=0?'higher':'lower'}`:' at the same level')+'. With the protractor, draw each contact dipping at δ toward the dip direction. The bed is the band between them.',calc:[`δ = ${f(dip)}° toward ${az3(D)}`],fig:X(3)},
-    {t:'Measure the thickness',why:'With the set square, draw a line from contact 2′ at right angles to the contact-1 line. Its length, read with the scale, is the true thickness.',calc:[`Ruler reading: <b>t ≈ ${f(t)} m</b>`],fig:X(4)},
-    {t:'Answer',why:'For the vertical thickness, measure straight up and down between the two contact lines instead.',calc:[`<b>True thickness ≈ ${f(t)} m</b>`,`Vertical thickness ≈ ${isFinite(tv)?f(tv)+' m':'—'}`],fig:X(99)},
+    sg>0?{t:'Draw the slope profile first',why:DW(`${TOOLS_NOTE} Pick a scale, for example 1 cm = 20 m. Draw a horizontal line. At its left end, use the protractor to lay off the ground slope σ = ${f(sg)}° ${up?'upward':'downward'}, and measure the tape distance L = ${f(L)} m along that sloping line (${f(L/20,1)} cm at 1 cm = 20 m). From its end, drop a perpendicular to the horizontal line with the set square. Now measure the two legs with the ruler.`,'The tape followed the sloping ground, but a map only shows horizontal distances. The horizontal leg is the distance you plot on the map; the vertical leg is how much higher or lower contact 2 is.'),calc:[`Horizontal leg ≈ <b>${f(h)} m</b> (${f(h/20,1)} cm at 1 cm = 20 m)`,`Vertical leg Δz ≈ <b>${f(Math.abs(dz))} m</b> (${f(Math.abs(dz)/20,1)} cm)`,`Check: ${f(L)} × cos ${f(sg)}° = ${f(h,1)} m, ${f(L)} × sin ${f(sg)}° = ${f(Math.abs(dz),1)} m`],
+      fig:()=>sideFig([{base:h,h:Math.abs(dz),title:`Slope profile along the traverse (${up?'uphill':'downhill'})`,cls:'s-ground',baseLab:`horizontal ≈ ${f(h)} m`,hLab:`Δz ≈ ${f(Math.abs(dz))} m`,angLab:`σ ${f(sg)}°`,angCls:'t-ink'}])}:null,
+    {t:'Plot the traverse and contacts',why:DW((sg>0?'':`${TOOLS_NOTE} Pick a map scale, for example 1 cm = 20 m. `)+`On the map, draw the traverse from contact 1 toward ${az3(A)} with the protractor, and mark contact 2 at the horizontal distance ${sg>0?`from the slope profile (${f(h)} m)`:`(${f(L)} m)`}. Through each contact, draw a line along strike (${az3(S)}): these are the contact traces.`,'Each contact meets the flat map along a strike line, so the bed shows as a band between the two traces.'),calc:[`Strike ${az3(S)}, traverse ${az3(A)}`,`Map distance 1 → 2 = <b>${f(h)} m</b> (${f(h/20,1)} cm at 1 cm = 20 m)`],fig:GM5(0)},
+    {t:'Project onto a section ⟂ strike',why:DW(beta>89.5?`Here the traverse (${az3(A)}) already runs at right angles to strike (${az3(S)}). So the section line through contact 1 lies right on top of the traverse, and 2′ is the same point as 2. Just measure 1 → 2 again with the ruler.`:`Draw a section line through contact 1 at 90° to strike (toward ${az3(D)}). Slide contact 2 along its strike trace (use the set square on a ruler) until it meets the section line, and mark 2′. Measure 1 → 2′ with the ruler.`,beta>89.5?'Only the part of the traverse that crosses strike counts as width; when the traverse is square to strike, all of it counts.':`Sliding along strike keeps 2 on the same contact, so 1 → 2′ is the width square to strike. It is shorter than 1 → 2 because the traverse cuts across strike at β = ${f(beta)}°.`),calc:beta>89.5?[`Traverse is square to strike, so w = map distance 1 → 2`,`Ruler reading: <b>w ≈ ${f(Math.abs(w))} m</b> (${f(Math.abs(w)/20,1)} cm at 1 cm = 20 m)`]:[`Ruler reading: <b>w ≈ ${f(Math.abs(w))} m</b> (${f(Math.abs(w)/20,1)} cm at 1 cm = 20 m)`,`Check: ${f(h)} × sin ${f(beta)}° = ${f(Math.abs(w),1)} m`],fig:GM5(1)},
+    {t:'Set up the cross-section',why:DW(`Turn to a clean part of the paper and draw a long horizontal line. This is the section line square to strike, seen from the side, at the level of contact 1. Keep the up-dip side on the left and the dip side (toward ${az3(D)}) on the right. Mark contact 1 near the left end. With the ruler, measure w = ${f(Math.abs(w))} m (${f(Math.abs(w)/20,1)} cm at 1 cm = 20 m) along the line toward the ${w>=0?'right':'left'} and make a small tick.`+(Math.abs(dz)>1e-9?` At that tick, use the set square to draw a short line straight ${dz>0?'up':'down'} and mark Δz = ${f(Math.abs(dz))} m (${f(Math.abs(dz)/20,1)} cm) on it. That point is contact 2′. Join 1 to 2′: this sloping line is the ground surface in the section.`:' The ground is flat, so the tick itself is contact 2′ and the horizontal line is also the ground.'),'This is the blue wall from the 3D field view, laid flat on your paper. Horizontal distances along it are true widths and vertical distances are true heights, at the same scale as your map.'),calc:[`1 → tick = w ≈ <b>${f(Math.abs(w))} m</b> (${f(Math.abs(w)/20,1)} cm)`,Math.abs(dz)>1e-9?`tick → 2′ = Δz = <b>${f(Math.abs(dz))} m</b> ${dz>0?'up':'down'} (${f(Math.abs(dz)/20,1)} cm)`:'Δz = 0 (flat ground)'],fig:XG(0)},
+    {t:'Draw contact 1 at the true dip',why:DW(`Put the protractor's centre on contact 1 with its base on the horizontal line. Count δ = ${f(dip)}° <b>downward on the dip side</b> (to the right), mark it, and draw a long line from contact 1 through the mark, going down into the ground. This is contact 1.`,'Only a section square to strike shows the true dip, so here the contact slopes at exactly δ.'),calc:[`Contact 1: ${f(dip)}° below horizontal, dipping to the right (toward ${az3(D)})`],fig:XG(1)},
+    {t:'Draw contact 2 parallel to it',why:DW('Lay one edge of the set square along the contact-1 line and hold a ruler against the set square. Slide the set square along the ruler until that edge passes through 2′, then draw contact 2. Lightly shade between the two lines: that band is the bed.','A bed has the same dip at its top and its bottom, so its two contacts are parallel lines in the section. Sliding the set square copies the angle without measuring it again.'),calc:[`Contact 2: through 2′, also ${f(dip)}° below horizontal`],fig:XG(2)},
+    {t:'Measure the true thickness',why:DW('Put one short edge of the set square along contact 1 and slide it until the other short edge (the one at 90°) passes through 2′. Draw the line from 2′ to contact 1, meeting it at a right angle. Measure its length with the ruler and convert with your scale.','True thickness is the shortest distance between the two contacts, and the shortest line between two parallel lines is the one at 90° to both.'),calc:[`Ruler reading: <b>t ≈ ${f(t)} m</b> (${f(t/20,1)} cm at 1 cm = 20 m)`,`Check: t = | w·sin δ + Δz·cos δ | = | ${f(w,1)} × ${f4(sd)} + ${f(dz,1)} × ${f4(cd)} | = ${f(t,1)} m`],fig:XG(3)},
+    {t:'Answer',why:DW('Write the true thickness. For the vertical thickness, measure straight up and down between the two contact lines instead.','Vertical thickness is what a vertical drillhole would pass through; it is always at least as large as the true thickness.'),calc:[`<b>True thickness ≈ ${f(t)} m</b>`,`Vertical thickness ≈ ${isFinite(tv)?f(tv)+' m':'—'}`],fig:XG(99)},
   ];
-  guide5.set(steps,gsteps5);
+  guide5.set(steps,gsteps5.filter(Boolean));
 }
 ['kL','kDir','kSlope'].forEach(id=>$(id).addEventListener('input',tool5));
 ['kUp','kDown'].forEach(id=>$(id).addEventListener('change',tool5));
+
+const THK_NOTES={o:'The blue wall is the vertical cross-section, cut through contact 1 at right angles to strike. The bed (amber) shows in that wall as a tilted band; t is measured straight across it.',s:'Looking along strike, the wall is face-on: this is exactly the cross-section you draw on paper. The band tilts at the true dip δ.',m:'From above: the traverse crosses the outcrop band. Sliding contact 2 along strike into the wall (dashed) gives 2′, so the width w is measured square to strike.'};
+/* ---------- Thickness: 3D field view of the cross-section ---------- */
+let THK=null;const thkV={yaw:rad(28),pitch:rad(28)};
+function drawThk3d(){
+  const cvs=$('thkCv'),wrap=$('thkWrap');if(!cvs||!wrap)return;const r=wrap.getBoundingClientRect();if(!r.width)return;
+  const dpr=window.devicePixelRatio||1;cvs.width=Math.round(r.width*dpr);cvs.height=Math.round(r.height*dpr);const c=cvs.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);
+  const Wd=r.width,Hd=r.height;c.clearRect(0,0,Wd,Hd);
+  const ink=css('--ink'),muted=css('--muted'),paper=css('--paper'),rule=css('--rule'),bed=css('--bed'),bedfill=css('--bedfill'),sect=css('--sect'),strike=css('--strike'),sheet=css('--sheet');
+  if(!THK){c.fillStyle=muted;c.font='14px Arial';c.textAlign='center';c.fillText('Enter the traverse values to see the 3D view.',Wd/2,Hd/2);return;}
+  const {S,D,dip,A,h,dz,w,t}=THK;const sd=Math.sin(rad(dip)),cd=Math.cos(rad(dip));
+  const uD=[Math.sin(rad(D)),Math.cos(rad(D))],uS=[Math.sin(rad(S)),Math.cos(rad(S))],uA=[Math.sin(rad(A)),Math.cos(rad(A))];
+  const R=Math.max(Math.abs(w),Math.abs(dz),t,h*0.6,10)*1.35,Dp=R*0.85;
+  const g=h>1e-9?dz/h:0;const gz=(x,y)=>g*(x*uA[0]+y*uA[1]);
+  const P=(su,uu,z)=>[su*uS[0]+uu*uD[0],su*uS[1]+uu*uD[1],z];
+  const cc=w*sd+dz*cd;
+  const pr=p=>{const k=1/R;const x=p[0]*k,y=p[1]*k,z=(p[2]+Dp*0.45)*k;const co=Math.cos(thkV.yaw),si=Math.sin(thkV.yaw);const x1=x*co-y*si,y1=x*si+y*co;const up=z*Math.cos(thkV.pitch)+y1*Math.sin(thkV.pitch);const sc=Math.min(Wd*0.36,Hd*0.42);return[Wd/2+x1*sc,Hd/2-up*sc];};
+  const poly=(pts,fill,a,stroke,lw,dash)=>{c.beginPath();pts.map(pr).forEach((q,i)=>i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1]));c.closePath();if(fill){c.globalAlpha=a;c.fillStyle=fill;c.fill();c.globalAlpha=1;}if(stroke){c.setLineDash(dash||[]);c.strokeStyle=stroke;c.lineWidth=lw||1;c.stroke();c.setLineDash([]);}};
+  const seg=(a,b,col,lw,dash)=>{const p=pr(a),q=pr(b);c.beginPath();c.setLineDash(dash||[]);c.moveTo(p[0],p[1]);c.lineTo(q[0],q[1]);c.strokeStyle=col;c.lineWidth=lw;c.lineCap='round';c.stroke();c.setLineDash([]);};
+  const lab=(p,txt,col,font)=>{const q=pr(p);c.font=font||'700 12px Arial';c.textAlign='center';c.textBaseline='middle';c.lineWidth=4;c.strokeStyle=paper;c.lineJoin='round';c.strokeText(txt,q[0],q[1]);c.fillStyle=col;c.fillText(txt,q[0],q[1]);};
+  const dot=(p,col)=>{const q=pr(p);c.beginPath();c.arc(q[0],q[1],4.5,0,7);c.fillStyle=col;c.fill();c.lineWidth=1.5;c.strokeStyle=paper;c.stroke();};
+  // trace of a contact (n·p = k) on the ground at along-strike position su
+  const aS=uS[0]*uA[0]+uS[1]*uA[1],aU=uD[0]*uA[0]+uD[1]*uA[1];
+  const tr=(k,su)=>{const den=sd+cd*g*aU;const uu=Math.abs(den)<1e-9?0:(k-cd*g*su*aS)/den;const p=P(su,uu,0);p[2]=gz(p[0],p[1]);return p;};
+  const corner=(su,uu)=>{const p=P(su,uu,0);p[2]=gz(p[0],p[1]);return p;};
+  const top=[corner(-R,-R),corner(R,-R),corner(R,R),corner(-R,R)];
+  const bot=top.map(p=>[p[0],p[1],-Dp]);
+  // block sides (faint) and bottom
+  for(let i=0;i<4;i++){const j=(i+1)%4;poly([top[i],top[j],bot[j],bot[i]],muted,0.05,rule,1);}
+  // contact planes inside the block (down-dip from trace)
+  const dd=[cd*uD[0],cd*uD[1],-sd];
+  const plane=(k)=>{const a=tr(k,-R),b=tr(k,R);const lam=p=>(p[2]+Dp)/Math.max(sd,0.05);const a2=[a[0]+dd[0]*lam(a),a[1]+dd[1]*lam(a),-Dp],b2=[b[0]+dd[0]*lam(b),b[1]+dd[1]*lam(b),-Dp];return[a,b,b2,a2];};
+  const p1=plane(0),p2=plane(cc);
+  const hull=(pts)=>{pts=pts.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]);const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);const lo=[],up=[];for(const p of pts){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0)lo.pop();lo.push(p);}for(const p of pts.slice().reverse()){while(up.length>=2&&cr(up[up.length-2],up[up.length-1],p)<=0)up.pop();up.push(p);}return lo.slice(0,-1).concat(up.slice(0,-1));};
+  const H=hull([...top,...bot].map(pr));const clipBlock=()=>{c.beginPath();H.forEach((q,i)=>i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1]));c.closePath();c.clip();};
+  c.save();clipBlock();poly(p1,bedfill,0.18,bed,1);poly(p2,bedfill,0.18,bed,1);c.restore();
+  // ground with outcrop band
+  poly(top,sheet,0.55,rule,1.2);
+  poly([tr(0,-R),tr(0,R),tr(cc,R),tr(cc,-R)],bedfill,0.45,null);
+  seg(tr(0,-R),tr(0,R),bed,2.4);seg(tr(cc,-R),tr(cc,R),bed,2.4);
+  // cross-section wall through contact 1, square to strike
+  const wallTop=u=>corner(0,u);const wall=[wallTop(-R),wallTop(R),P(0,R,-Dp),P(0,-R,-Dp)];
+  poly(wall,sect,0.13,sect,2);
+  // bed band on the wall (clipped to wall)
+  c.save();c.beginPath();wall.map(pr).forEach((q,i)=>i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1]));c.closePath();c.clip();
+  const zc1=u=>-sd/cd*u,zc2=u=>(cc-sd*u)/cd;const U=R*3;
+  poly([P(0,-U,zc1(-U)),P(0,U,zc1(U)),P(0,U,zc2(U)),P(0,-U,zc2(-U))],bedfill,0.55,null);
+  seg(P(0,-U,zc1(-U)),P(0,U,zc1(U)),bed,2.6);seg(P(0,-U,zc2(-U)),P(0,U,zc2(U)),bed,2.6);
+  c.restore();
+  // traverse on the ground and its projection along strike into the wall
+  const E=[h*uA[0],h*uA[1],dz];const q2=tr(cc,0);
+  seg([0,0,0],E,ink,2.6);
+  {const a=pr([0,0,0]),b=pr(E);const ang=Math.atan2(b[1]-a[1],b[0]-a[0]);c.beginPath();c.moveTo(b[0],b[1]);c.lineTo(b[0]-10*Math.cos(ang-0.4),b[1]-10*Math.sin(ang-0.4));c.lineTo(b[0]-10*Math.cos(ang+0.4),b[1]-10*Math.sin(ang+0.4));c.closePath();c.fillStyle=ink;c.fill();}
+  if(Math.hypot(E[0]-q2[0],E[1]-q2[1])>R*0.02)seg(E,q2,muted,1.4,[5,4]);
+  // thickness, perpendicular to contact 1 within the wall
+  const Qu=w,Qz=zc2(w)<1e9?(q2[2]):0;void Qu;void Qz;
+  const qu=(q2[0]*uD[0]+q2[1]*uD[1]),qz=q2[2];const k1=sd*qu+cd*qz;const fu=qu-k1*sd,fz=qz-k1*cd;
+  seg(P(0,qu,qz),P(0,fu,fz),sect,3.2);
+  {const a=P(0,fu,fz);const e1=[cd,-sd],e2=[sd,cd];const z9=R*0.05;const sgn=k1>=0?1:-1;
+   const p0=P(0,fu+e2[0]*z9*sgn,fz+e2[1]*z9*sgn),p1q=P(0,fu+e2[0]*z9*sgn+e1[0]*z9,fz+e2[1]*z9*sgn+e1[1]*z9),p2q=P(0,fu+e1[0]*z9,fz+e1[1]*z9);seg(p0,p1q,ink,1.2);seg(p1q,p2q,ink,1.2);void a;}
+  dot([0,0,0],ink);dot(E,ink);dot(q2,bed);
+  lab([0,0,0+R*0.09],'1',ink,'700 14px Arial');lab([E[0],E[1],E[2]+R*0.09],'2',ink,'700 14px Arial');
+  if(Math.hypot(E[0]-q2[0],E[1]-q2[1])>R*0.08)lab([q2[0],q2[1],q2[2]+R*0.09],'2′',bed,'700 13px Arial');
+  lab(P(0,(qu+fu)/2+R*0.06,(qz+fz)/2),`t = ${f(t)} m`,sect,'700 13px Arial');
+  lab(P(0,-R*0.62,-Dp*0.86),'cross-section ⟂ strike',sect,'700 12px Arial');
+  lab(tr(0,-R*0.85),'contact 1',bed);lab(tr(cc,R*0.85),'contact 2',bed);
+  lab([E[0]*0.5,E[1]*0.5,E[2]*0.5+R*0.07],'traverse',ink,'600 12px Arial');
+  // north arrow on the ground corner
+  {const o=corner(-R*0.82,-R*0.82);const n=[o[0],o[1]+R*0.22,o[2]];seg(o,n,strike,2.4);lab([n[0],n[1]+R*0.08,n[2]],'N',strike,'700 13px Arial');}
+}
+(function(){
+  const wrap=$('thkWrap');if(!wrap)return;let drag=null;
+  const set=(id,yaw,pitch,note)=>{['thkO','thkS','thkM'].forEach(b=>$(b).setAttribute('aria-pressed',String(b===id)));thkV.yaw=yaw;thkV.pitch=pitch;$('thkNote').textContent=note;drawThk3d();};
+  $('thkO').onclick=()=>set('thkO',rad(28),rad(28),THK_NOTES.o);
+  $('thkS').onclick=()=>set('thkS',rad(THK?THK.S:0),rad(3),THK_NOTES.s);
+  $('thkM').onclick=()=>set('thkM',0,rad(89.9),THK_NOTES.m);
+  wrap.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};wrap.setPointerCapture(e.pointerId);});
+  wrap.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag={x:e.clientX,y:e.clientY};thkV.yaw-=dx*0.01;thkV.pitch=Math.max(rad(-10),Math.min(rad(89.9),thkV.pitch+dy*0.01));['thkO','thkS','thkM'].forEach(b=>$(b).setAttribute('aria-pressed','false'));drawThk3d();});
+  const end=()=>{drag=null;};wrap.addEventListener('pointerup',end);wrap.addEventListener('pointercancel',end);
+  new ResizeObserver(()=>drawThk3d()).observe(wrap);
+  new MutationObserver(()=>drawThk3d()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  $('thkNote').textContent=THK_NOTES.o;
+})();
 
 /* ---------- Tool 6: drillhole depth ---------- */
 function tool6(){
