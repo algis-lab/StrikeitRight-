@@ -377,6 +377,11 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
 .seg{border-color:var(--rule);border-radius:6px}
 .seg button{font:600 .82rem/1 var(--f-body);padding:9px 12px}
 .seg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
+.seg .rotbtn{display:inline-flex;align-items:center;gap:6px;color:var(--accent);font-weight:700}
+.seg .rotbtn[aria-pressed=true]{background:var(--accent-soft);color:var(--accent)}
+.seg .rotbtn[aria-pressed=true] svg{animation:spinccw 2.4s linear infinite}
+@keyframes spinccw{to{transform:rotate(-360deg)}}
+@media (prefers-reduced-motion:reduce){.seg .rotbtn svg{animation:none!important}}
 .guide{border-top:1px solid var(--rule)}
 .pips button{border-color:var(--rule)}
 .pips button.done{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-soft)}
@@ -480,7 +485,7 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
           <button type="button" id="vOblique" aria-pressed="true">Oblique</button>
           <button type="button" id="vTop" aria-pressed="false">Map</button>
           <button type="button" id="vStrike" aria-pressed="false">Along strike</button>
-          <button type="button" id="vSection" aria-pressed="false">Face section</button>
+          <button type="button" id="vSection" aria-pressed="false">Face section</button><button type="button" class="rotbtn" id="vRot" aria-pressed="false" title="Spin the model slowly counterclockwise"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M19 12a7 7 0 1 1-2.05-4.95" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M17.5 3.5v4h-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Rotate</span></button>
         </div>
       </div>
       <div class="canvas-wrap" id="canvasWrap"><canvas id="block" aria-label="3D view of the dipping plane"></canvas><span class="canvas-tip">Drag to rotate</span></div>
@@ -649,7 +654,7 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
       </div>
       <figure class="thk3d">
         <div class="fig-head"><div><div class="label">3D field view</div><h3>Where the cross-section is cut</h3></div>
-          <div class="seg" role="group" aria-label="3D view presets"><button type="button" id="thkO" aria-pressed="true">Oblique</button><button type="button" id="thkS" aria-pressed="false">Look along strike</button><button type="button" id="thkM" aria-pressed="false">Map</button></div></div>
+          <div class="seg" role="group" aria-label="3D view presets"><button type="button" id="thkO" aria-pressed="true">Oblique</button><button type="button" id="thkS" aria-pressed="false">Look along strike</button><button type="button" id="thkM" aria-pressed="false">Map</button><button type="button" class="rotbtn" id="thkRot" aria-pressed="false" title="Spin the model slowly counterclockwise"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M19 12a7 7 0 1 1-2.05-4.95" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M17.5 3.5v4h-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Rotate</span></button></div></div>
         <div class="canvas-wrap" id="thkWrap"><canvas id="thkCv" aria-label="3D block showing the bed, the traverse and the cross-section plane"></canvas><span class="canvas-tip">Drag to rotate</span></div>
         <div class="thk-legend"><span class="key"><i class="k-bed"></i>Bed and its contacts</span><span class="key"><i class="k-ink"></i>Your traverse (1 → 2)</span><span class="key"><i class="k-sect"></i>Cross-section wall ⟂ strike, and true thickness t</span><span class="key"><i class="k-dash"></i>Contact 2 slid along strike into the wall (2′)</span></div>
         <p class="view-note" id="thkNote"></p>
@@ -751,7 +756,7 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
                 <button type="button" id="qvO" aria-pressed="true">Oblique</button>
                 <button type="button" id="qvS" aria-pressed="false">Along strike</button>
                 <button type="button" id="qvF" aria-pressed="false">Face section</button>
-                <button type="button" id="qvM" aria-pressed="false">Map</button>
+                <button type="button" id="qvM" aria-pressed="false">Map</button><button type="button" class="rotbtn" id="qvRot" aria-pressed="false" title="Spin the model slowly counterclockwise"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M19 12a7 7 0 1 1-2.05-4.95" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M17.5 3.5v4h-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Rotate</span></button>
               </div>
             </div>
             <div class="canvas-wrap small" id="qCanvasWrap"><canvas id="qBlock" aria-label="3D view for this problem"></canvas><span class="canvas-tip">Drag to rotate</span></div>
@@ -2562,6 +2567,36 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw3d);
   const tgt=h==='solvers'||h==='views'?h:null;showPage(map[h]||'lab',tgt);if(!tgt)setTimeout(()=>window.scrollTo(0,0),0);
 })();
 updateAll();sizeCanvas();newRound();
+/* ---------- Auto-rotate (counterclockwise seen from above) ---------- */
+(function(){
+  const SPEED=2*Math.PI/24000;// one full turn in 24 s
+  let ROT_ON=true;try{const v=localStorage.getItem('sir-rotate');if(v==='off')ROT_ON=false;}catch(e){}
+  if(REDUCED())ROT_ON=false;
+  const views=[
+    {btn:'vRot',wrap:'canvasWrap',v:view,draw:()=>draw3d(),presets:['vOblique','vTop','vStrike','vSection']},
+    {btn:'qvRot',wrap:'qCanvasWrap',v:qv,draw:()=>drawLesson3d(),presets:['qvO','qvS','qvF','qvM']},
+    {btn:'thkRot',wrap:'thkWrap',v:thkV,draw:()=>drawThk3d(),presets:['thkO','thkS','thkM']},
+  ].filter(o=>$(o.btn)&&$(o.wrap));
+  const sync=()=>views.forEach(o=>{const b=$(o.btn);b.setAttribute('aria-pressed',String(ROT_ON));b.querySelector('span').textContent=ROT_ON?'Rotating':'Rotate';});
+  const setOn=on=>{ROT_ON=on;try{localStorage.setItem('sir-rotate',on?'on':'off');}catch(e){}sync();if(on)kick();};
+  views.forEach(o=>{
+    o.paused=false;o.resumeAt=0;
+    $(o.btn).addEventListener('click',()=>setOn(!ROT_ON));
+    o.presets.forEach(id=>{const b=$(id);if(b)b.addEventListener('click',()=>{if(ROT_ON)setOn(false);});});
+    const w=$(o.wrap);
+    w.addEventListener('pointerdown',()=>{o.paused=true;});
+    const up=()=>{if(o.paused){o.paused=false;o.resumeAt=performance.now()+1500;}};
+    w.addEventListener('pointerup',up);w.addEventListener('pointercancel',up);
+  });
+  const visible=el=>{if(!el||!el.offsetParent)return false;const r=el.getBoundingClientRect();return r.bottom>0&&r.top<innerHeight&&r.width>0;};
+  let last=0,raf=0;
+  const tick=now=>{raf=0;if(!ROT_ON||document.hidden){last=0;return;}const dt=last?Math.min(now-last,100):0;last=now;
+    views.forEach(o=>{if(o.paused||now<o.resumeAt)return;if(!visible($(o.wrap)))return;o.v.yaw+=SPEED*dt;o.draw();});
+    raf=requestAnimationFrame(tick);};
+  const kick=()=>{if(!raf){last=0;raf=requestAnimationFrame(tick);}};
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&ROT_ON)kick();});
+  sync();if(ROT_ON)kick();
+})();
 })();
 </script>
 
