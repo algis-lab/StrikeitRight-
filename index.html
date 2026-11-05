@@ -46,11 +46,14 @@ input[type=text]{font:500 1.05rem/1.2 var(--f-mono);color:var(--ink);background:
 input:focus-visible,button:focus-visible{outline:2px solid var(--sect);outline-offset:2px}
 input[aria-invalid=true]{border-color:var(--strike);box-shadow:inset 0 0 0 1px var(--strike)}
 .hint{grid-column:1/-1;margin:0;font-size:.82rem;color:var(--muted)}
+.dirnote{display:flex;gap:10px;align-items:flex-start;background:var(--accent-soft);color:var(--ink);border-radius:10px;padding:10px 14px;font-size:.88rem;line-height:1.5}
+.dirnote svg{flex:none;color:var(--accent);margin-top:1px}
+.dirnote b{color:var(--ink)}
 .f{font-family:var(--f-mono);font-size:.86rem;background:var(--soft);padding:1px 5px;border-radius:3px}
 .dash{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0}
 .dash-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px}
 .dash-note{font-size:.8rem}
-.nocaps{text-transform:none}
+.nocaps,.field .nocaps{text-transform:none!important}
 @media (max-width:560px){.dash{gap:8px}.tile{padding:12px}.tile dd{font-size:1.1rem}.tglyph{width:28px;height:28px}}
 .tile{background:var(--soft);border-radius:10px;padding:14px 16px;display:grid;gap:4px;min-width:0;align-content:start}
 .tile-top{display:flex;justify-content:space-between;align-items:start;gap:8px}
@@ -538,10 +541,12 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
           </div>
           <div id="oneBox" class="tool-in">
             <div class="row">
+              <label class="field" for="oS"><span>Strike</span><input id="oS" type="text" value="" placeholder="same as top bar" autocomplete="off" spellcheck="false"></label>
               <label class="field" for="oA"><span>Apparent dip α (°)</span><input id="oA" type="text" value="30" autocomplete="off"></label>
-              <label class="field" for="oDir"><span>Plunging toward</span><input id="oDir" type="text" value="N80E" autocomplete="off"></label>
+              <label class="field" for="oDir"><span>Apparent dip direction (toward)</span><input id="oDir" type="text" value="N80E" autocomplete="off"></label>
             </div>
-            <p class="hint">Uses the strike from the attitude bar above (now <span class="f" id="oStrikeEcho"></span>).</p>
+            <div class="dirnote"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 10.5v6M12 7.2v.1" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><div><b>“Toward” means a direction, not a number.</b> It is the compass way the apparent dip goes <i>down</i>: a letter like <span class="f">W</span> or <span class="f">SE</span>, a bearing like <span class="f">S80E</span>, or an azimuth like <span class="f">270</span>. Problems often hide it in the dip itself: in <span class="f">40W</span>, <b>40</b> is the angle and <b>W</b> is the direction.</div></div>
+            <p class="hint">Leave Strike empty to use the strike from the attitude bar (now <span class="f" id="oStrikeEcho"></span>). You can type the apparent dip with its direction, like <span class="f">40W</span>. Reading a wall: a wall <b>facing north or south</b> runs E–W, so its apparent dip plunges E or W; a wall <b>facing east or west</b> runs N–S, so it plunges N or S.</p>
           </div>
           <div id="twoBox" class="tool-in" hidden>
             <div class="row">
@@ -552,7 +557,7 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
               <label class="field" for="tA2"><span>α₂ (°)</span><input id="tA2" type="text" value="30" autocomplete="off"></label>
               <label class="field" for="tD2"><span>Toward</span><input id="tD2" type="text" value="S10W" autocomplete="off"></label>
             </div>
-            <p class="hint">Strike is not needed. The two apparent dips are enough to fix the plane.</p>
+            <p class="hint">Strike is not needed. The two apparent dips are enough to fix the plane. Each “Toward” box takes a <b>direction</b> (like W, S10W or 090), not an angle: for “25E” type 25 and E.</p>
           </div>
           <div class="answer bed" id="trueAns"></div>
           <button class="btn" type="button" id="applyTrue">Load into compass &amp; block</button>
@@ -632,6 +637,16 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
     <div role="tabpanel" id="p-thk" aria-labelledby="tab-thk" hidden>
       <div class="tool">
         <div class="tool-in">
+          <div class="radio" role="radiogroup" aria-label="Thickness method">
+            <label><input type="radio" name="kmode" id="kModeSurf" checked> From a traverse at the surface</label>
+            <label><input type="radio" name="kmode" id="kModeDrill"> From a vertical drillhole</label>
+          </div>
+          <div id="kDrillBox" class="tool-in" hidden>
+            <p class="muted" style="margin:0">Known: the bed's true dip (bar above) and how much of a vertical drillhole is inside the bed. Wanted: the true thickness, measured at right angles to bedding.</p>
+            <div class="row"><label class="field" for="kV"><span>Length of the bed in the hole L (m)</span><input id="kV" type="text" value="50" autocomplete="off"></label></div>
+            <p class="hint">L = depth where the hole leaves the bed − depth where it enters it. For example, a bed logged from 120 m to 170 m gives L = 50 m.</p>
+          </div>
+          <div id="kSurfBox" class="tool-in">
           <p class="muted" style="margin:0">Known: the bed's attitude (bar above) and a traverse walked across the bed, from one contact to the other. Wanted: the true thickness, measured at right angles to bedding.</p>
           <div class="row">
             <label class="field" for="kL"><span>Measured distance (m)</span><input id="kL" type="text" value="120" autocomplete="off"></label>
@@ -644,15 +659,16 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
             </div>
           </div>
           <p class="hint">The distance is measured along the ground from the first contact to the second. Use slope 0 for flat ground or a distance scaled off a map.</p>
+          </div>
           <div class="answer bed" id="thkAns"></div>
         </div>
         <div class="tool-in">
           <div class="label">The formula</div>
-          <div class="formula">t = | w·sin δ + Δz·cos δ |</div>
+          <div class="formula" id="formula5">t = | w·sin δ + Δz·cos δ |</div>
           <dl class="vars" id="vars5"></dl>
         </div>
       </div>
-      <figure class="thk3d">
+      <figure class="thk3d" id="thk3dFig">
         <div class="fig-head"><div><div class="label">3D field view</div><h3>Where the cross-section is cut</h3></div>
           <div class="seg" role="group" aria-label="3D view presets"><button type="button" id="thkO" aria-pressed="true">Oblique</button><button type="button" id="thkS" aria-pressed="false">Look along strike</button><button type="button" id="thkM" aria-pressed="false">Map</button><button type="button" class="rotbtn" id="thkRot" aria-pressed="false" title="Spin the model slowly counterclockwise"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M19 12a7 7 0 1 1-2.05-4.95" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M17.5 3.5v4h-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Rotate</span></button></div></div>
         <div class="canvas-wrap" id="thkWrap"><canvas id="thkCv" aria-label="3D block showing the bed, the traverse and the cross-section plane"></canvas><span class="canvas-tip">Drag to rotate</span></div>
@@ -680,7 +696,7 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
             <label class="field" for="dTrend"><span>Hole trend</span><input id="dTrend" type="text" value="N55W" autocomplete="off"></label>
             <label class="field" for="dPlunge"><span>Hole plunge (°)</span><input id="dPlunge" type="text" value="60" autocomplete="off"></label>
           </div>
-          <p class="hint">Use a negative height if the outcrop is lower than the collar.</p>
+          <p class="hint">Use a negative height if the outcrop is lower than the collar. For an inclined hole, the <b>trend</b> is a direction (where the hole points on the map) and the <b>plunge</b> is an angle (how steeply it points down from horizontal).</p>
           <div class="answer bed" id="drillAns"></div>
         </div>
         <div class="tool-in">
@@ -779,7 +795,7 @@ input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--acce
       <article class="note"><span class="ntag">Notation</span><h3>Lock the notation</h3><p>Write strike with the right-hand rule: dip is 90° clockwise from strike. So 035/40 always means dipping toward 125° (SE). Writing the dip quadrant letter as well (40 SE) is still a good habit.</p><div class="nform">dip direction = strike + 90°</div></article>
       <article class="note"><span class="ntag">Method</span><h3>One picture solves them all</h3><p>Every guide here uses the same trick: imagine the bed one depth h deeper. That deeper line runs parallel to strike. True dip is the shortest walk to it; apparent dip is a longer, slanted walk.</p><div class="nform">tan (dip) = h ÷ map distance</div></article>
       <article class="note"><span class="ntag">Three-point</span><h3>Three-point recipe</h3><p>Label the points high, middle and low. On the high–low line, find the spot at the middle elevation by simple ratio. Join it to the middle point: that line is strike. Dip is the elevation drop over the perpendicular distance.</p><div class="nform">tan δ = Δz ÷ d</div></article>
-      <article class="note"><span class="ntag">Apparent dip</span><h3>Mind the plunge direction</h3><p>A section line has two ends. The apparent dip plunges toward the end on the down-dip side of strike. Always state it, as in 34.5° → 090°.</p><div class="nform">ends: T and T ± 180°</div></article>
+      <article class="note"><span class="ntag">Apparent dip</span><h3>Plunge vs. plunge direction</h3><p>Two different things. The plunge (or dip) is an angle: how steeply it goes down. The plunge direction is a compass direction: which way it goes down. In “40W”, 40° is the angle and W is the direction. A section line has two ends, and the apparent dip plunges toward the end on the down-dip side of strike.</p><div class="nform">ends: T and T ± 180°</div></article>
       <article class="note"><span class="ntag">Thickness</span><h3>Thickness: flat ground first</h3><p>On flat ground with a traverse square to strike, use the simple form. Only add the Δz·cos δ term when the ground slopes, and only use the width measured at right angles to strike.</p><div class="nform">t = w × sin δ</div></article>
       <article class="note"><span class="ntag">Drillhole</span><h3>Drillhole: draw the dip section</h3><p>Measure the collar's distance from the outcrop's strike line in the dip direction. Distance along strike never changes the depth.</p><div class="nform">V = x × tan δ</div></article>
       <article class="note"><span class="ntag">Stereonet</span><h3>Stereonet habits</h3><p>Always rotate the tracing paper, never the net. Dips and plunges are counted in from the rim along a straight E–W or N–S line. Poles plot 90° away from the great circle, on the opposite side.</p><div class="nform">pole plunge = 90° − δ</div></article>
@@ -818,6 +834,7 @@ function az3(a){let v=Number(n360(a).toFixed(1));if(v>=360)v=0;const p=String(v)
 function quad(a){let v=Number(n360(a).toFixed(1));if(v>=360)v=0;
   if(v===0)return'N';if(v===90)return'E';if(v===180)return'S';if(v===270)return'W';
   if(v<90)return`N${f(v)}°E`;if(v<180)return`S${f(180-v)}°E`;if(v<270)return`S${f(v-180)}°W`;return`N${f(360-v)}°W`;}
+const nQuad=a=>quad(angDiff(a,0)<=90?a:a+180);
 const letters8=a=>['N','NE','E','SE','S','SW','W','NW'][Math.round(n360(a)/45)%8];
 const CARD={N:0,NNE:22.5,NE:45,ENE:67.5,E:90,ESE:112.5,SE:135,SSE:157.5,S:180,SSW:202.5,SW:225,WSW:247.5,W:270,WNW:292.5,NW:315,NNW:337.5};
 function parseBearing(s){
@@ -857,6 +874,7 @@ function readPlane(){
   const s=parseBearing(sEl.value),dm=parseDip(dEl.value);
   mark(sEl,s!==null);mark(dEl,!!dm);
   const w=$('planeWarn');w.hidden=true;
+  if(s!==null&&!dm){state.S=s;state.D=n360(s+90);return;}
   if(s===null||!dm)return;
   let D;
   if(dm.dir!==null){
@@ -1295,15 +1313,22 @@ function tool2(){
   const ans=$('trueAns');trueResult=null;$('applyTrue').disabled=true;
   const err=m=>{ans.className='answer err';ans.innerHTML=`<span class="big">${m}</span>`;guide2.set([]);};
   if(!two){
-    const aEl=$('oA'),dEl=$('oDir');const a=parseNum(aEl.value,0,89.9),A=parseBearing(dEl.value);mark(aEl,a!==null);mark(dEl,A!==null);
+    const aEl=$('oA'),dEl=$('oDir'),sEl2=$('oS');
+    const am=String(aEl.value).toUpperCase().replace(/[°º\s]/g,'').match(/^(\d+(?:\.\d+)?)([NSEW]{1,3})?$/);
+    let a=am?+am[1]:null;if(a!==null&&(a<0||a>89.9))a=null;
+    let A=parseBearing(dEl.value);const aDir=am&&am[2]&&(am[2] in CARD)?CARD[am[2]]:null;if(aDir!==null)A=aDir;
+    mark(aEl,a!==null);mark(dEl,A!==null||aDir!==null);
+    const sRaw=sEl2.value.trim();const S0=sRaw?parseBearing(sRaw):state.S;mark(sEl2,S0!==null);
+    if(S0===null)return err('Enter the strike like N25E or 025, or leave it empty to use the attitude bar.');
     renderVars('vars2',[
       ['δ','True dip','The steepest tilt of the bed, at 90° to strike. This is what we solve for.',null,'bed'],
       ['α','Apparent dip (given)','The tilt measured on your section, and the direction it plunges toward.',a!==null?`${f(a)}°`:null,'sect'],
       ['β','Angle between strike and section','Flat map angle from the strike line to the section line, 0° to 90°.',null,'ink'],
     ]);
-    if(a===null||A===null)return err('Enter an apparent dip (0–89°) and the direction it plunges toward, like 30 and N80E.');
+    if(a===null)return err('Enter the apparent dip angle (0–89°), like 40, or with its direction, like 40W.');
+    if(A===null)return err(dEl.value.trim()?'That direction is not readable. Type a compass letter like W or SE, a bearing like S80E, or an azimuth like 270.':`Now type the direction the apparent dip goes down toward. It is the letter in the problem: for "${f(a)}W" type W (or just type ${f(a)}W in the apparent dip box).`);
     if(a<0.01)return err('An apparent dip of 0° means the section runs along strike (or the bed is flat), so it cannot tell you the true dip.');
-    const S=state.S;const fb=foldBeta(A,S),beta=fb.beta;
+    const S=S0;const fb=foldBeta(A,S),beta=fb.beta;
     if(beta<0.5)return err('That direction is parallel to strike. Every bed shows 0° along strike, so this cannot be an apparent dip of '+f(a)+'°. Check the strike or the direction.');
     const sinb=Math.sin(rad(beta)),ta=Math.tan(rad(a)),td=ta/sinb,dip=deg(Math.atan(td));
     const D=angDiff(n360(S+90),A)<=90?n360(S+90):n360(S-90);
@@ -1313,7 +1338,7 @@ function tool2(){
       ['α','Apparent dip (given)','The tilt measured on your section, and the direction it plunges toward.',`${f(a)}° → ${az3(A)}`,'sect'],
       ['β','Angle between strike and section','Flat map angle from the strike line to the section line, 0° to 90°.',`${f(beta)}°`,'ink'],
     ]);
-    ans.className='answer bed';ans.innerHTML=`<span class="label">True dip</span><span class="big">${f(dip)}° → ${az3(D)}</span><span class="sub">${quad(n360(D-90))}, ${f(dip)}° ${letters8(D)} · RHR ${az3(n360(D-90))}/${f(dip)}</span>`;
+    ans.className='answer bed';ans.innerHTML=`<span class="label">True dip</span><span class="big">${f(dip)}° → ${az3(D)}</span><span class="sub">Dips ${f(dip)}° toward ${az3(D)} (${quad(D)}) · strike ${nQuad(S)}, ${f(dip)}° ${letters8(D)} · RHR ${az3(n360(D-90))}/${f(dip)}</span>`;
     // geometry
     const s=1/ta,d=s*sinb;const uS=dir2(S),uT=dir2(A),uD=dir2(D);const Pp=v2(uT,s),F=v2(uD,d);
     const sEnd=angDiff(S,A)<=90?S:n360(S+180);const azFP=vlen(vsub(Pp,F))>1e-9?vaz(vsub(Pp,F)):S;
@@ -1346,7 +1371,7 @@ function tool2(){
         calc:[`tan δ = 1 ÷ d = 1 ÷ ${f(d,4)} = <b>${f4(td)}</b>`,`(same as tan ${f(a)}° ÷ sin ${f(beta)}° = ${f4(ta)} ÷ ${f4(sinb)})`,`δ = arctan(${f4(td)}) = <b>${f(dip,2)}°</b>`],
         fig:()=>sideFig([{base:d,h:1,title:'Down-dip (O to F)',cls:'s-bed',baseLab:`d = ${f(d,3)}`,hLab:'1',angLab:`δ ${f(dip)}°`,angCls:'t-bed'},{base:s,h:1,title:'Your section (O to P)',cls:'s-sect-solid',baseLab:`s = ${f(s,3)}`,hLab:'1',angLab:`α ${f(a)}°`,angCls:'t-sect'}])},
       {t:'Answer and check',why:'The bed dips toward the deeper line, on the same side of strike as P. True dip must be at least as large as any apparent dip.',
-        calc:[`<b>δ = ${f(dip)}° toward ${az3(D)}</b> (${quad(D)})`,`Strike/dip: ${quad(n360(D-90))}, ${f(dip)}° ${letters8(D)}`,`Check: ${f(dip)}° ≥ ${f(a)}° ✓`],fig:M(6)},
+        calc:[`<b>δ = ${f(dip)}° toward ${az3(D)}</b> (${quad(D)})`,`Strike/dip: ${nQuad(D-90)}, ${f(dip)}° ${letters8(D)}`,`Check: ${f(dip)}° ≥ ${f(a)}° ✓`],fig:M(6)},
     ],graphTrueOne(S,D,dip,a,A,beta));
     return;
   }
@@ -1373,7 +1398,7 @@ function tool2(){
     ['d','Perpendicular distance','Map distance from O to the line where the bed is 1 unit deeper. Found by drawing.',f(d,3),'ink'],
     ['1','Chosen depth','Any depth works; 1 unit keeps the arithmetic simple.',null,'ink'],
   ]);
-  ans.className='answer bed';ans.innerHTML=`<span class="label">True dip</span><span class="big">${f(r.dip)}° → ${az3(r.D)}</span><span class="sub">Strike ${quad(r.S)}, dip ${f(r.dip)}° ${letters8(r.D)} · RHR ${az3(r.S)}/${f(r.dip)}</span>`;
+  ans.className='answer bed';ans.innerHTML=`<span class="label">True dip</span><span class="big">${f(r.dip)}° → ${az3(r.D)}</span><span class="sub">Strike ${nQuad(r.S)}, dip ${f(r.dip)}° ${letters8(r.D)} · RHR ${az3(r.S)}/${f(r.dip)}</span>`;
   const items=[
     {type:'pt',p:O,label:'O',step:0,ldx:-16,ldy:-12},
     {type:'ray',p:O,az:A1,cls:'s-sect',step:0,label:`${f(a1)}° → ${az3(A1)}`,lcls:'t-lab t-sect',lpos:50},
@@ -1411,7 +1436,7 @@ function tool2(){
       calc:[`<b>δ = ${f(r.dip)}° toward ${az3(r.D)}</b> (${quad(r.D)})`,`Strike/dip: ${quad(r.S)}, ${f(r.dip)}° ${letters8(r.D)}`,`Check: ${f(r.dip)}° ≥ ${f(Math.max(a1,a2))}° ✓`],fig:M(6)},
   ],graphTrueTwo(a1,A1,a2,A2,r,p1,p2,d));
 }
-['oA','oDir','tA1','tD1','tA2','tD2'].forEach(id=>$(id).addEventListener('input',tool2));
+['oS','oA','oDir','tA1','tD1','tA2','tD2'].forEach(id=>$(id).addEventListener('input',tool2));
 ['tmOne','tmTwo'].forEach(id=>$(id).addEventListener('change',()=>{guide2.k=0;tool2();}));
 function loadPlane(r,toastId){
   $('inStrike').value=az3(r.S).replace('°','');$('inDip').value=`${f(r.dip)} ${letters8(r.D)}`;
@@ -1603,6 +1628,7 @@ $('applyDir').onclick=()=>{if(dirFirst===null)return;$('secAz').value=az3(dirFir
 /* ---------- Tool 5: thickness ---------- */
 const guide5=new Guide('guide5'),guide6=new Guide('guide6'),guide7=new Guide('guide7');
 function tool5(){
+  {const drill=$('kModeDrill').checked;$('kDrillBox').hidden=!drill;$('kSurfBox').hidden=drill;$('thk3dFig').hidden=drill;$('formula5').textContent=drill?'T = L × cos δ':'t = | w·sin δ + Δz·cos δ |';if(drill){THK=null;return tool5drill();}requestAnimationFrame(drawThk3d);}
   const lEl=$('kL'),aEl=$('kDir'),sEl=$('kSlope');
   const L=parseNum(lEl.value,0),A=parseBearing(aEl.value),sg=parseNum(sEl.value,0,89.9);
   mark(lEl,L!==null&&L>0);mark(aEl,A!==null);mark(sEl,sg!==null);
@@ -1716,7 +1742,8 @@ function tool5(){
   ];
   guide5.set(steps,gsteps5.filter(Boolean));
 }
-['kL','kDir','kSlope'].forEach(id=>$(id).addEventListener('input',tool5));
+['kL','kDir','kSlope','kV'].forEach(id=>$(id).addEventListener('input',tool5));
+['kModeSurf','kModeDrill'].forEach(id=>$(id).addEventListener('change',()=>{guide5.k=0;tool5();}));
 ['kUp','kDown'].forEach(id=>$(id).addEventListener('change',tool5));
 
 const THK_NOTES={o:'The blue wall is the vertical cross-section, cut through contact 1 at right angles to strike. The bed (amber) shows in that wall as a tilted band; t is measured straight across it.',s:'Looking along strike, the wall is face-on: this is exactly the cross-section you draw on paper. The band tilts at the true dip δ.',m:'From above: the traverse crosses the outcrop band. Sliding contact 2 along strike into the wall (dashed) gives 2′, so the width w is measured square to strike.'};
@@ -1802,6 +1829,56 @@ function drawThk3d(){
   $('thkNote').textContent=THK_NOTES.o;
 })();
 
+/* ---------- Thickness from a vertical drillhole ---------- */
+function tool5drill(){
+  const vEl=$('kV');const Lv=parseNum(vEl.value,0);mark(vEl,Lv!==null&&Lv>0);
+  const {S,D,dip}=state;const cd=Math.cos(rad(dip)),sd=Math.sin(rad(dip));
+  const vars=(T)=>renderVars('vars5',[
+    ['T','True thickness','Distance between the two contacts measured at right angles to bedding. This is what we solve for.',T!=null?`${f(T)} m`:null,'bed'],
+    ['L','Length in the vertical hole','How much of the hole is inside the bed: depth to the bottom contact minus depth to the top contact.',Lv!=null?`${f(Lv)} m`:null,'sect'],
+    ['θ','True dip δ','From the attitude bar. In the drill diagram it is the angle between the vertical hole and the thickness line T.',`${f(dip)}°`,'bed'],
+  ]);
+  vars();
+  const ans=$('thkAns');
+  if(Lv===null||Lv<=0){ans.className='answer err';ans.innerHTML='<span class="big">Enter how many metres of the vertical hole are inside the bed, for example 50.</span>';guide5.set([]);return;}
+  const T=Lv*cd;vars(T);
+  ans.className='answer bed';ans.innerHTML=`<span class="label">True thickness</span><span class="big">${f(T)} m</span><span class="sub">T = L × cos δ = ${f(Lv)} × cos ${f(dip)}° · vertical thickness L = ${f(Lv)} m</span>`;
+  // cross-section: x = toward the dip direction, y = up; collar O on the top contact
+  const e=[cd,-sd],B=[0,-Lv];const sBig=Lv*6;
+  const G2=sd>1e-6?[-Lv*cd/sd,0]:[-Lv*4,0];
+  const F=vsub(B,v2(e,-(((O[0]-B[0])*e[0]+(O[1]-B[1])*e[1]))));// foot of perpendicular from O onto contact 2
+  const ofAz=vaz(vsub(F,O));
+  const it=[
+    {type:'line',p:O,az:90,cls:'s-ground',step:0,label:'ground',lcls:'t-small',lpos:-120,side:-1,extra:[[Lv*0.9,0],[-Lv*0.9,0]]},
+    {type:'seg',a:O,b:B,cls:'s-sect-solid',step:0,label:`L = ${f(Lv)} m`,lcls:'t-lab t-sect',side:-1},
+    {type:'pt',p:O,label:'O',sub:'top contact',step:0,ldx:10,ldy:-12},
+    {type:'pt',p:B,label:'B',sub:'bottom contact',step:0,cls:'f-sect',ldx:10},
+    {type:'poly',pts:[G2,O,v2(e,sBig),vadd(B,v2(e,sBig))],cls:'band',step:2},
+    {type:'ray',p:O,az:90+dip,cls:'s-bed',step:1,label:'top contact',lcls:'t-lab t-bed',lpos:120},
+    dip>1?{type:'arc',c:O,r:34,a1:90,a2:90+dip,label:`δ ${f(dip)}°`,lcls:'t-lab t-bed',step:1}:null,
+    {type:'ray',p:G2,az:90+dip,cls:'s-bed',step:2,label:'bottom contact',lcls:'t-lab t-bed',lpos:60,extra:[G2]},
+    {type:'seg',a:O,b:F,cls:'s-bed',step:3,label:`T = ${f(T)} m`,lcls:'t-lab t-bed',side:-1},
+    {type:'right',c:F,a1:vaz(vsub(O,F)),a2:n360(90+dip),step:3},
+    {type:'pt',p:F,label:'F',step:3,cls:'f-bed',ldx:-18,ldy:12},
+    dip>1?{type:'arc',c:O,r:46,a1:180,a2:ofAz,label:`θ = ${f(dip)}°`,lcls:'t-lab t-ink',step:3}:null,
+  ];
+  const X=i=>()=>mapFig(it,i,{scale:1,north:false,caption:'Section ⟂ strike, vertical hole'});
+  const steps=[
+    {t:'Read L from the drill log',why:'L is the length of hole that is inside the bed: the depth where the hole leaves the bed minus the depth where it enters. In a vertical hole this is also called the vertical thickness.',calc:[`L = <b>${f(Lv)} m</b>`],fig:X(0)},
+    {t:'Picture the cross-section',why:'Look along strike. The hole is a vertical line, and the bed is a band dipping at the true dip δ. T is drawn from O straight across the band, at 90° to the contacts.',calc:[`Bed dips δ = <b>${f(dip)}°</b> toward ${az3(D)}`],fig:X(2)},
+    {t:'Why the angle θ equals the dip',why:'T is at 90° to the bed and L is at 90° to the ground. Turning both the ground and the bed through 90° keeps the angle between them, so the angle between L and T is the same as the angle between the ground and the bed: the true dip δ.',calc:[`θ = δ = <b>${f(dip)}°</b>`,'Triangle O–F–B has a right angle at F, with L as the hypotenuse'],fig:X(3)},
+    {t:'Use the right triangle',why:'In triangle O–F–B, L is the hypotenuse and T is the side next to θ, so T = L × cos θ.',calc:['T = L × cos θ = L × cos δ',`T = ${f(Lv)} × cos ${f(dip)}° = ${f(Lv)} × ${f4(cd)} = <b>${f(T,2)} m</b>`],fig:X(3)},
+    {t:'Answer and check',why:'The true thickness can never be more than the length in a vertical hole. They are equal only when the bed is flat (δ = 0°).',calc:[`<b>True thickness T ≈ ${f(T)} m</b>`,`Check: ${f(T)} ≤ ${f(Lv)} ✓`],fig:X(99)},
+  ];
+  const gsteps=[
+    {t:'Draw the hole to scale',why:DW(`${TOOLS_NOTE} Pick a scale, for example 1 cm = 10 m. Draw a horizontal line for the ground. Mark the collar O on it, then draw a vertical line straight down with the set square and measure L = ${f(Lv)} m (${f(Lv/10,1)} cm) along it. Mark the end B.`,'O is where the hole enters the bed (top contact) and B is where it leaves it (bottom contact).'),calc:[`OB = L = <b>${f(Lv)} m</b> (${f(Lv/10,1)} cm at 1 cm = 10 m)`],fig:X(0)},
+    {t:'Draw the top contact at the true dip',why:DW(`Put the protractor's centre on O with its base on the ground line. Count δ = ${f(dip)}° <b>downward on the dip side</b> (to the right), mark it, and draw a long line from O through the mark.`,'The section is square to strike, so the contact shows its true dip.'),calc:[`Top contact: ${f(dip)}° below horizontal`],fig:X(1)},
+    {t:'Draw the bottom contact through B',why:DW('Lay a set square edge along the top contact, hold a ruler against it, and slide the set square until its edge passes through B. Draw the bottom contact. Shade the band between them.','The two contacts of a bed are parallel.'),calc:['Bottom contact ∥ top contact, through B'],fig:X(2)},
+    {t:'Draw T and measure it',why:DW('Put one short edge of the set square along the bottom contact and slide it until the 90° edge passes through O. Draw the line from O to the bottom contact, meeting it at F. Measure OF with the ruler and convert with your scale.','The shortest distance between the contacts is the one at 90° to them: the true thickness.'),calc:[`Ruler reading: <b>T ≈ ${f(T)} m</b> (${f(T/10,1)} cm at 1 cm = 10 m)`,`Check: protractor at O between OB and OF ≈ ${f(dip)}° (= δ)`],fig:X(3)},
+    {t:'Answer',why:DW('Write the true thickness.','Check: T = L × cos δ, and T is shorter than L.'),calc:[`<b>True thickness ≈ ${f(T)} m</b>`],fig:X(99)},
+  ];
+  guide5.set(steps,gsteps);
+}
 /* ---------- Tool 6: drillhole depth ---------- */
 function tool6(){
   const bEl=$('dBear'),dEl=$('dDist'),zEl=$('dZ'),tEl=$('dTrend'),pEl=$('dPlunge');
@@ -2481,12 +2558,12 @@ const plRows=()=>[['Strike',`${az3(state.S)} <small>${quad(state.S)}</small>`,gl
 guide1.givenFn=()=>GIV([...plRows(),['Section line',`${az3(state.sec)} <small>${quad(state.sec)}</small>`,glyph('sect',state.sec)]],'the apparent dip α on that section');
 guide2.givenFn=()=>$('tmTwo').checked
   ?GIV([['Apparent dip α₁',`${gv('tA1')}° toward ${gv('tD1')}`],['Apparent dip α₂',`${gv('tA2')}° toward ${gv('tD2')}`]],'the strike and the true dip δ')
-  :GIV([['Strike',`${az3(state.S)} (${quad(state.S)})`],['Apparent dip α',`${gv('oA')}° toward ${gv('oDir')}`]],'the true dip δ and dip direction');
+  :(()=>{const sr=gv('oS');const S0=sr?parseBearing(sr):state.S;const am=gv('oA').toUpperCase().replace(/[°º\s]/g,'').match(/^(\d+(?:\.\d+)?)([NSEW]{1,3})?$/);const dirT=am&&am[2]?am[2]:gv('oDir');return GIV([['Strike',S0===null?sr:`${az3(S0)} <small>${nQuad(S0)}${sr?'':' (from top bar)'}</small>`,S0===null?'':glyph('line',S0)],['Apparent dip α',`${am?am[1]:gv('oA')}° <small>toward ${dirT}</small>`]],'the true dip δ and dip direction');})();
 guide3.givenFn=()=>$('tpBear').checked
   ?GIV([['A',`origin, ${gv('bAz')} m`],['B',`${gv('bBd')} m toward ${gv('bBb')} from A, ${gv('bBz')} m`],['C',`${gv('bCd')} m toward ${gv('bCb')} from A, ${gv('bCz')} m`]],'the strike and true dip of the bed')
   :GIV(['A','B','C'].map(k=>[k,`E ${gv('x'+k+'e')}, N ${gv('x'+k+'n')}, ${gv('x'+k+'z')} m`]),'the strike and true dip of the bed');
 guide4.givenFn=()=>GIV([...plRows(),['Wanted apparent dip α',`${gv('tgtA')}° <small>draws the blue α line</small>`,glyph('angle',parseFloat(gv('tgtA'))||0)]],'the section directions that show this apparent dip');
-guide5.givenFn=()=>GIV([...plRows(),['Measured distance L',`${gv('kL')} m`],['Traverse direction',gv('kDir')],['Ground slope σ',`${gv('kSlope')}° ${$('kUp').checked?'uphill':'downhill'}`]],'the true thickness t');
+guide5.givenFn=()=>$('kModeDrill').checked?GIV([...plRows(),['Length of the bed in the vertical hole L',`${gv('kV')} m`]],'the true thickness T'):GIV([...plRows(),['Measured distance L',`${gv('kL')} m`],['Traverse direction',gv('kDir')],['Ground slope σ',`${gv('kSlope')}° ${$('kUp').checked?'uphill':'downhill'}`]],'the true thickness t');
 guide6.givenFn=()=>GIV([...plRows(),['Outcrop from collar',`${gv('dDist')} m toward ${gv('dBear')}`],['Outcrop height above collar',`${gv('dZ')} m`],$('dIncl').checked?['Hole',`trend ${gv('dTrend')}, plunge ${gv('dPlunge')}°`]:['Hole','vertical']],$('dIncl').checked?'the hole length L to the bed':'the vertical depth V to the bed');
 guide7.givenFn=()=>GIV([...plRows(),['Projection',net.proj==='area'?'equal-area (Schmidt)':'equal-angle (Wulff)']],'the great circle and pole of the plane');
 [guide1,guide2,guide3,guide4,guide5,guide6,guide7].forEach(g=>g.render());
@@ -2566,6 +2643,7 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(draw3d);
   const h=(location.hash||'').slice(1);const map={quiz:'quiz',notes:'notes',lab:'lab',views:'lab',solvers:'lab',top:'lab'};
   const tgt=h==='solvers'||h==='views'?h:null;showPage(map[h]||'lab',tgt);if(!tgt)setTimeout(()=>window.scrollTo(0,0),0);
 })();
+document.querySelectorAll('.field>span,.tp-table th').forEach(el=>{if(/[α-ω]/.test(el.textContent)&&!el.querySelector('.nocaps'))el.innerHTML=el.innerHTML.replace(/([α-ω][₀-₉]?)/g,'<span class="nocaps">$1</span>');});
 updateAll();sizeCanvas();newRound();
 /* ---------- Auto-rotate (counterclockwise seen from above) ---------- */
 (function(){
